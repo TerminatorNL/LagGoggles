@@ -1,0 +1,8 @@
+{
+  "package": "cf.terminator.laggoggles.mixin",
+  "refmap": "mixins.laggoggles.refmap.json",
+  "mixins": [
+    "MixinWorld",
+    "MixinEntity"
+  ]
+}
