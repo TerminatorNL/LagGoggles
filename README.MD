@@ -4,8 +4,16 @@ Intuitive lag hunting!
 LagGoggles is a profiler where you can see timings in the world, visually. It comes with a custom GUI using a configurable keybind. It's compatible with [SpongeForge](https://github.com/SpongePowered/SpongeForge) and [Mixin](https://github.com/SpongePowered/Mixin), but does not require it!
 
 ##Screenshots
-A player base with and without LagGoggles enabled:<br>
-<stub>
+
+| LagGoggles enabled        | Normal view |
+| ------------- |:-------------:|
+| ![alt text](https://raw.githubusercontent.com/TerminatorNL/LagGoggles/master/docs/2-enabled.png "With laggoggles")     | ![alt text](https://raw.githubusercontent.com/TerminatorNL/LagGoggles/master/docs/2-disabled.png "Without laggoggles") |
+| ![alt text](https://raw.githubusercontent.com/TerminatorNL/LagGoggles/master/docs/1-enabled.png "With laggoggles")     | ![alt text](https://raw.githubusercontent.com/TerminatorNL/LagGoggles/master/docs/1-disabled.png "Without laggoggles") |
+| ![alt text](https://raw.githubusercontent.com/TerminatorNL/LagGoggles/master/docs/3-enabled.png "With laggoggles")     | ![alt text](https://raw.githubusercontent.com/TerminatorNL/LagGoggles/master/docs/3-disabled.png "Without laggoggles") |
+
+![alt text](https://raw.githubusercontent.com/TerminatorNL/LagGoggles/master/docs/menu.png "LagGoggles menu")
+![alt text](https://raw.githubusercontent.com/TerminatorNL/LagGoggles/master/docs/menu-5sec.png "LagGoggles menu")
+![alt text](https://raw.githubusercontent.com/TerminatorNL/LagGoggles/master/docs/timingsmenu.png "Analyzer")
 
 ## Features
 * Cross dimensional teleporting
