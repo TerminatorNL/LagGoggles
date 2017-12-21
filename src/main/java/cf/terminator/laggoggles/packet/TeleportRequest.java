@@ -11,11 +11,14 @@ public class TeleportRequest implements IMessage {
 
     @Override
     public void fromBytes(ByteBuf buf){
-        uuid = UUID.fromString(new String(buf.readBytes(36).array()));
+        long most = buf.readLong();
+        long least = buf.readLong();
+        uuid = new UUID(most, least);
     }
 
     @Override
     public void toBytes(ByteBuf buf) {
-        buf.writeBytes(uuid.toString().getBytes());
+        buf.writeLong(uuid.getMostSignificantBits());
+        buf.writeLong(uuid.getLeastSignificantBits());
     }
 }

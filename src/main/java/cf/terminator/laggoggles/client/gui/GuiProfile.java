@@ -64,7 +64,7 @@ public class GuiProfile extends GuiScreen {
         addButton(showToggle);
         addButton(analyzeResults);
 
-        GuiLabel scrollHint = new GuiLabel(fontRendererObj, LABEL_ID, centerX - 100, centerY - 55, 200, 20, 0xFFFFFF);
+        GuiLabel scrollHint = new GuiLabel(fontRenderer, LABEL_ID, centerX - 100, centerY - 55, 200, 20, 0xFFFFFF);
         scrollHint.addLine("Scroll while hovering over the button");
         scrollHint.addLine("to change time time!");
         labelList.add(scrollHint);

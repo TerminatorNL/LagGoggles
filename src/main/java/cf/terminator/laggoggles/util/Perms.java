@@ -15,7 +15,7 @@ public class Perms {
 
     public static ArrayList<EntityPlayerMP> getAdmins(){
         ArrayList<EntityPlayerMP> admins = new ArrayList<>();
-        for(EntityPlayerMP player : FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerList()) {
+        for(EntityPlayerMP player : FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayers()) {
             if(isOP(player)){
                 admins.add(player);
             }

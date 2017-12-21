@@ -13,7 +13,7 @@ public class TeleportToTileEntityRequestHandler implements IMessageHandler<Telep
 
     @Override
     public IMessage onMessage(final TeleportToTileEntityRequest message, MessageContext ctx) {
-        EntityPlayerMP player = ctx.getServerHandler().playerEntity;
+        EntityPlayerMP player = ctx.getServerHandler().player;
         if(Perms.isOP(player) == false){
             Main.LOGGER.info(player.getName() + " tried to teleport, but was denied to do so!");
             return null;

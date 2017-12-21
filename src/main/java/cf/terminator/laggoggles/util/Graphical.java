@@ -2,7 +2,7 @@ package cf.terminator.laggoggles.util;
 
 public class Graphical {
 
-    public static final String µ = "\u00B5";
+    public static final String mu = "\u00B5";
 
     public static double[] heatToColor(double heat){
         double[] map = new double[3];

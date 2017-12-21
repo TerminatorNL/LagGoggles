@@ -23,7 +23,7 @@ public class GuiScanResults extends GuiScreen {
 
     public GuiScanResults(ArrayList<LagSource> data){
         super();
-        FONTRENDERER = Minecraft.getMinecraft().fontRendererObj;
+        FONTRENDERER = Minecraft.getMinecraft().fontRenderer;
         this.data = data;
         int i = 0;
         for(LagSource source : data){

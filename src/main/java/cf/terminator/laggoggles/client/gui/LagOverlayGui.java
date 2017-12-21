@@ -45,7 +45,7 @@ public class LagOverlayGui {
 
         MINECRAFT = Minecraft.getMinecraft();
         RENDER_MANAGER = MINECRAFT.getRenderManager();
-        FONT_RENDERER = MINECRAFT.fontRendererObj;
+        FONT_RENDERER = MINECRAFT.fontRenderer;
 
         this.data = data;
         scanAndAddEntities();
@@ -71,28 +71,28 @@ public class LagOverlayGui {
         ENTITY_NANO.clear();
         ENTITY_HEAT.clear();
         CHUNKS.clear();
-        if(MINECRAFT.isGamePaused() || MINECRAFT.theWorld == null || MINECRAFT.theWorld.loadedEntityList == null){
+        if(MINECRAFT.isGamePaused() || MINECRAFT.world == null || MINECRAFT.world.loadedEntityList == null){
             isShowing.set(false);
             return;
         }
         for(ScanResult.EntityData entityData : data){
-            if(entityData.worldID != MINECRAFT.theWorld.provider.getDimension()){
+            if(entityData.worldID != MINECRAFT.world.provider.getDimension()){
                 continue;
             }
             if(entityData.isTileEntity){
                 BlockPos pos = new BlockPos(entityData.x, entityData.y, entityData.z);
                 double heat = Calculations.heat(entityData.nanos);
                 BLOCKS_HEAT.put(pos,heat);
-                BLOCKS_NANO.put(pos,Calculations.µPerTickString(entityData.nanos));
+                BLOCKS_NANO.put(pos,Calculations.muPerTickString(entityData.nanos));
                 calculateChunk(pos,heat);
             }else{
                 /* Normal entitiy */
-                for(Entity entity : MINECRAFT.theWorld.loadedEntityList){
+                for(Entity entity : MINECRAFT.world.loadedEntityList){
                     if(entity.getPersistentID().equals(entityData.id)){
-                        if(entity == MINECRAFT.thePlayer){
+                        if(entity == MINECRAFT.player){
                             continue;
                         }
-                        ENTITY_NANO.put(entity, Calculations.µPerTickString(entityData.nanos));
+                        ENTITY_NANO.put(entity, Calculations.muPerTickString(entityData.nanos));
                         ENTITY_HEAT.put(entity, Calculations.heat(entityData.nanos));
                         break;
                     }
@@ -180,9 +180,9 @@ public class LagOverlayGui {
     @SubscribeEvent
     public void onDraw(RenderWorldLastEvent event){
         float partialTicks = event.getPartialTicks();
-        double pX = MINECRAFT.thePlayer.prevPosX + (MINECRAFT.thePlayer.posX - MINECRAFT.thePlayer.prevPosX) * partialTicks;
-        double pY = MINECRAFT.thePlayer.prevPosY + (MINECRAFT.thePlayer.posY - MINECRAFT.thePlayer.prevPosY) * partialTicks;
-        double pZ = MINECRAFT.thePlayer.prevPosZ + (MINECRAFT.thePlayer.posZ - MINECRAFT.thePlayer.prevPosZ) * partialTicks;
+        double pX = MINECRAFT.player.prevPosX + (MINECRAFT.player.posX - MINECRAFT.player.prevPosX) * partialTicks;
+        double pY = MINECRAFT.player.prevPosY + (MINECRAFT.player.posY - MINECRAFT.player.prevPosY) * partialTicks;
+        double pZ = MINECRAFT.player.prevPosZ + (MINECRAFT.player.posZ - MINECRAFT.player.prevPosZ) * partialTicks;
 
         /* Prepare */
         GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);

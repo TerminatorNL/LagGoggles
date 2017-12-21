@@ -35,7 +35,7 @@ public class ProfileManager {
             for(Map.Entry<Integer, WorldTimingManager.WorldData> entry : data.entrySet()){
                 int worldID = entry.getKey();
                 for(Map.Entry<UUID, Long> entityTimes : entry.getValue().getEntityTimes().entrySet()){
-                    Entity e = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(worldID).getEntityFromUuid(entityTimes.getKey());
+                    Entity e = FMLCommonHandler.instance().getMinecraftServerInstance().getWorld(worldID).getEntityFromUuid(entityTimes.getKey());
                     if(e == null){
                         continue;
                     }
@@ -43,7 +43,7 @@ public class ProfileManager {
                             worldID, e.getName(), e.getClass().toString(), e.getPersistentID(), entityTimes.getValue()));
                 }
                 for(Map.Entry<BlockPos, Long> tileEntityTimes : entry.getValue().getBlockTimes().entrySet()){
-                    TileEntity e = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(worldID).getTileEntity(tileEntityTimes.getKey());
+                    TileEntity e = FMLCommonHandler.instance().getMinecraftServerInstance().getWorld(worldID).getTileEntity(tileEntityTimes.getKey());
                     if(e == null){
                         continue;
                     }

@@ -18,7 +18,7 @@ public class TeleportRequestHandler implements IMessageHandler<TeleportRequest, 
 
     @Override
     public IMessage onMessage(TeleportRequest message, MessageContext ctx) {
-        EntityPlayerMP player = ctx.getServerHandler().playerEntity;
+        EntityPlayerMP player = ctx.getServerHandler().player;
         if(Perms.isOP(player) == false){
             Main.LOGGER.info(player.getName() + " tried to teleport, but was denied to do so!");
             return null;
@@ -28,7 +28,7 @@ public class TeleportRequestHandler implements IMessageHandler<TeleportRequest, 
             public void run() {
                 Entity e = FMLCommonHandler.instance().getMinecraftServerInstance().getEntityFromUuid(message.uuid);
                 if(e == null){
-                    player.addChatMessage(new TextComponentString(TextFormatting.RED + "Woops! This tile entity no longer exists!"));
+                    player.sendMessage(new TextComponentString(TextFormatting.RED + "Woops! This tile entity no longer exists!"));
                     return;
                 }
                 Teleport.teleportPlayer(player, e.dimension, e.posX, e.posY, e.posZ);

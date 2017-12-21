@@ -20,7 +20,7 @@ public class Teleport {
                 }else{
                     player.setPositionAndUpdate(x,y,z);
                 }
-                player.addChatMessage(new TextComponentString(TextFormatting.GREEN + "Teleported to " + TextFormatting.WHITE + x + ", " +  y + ", " + z));
+                player.sendMessage(new TextComponentString(TextFormatting.GREEN + "Teleported to " + TextFormatting.WHITE + x + ", " +  y + ", " + z));
             }
         });
     }
@@ -30,11 +30,11 @@ public class Teleport {
      */
 
     private static void teleportPlayerToDimension(EntityPlayerMP playerIn, int suggestedDimensionId, double x, double y, double z) {
-        WorldServer fromWorld = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(playerIn.dimension);
-        WorldServer toWorld = FMLCommonHandler.instance().getMinecraftServerInstance().worldServerForDimension(suggestedDimensionId);
+        WorldServer fromWorld = FMLCommonHandler.instance().getMinecraftServerInstance().getWorld(playerIn.dimension);
+        WorldServer toWorld = FMLCommonHandler.instance().getMinecraftServerInstance().getWorld(suggestedDimensionId);
         playerIn.dimension = toWorld.provider.getDimension();
         ChunkPos pos = new ChunkPos(playerIn.getPosition());
-        toWorld.getChunkProvider().loadChunk(pos.chunkXPos, pos.chunkZPos);
+        toWorld.getChunkProvider().loadChunk(pos.x, pos.z);
         final int dimensionId = playerIn.dimension;
         if (fromWorld != toWorld && fromWorld.provider.getDimensionType() == toWorld.provider.getDimensionType()) {
             playerIn.connection.sendPacket(new SPacketRespawn((dimensionId >= 0 ? -1 : 0), toWorld.getDifficulty(), toWorld.getWorldInfo().getTerrainType(), playerIn.interactionManager.getGameType()));
@@ -43,9 +43,9 @@ public class Teleport {
         fromWorld.removeEntityDangerously(playerIn);
         playerIn.isDead = false;
         playerIn.connection.setPlayerLocation(x, y, z, playerIn.rotationYaw, playerIn.rotationPitch);
-        playerIn.worldObj = toWorld;
+        playerIn.world = toWorld;
         playerIn.setWorld(toWorld);
-        toWorld.spawnEntityInWorld(playerIn);
+        toWorld.spawnEntity(playerIn);
         toWorld.updateEntityWithOptionalForce(playerIn, false);
         WorldServer worldserver = playerIn.getServerWorld();
         fromWorld.getPlayerChunkMap().removePlayer(playerIn);
@@ -53,7 +53,7 @@ public class Teleport {
         worldserver.getChunkProvider().provideChunk((int)playerIn.posX >> 4, (int)playerIn.posZ >> 4);
         playerIn.connection.setPlayerLocation(playerIn.posX, playerIn.posY, playerIn.posZ, playerIn.rotationYaw, playerIn.rotationPitch);
         playerIn.interactionManager.setWorld(toWorld);
-        WorldBorder worldborder = FMLCommonHandler.instance().getMinecraftServerInstance().worldServers[0].getWorldBorder();
+        WorldBorder worldborder = FMLCommonHandler.instance().getMinecraftServerInstance().worlds[0].getWorldBorder();
         playerIn.connection.sendPacket(new SPacketWorldBorder(worldborder, SPacketWorldBorder.Action.INITIALIZE));
         playerIn.connection.sendPacket(new SPacketTimeUpdate(toWorld.getTotalWorldTime(), toWorld.getWorldTime(), toWorld.getGameRules().getBoolean("doDaylightCycle")));
         if (toWorld.isRaining()) {

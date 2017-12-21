@@ -18,12 +18,12 @@ public class ScanRequestHandler implements IMessageHandler<RequestScan, ProfileS
 
     @Override
     public ProfileStatus onMessage(RequestScan request, MessageContext ctx) {
-        if(Perms.isOP(ctx.getServerHandler().playerEntity) == false){
-            Main.LOGGER.info(ctx.getServerHandler().playerEntity.getName() + " Tried to start the profiler, but was denied to do so!");
+        if(Perms.isOP(ctx.getServerHandler().player) == false){
+            Main.LOGGER.info(ctx.getServerHandler().player.getName() + " Tried to start the profiler, but was denied to do so!");
             new RunInServerThread(new Runnable() {
                 @Override
                 public void run() {
-                    ctx.getServerHandler().playerEntity.addChatMessage(new TextComponentString(TextFormatting.RED + " Sorry! you lack permissions to do this!"));
+                    ctx.getServerHandler().player.sendMessage(new TextComponentString(TextFormatting.RED + " Sorry! you lack permissions to do this!"));
                 }
             });
             ProfileStatus status = new ProfileStatus();
@@ -42,13 +42,13 @@ public class ScanRequestHandler implements IMessageHandler<RequestScan, ProfileS
                 ProfileStatus status = new ProfileStatus();
                 status.isProfiling = true;
                 status.length = request.length;
-                status.issuedBy = ctx.getServerHandler().playerEntity.getName();
+                status.issuedBy = ctx.getServerHandler().player.getName();
 
                 for(EntityPlayerMP admin : Perms.getAdmins()) {
                     CommonProxy.sendTo(status, admin);
                 }
 
-                Main.LOGGER.info(Main.MODID + " profiler started by " + ctx.getServerHandler().playerEntity.getName() + " (" + request.length + " seconds)");
+                Main.LOGGER.info(Main.MODID + " profiler started by " + ctx.getServerHandler().player.getName() + " (" + request.length + " seconds)");
                 ScanResult result = ProfileManager.runProfiler(request);
                 Main.LOGGER.info(Main.MODID + " finished profiling!");
 
@@ -57,7 +57,7 @@ public class ScanRequestHandler implements IMessageHandler<RequestScan, ProfileS
                 ProfileStatus status2 = new ProfileStatus();
                 status2.isProfiling = false;
                 status2.length = request.length;
-                status2.issuedBy = ctx.getServerHandler().playerEntity.getName();
+                status2.issuedBy = ctx.getServerHandler().player.getName();
 
                 for(EntityPlayerMP admin : Perms.getAdmins()) {
                     CommonProxy.sendTo(status2, admin);
@@ -65,7 +65,7 @@ public class ScanRequestHandler implements IMessageHandler<RequestScan, ProfileS
 
                 /* Send result */
                 if(request.shareResult == false) {
-                    CommonProxy.sendTo(result, ctx.getServerHandler().playerEntity);
+                    CommonProxy.sendTo(result, ctx.getServerHandler().player);
                 }else{
                     for(EntityPlayerMP admin : Perms.getAdmins()){
                         CommonProxy.sendTo(result, admin);

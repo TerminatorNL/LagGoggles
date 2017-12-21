@@ -34,7 +34,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import static cf.terminator.laggoggles.util.Graphical.µ;
+import static cf.terminator.laggoggles.util.Graphical.mu;
 
 public class GuiSingleEntities extends GuiScrollingList {
 
@@ -47,7 +47,7 @@ public class GuiSingleEntities extends GuiScrollingList {
 
     public GuiSingleEntities(Minecraft client, int width, int height, int top, int bottom, int left, int screenWidth, int screenHeight, ArrayList<GuiScanResults.LagSource> lagSources) {
         super(client, width, height, top, bottom, left, slotHeight, screenWidth, screenHeight);
-        FONTRENDERER = client.fontRendererObj;
+        FONTRENDERER = client.fontRenderer;
         LAGSOURCES = lagSources;
         Collections.sort(LAGSOURCES);
 
@@ -120,8 +120,8 @@ public class GuiSingleEntities extends GuiScrollingList {
                                 source.nanos)));
 
         int offSet = 5 + COLUMN_WIDTH_NANOS;
-        /* µs */
-        drawStringToLeftOf(String.valueOf(Double.valueOf(Calculations.nanosPerTick(source.nanos)/1000).intValue()) + " " + µ + "s/t", offSet, slotTop, color);
+        /* microseconds */
+        drawStringToLeftOf(String.valueOf(Double.valueOf(Calculations.nanosPerTick(source.nanos)/1000).intValue()) + " " + mu + "s/t", offSet, slotTop, color);
 
         offSet = offSet + 5;
 
