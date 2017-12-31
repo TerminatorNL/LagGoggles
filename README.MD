@@ -38,4 +38,4 @@ Entities are timed using System.nanotime() before and after the tick() and updat
 * Visualisation of Tile entities and Entities.
 
 ## Dependencies
-Clients work right off the bat, the server requires [Mixin](https://github.com/SpongePowered/Mixin) to work. You already have it installed if you use [SpongeForge](https://github.com/SpongePowered/SpongeForge) or [ForgeEssentials](https://github.com/ForgeEssentials/ForgeEssentials/). If you do not use either of those, simply add [Mixin](https://github.com/SpongePowered/Mixin) to the classpath.
+As of version 2.0, all dependencies are included in a single jar.

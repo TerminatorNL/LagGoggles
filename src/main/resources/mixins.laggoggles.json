@@ -1,6 +1,8 @@
 {
   "package": "cf.terminator.laggoggles.mixin",
   "refmap": "mixins.laggoggles.refmap.json",
+  "compatibilityLevel": "JAVA_8",
+  "minVersion": "0.6.0",
   "mixins": [
     "MixinWorld",
     "MixinEntity"
