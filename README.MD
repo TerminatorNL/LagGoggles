@@ -25,7 +25,7 @@ LagGoggles is a profiler where you can see timings in the world, visually. It co
 * Calculations are done on the client, so each client can have a different colour scale.
 
 ## Configuration
-* Drop the correct jar (server or client) in the /mods folder
+* Drop the jar in the /mods folder
 * Serverside configuration is not required and has no effect.
 * Clients can edit the config to change the colour scale.
 
