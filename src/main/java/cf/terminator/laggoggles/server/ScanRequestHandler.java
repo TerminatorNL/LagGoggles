@@ -27,8 +27,8 @@ public class ScanRequestHandler implements IMessageHandler<RequestScan, ProfileS
                 }
             });
             ProfileStatus status = new ProfileStatus();
-            status.length = 0;
-            status.isProfiling = false;
+            status.length = 10;
+            status.isProfiling = true;
             status.issuedBy = "No permission";
             return status;
         }
@@ -52,7 +52,6 @@ public class ScanRequestHandler implements IMessageHandler<RequestScan, ProfileS
                 ScanResult result = ProfileManager.runProfiler(request);
                 Main.LOGGER.info(Main.MODID + " finished profiling!");
 
-
                 /* Send status to admins */
                 ProfileStatus status2 = new ProfileStatus();
                 status2.isProfiling = false;
@@ -63,12 +62,14 @@ public class ScanRequestHandler implements IMessageHandler<RequestScan, ProfileS
                     CommonProxy.sendTo(status2, admin);
                 }
 
-                /* Send result */
-                if(request.shareResult == false) {
-                    CommonProxy.sendTo(result, ctx.getServerHandler().player);
-                }else{
-                    for(EntityPlayerMP admin : Perms.getAdmins()){
-                        CommonProxy.sendTo(result, admin);
+                if(result != null) {
+                    /* Send result */
+                    if (request.shareResult == false) {
+                        CommonProxy.sendTo(result, ctx.getServerHandler().player);
+                    } else {
+                        for (EntityPlayerMP admin : Perms.getAdmins()) {
+                            CommonProxy.sendTo(result, admin);
+                        }
                     }
                 }
             }

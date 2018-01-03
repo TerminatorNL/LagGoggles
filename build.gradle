@@ -1,3 +1,5 @@
+//import cf.terminator.laggoggles.Main
+
 buildscript {
     repositories {
         jcenter()
@@ -31,9 +33,9 @@ repositories {
 delete jar.archivePath
 delete "run/mods/".concat(jar.name)
 
-version = "2.0"
+version = "2.1"
 group= "cf.terminator.laggoggles" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = "laggoggles"
+archivesBaseName = "LagGoggles"
 
 sourceCompatibility = targetCompatibility = "1.8" // Need this here so eclipse task generates correctly.
 compileJava {

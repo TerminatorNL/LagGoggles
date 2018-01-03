@@ -11,12 +11,13 @@ import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 import org.apache.logging.log4j.Logger;
 
-@Mod(modid = Main.MODID_LOWER, name = Main.MODID, version = Main.VERSION, acceptableRemoteVersions = "*")
+@Mod(modid = Main.MODID_LOWER, name = Main.MODID, version = Main.VERSION, acceptableRemoteVersions = "*",
+        guiFactory = "cf.terminator.laggoggles.client.gui.GuiInGameConfigFactory")
 @IFMLLoadingPlugin.SortingIndex(1001)
 public class Main {
     public static final String MODID = "LagGoggles";
     public static final String MODID_LOWER = "laggoggles";
-    public static final String VERSION = "2.0";
+    public static final String VERSION = "2.1";
     public static Logger LOGGER;
 
     @SidedProxy(
@@ -42,6 +43,5 @@ public class Main {
     public void onServerStart(FMLServerStartingEvent e){
         proxy.serverStartingEvent(e);
     }
-
 
 }

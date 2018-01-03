@@ -19,27 +19,36 @@ import static cf.terminator.laggoggles.client.ClientProxy.lagOverlayGui;
 public class GuiProfile extends GuiScreen {
 
     private static final int BUTTON_START_PROFILE_ID = 0;
-    private static final int BUTTON_SHOW_TOGGLE = 1;
-    private static final int BUTTON_ANALYZE_RESULTS = 2;
-    private static final int LABEL_ID = 3;
+    private static final int BUTTON_SHOW_TOGGLE      = 1;
+    private static final int BUTTON_ANALYZE_RESULTS  = 2;
+    private static final int LABEL_ID                = 3;
+    private static final int BUTTON_DONATE           = 4;
+    private static final int BUTTON_OPTIONS          = 5;
+
     public static ProfileStatus LAST_STATUS = null;
+    public static long PROFILE_END_TIME = 0;
+    private GuiButton startProfile;
+    private int seconds = 30;
+
+    public GuiProfile(){
+        super();
+    }
 
     public static void update(){
-        if( Minecraft.getMinecraft().currentScreen == null || (Minecraft.getMinecraft().currentScreen instanceof GuiProfile == false)) {
+        if(isThisGuiOpen() == false){
             return;
         }
         Minecraft.getMinecraft().displayGuiScreen(new GuiProfile());
     }
 
-    public GuiProfile(){
-        super();
+    private static boolean isThisGuiOpen(){
+        return Minecraft.getMinecraft().currentScreen != null && (Minecraft.getMinecraft().currentScreen instanceof GuiProfile == true);
     }
-    private GuiButton startProfile;
-    private int seconds = 30;
 
     @Override
     public void initGui(){
         super.initGui();
+
         buttonList = new ArrayList<>();
         labelList = new ArrayList<>();
 
@@ -52,10 +61,7 @@ public class GuiProfile extends GuiScreen {
         GuiButton showToggle  = new GuiButton(BUTTON_SHOW_TOGGLE, centerX - 100, centerY +  5, lagOverlayGui.isShowing.get() ? "Hide latest scan results" : "Show latest scan results");
         GuiButton analyzeResults  = new GuiButton(BUTTON_ANALYZE_RESULTS, centerX - 100, centerY +  30, "Analyze results");
 
-        if(LAST_STATUS != null && LAST_STATUS.isProfiling == true){
-            startProfile.enabled = false;
-            startProfile.displayString = LAST_STATUS.issuedBy + " > " + LAST_STATUS.length + " seconds.";
-        }
+        updateButton();
 
         showToggle.enabled = profileLoaded;
         analyzeResults.enabled = profileLoaded;
@@ -63,11 +69,44 @@ public class GuiProfile extends GuiScreen {
         addButton(startProfile);
         addButton(showToggle);
         addButton(analyzeResults);
-
+        addButton(new DonateButton(BUTTON_DONATE, centerX + 10, centerY + 75));
+        addButton(new OptionsButton(BUTTON_OPTIONS, centerX - 100, centerY + 75));
         GuiLabel scrollHint = new GuiLabel(fontRenderer, LABEL_ID, centerX - 100, centerY - 55, 200, 20, 0xFFFFFF);
         scrollHint.addLine("Scroll while hovering over the button");
         scrollHint.addLine("to change time time!");
         labelList.add(scrollHint);
+    }
+
+    private Runnable buttonUpdateTask = new Runnable() {
+        @Override
+        public void run() {
+            try {
+                Thread.sleep(500);
+                if(isThisGuiOpen() == false){
+                    return;
+                }
+                updateButton();
+            } catch (InterruptedException ignored){}
+        }
+    };
+
+    private void updateButton(){
+        if(LAST_STATUS != null && LAST_STATUS.isProfiling == true && getSecondsLeft() >= 0 && startProfile.displayString.equalsIgnoreCase("Sending command...") == false){
+            startProfile.enabled = false;
+            if(LAST_STATUS.issuedBy.equals("No permission")){
+                startProfile.displayString = LAST_STATUS.issuedBy;
+            }else {
+                startProfile.displayString = LAST_STATUS.issuedBy + " > " + getSecondsLeft() + " seconds.";
+            }
+            new Thread(buttonUpdateTask).start();
+        }else{
+            startProfile.enabled = true;
+            startProfile.displayString = "Profile for " + seconds + " seconds";
+        }
+    }
+
+    private int getSecondsLeft(){
+        return new Double(Math.ceil((PROFILE_END_TIME - System.currentTimeMillis()) / 1000)).intValue();
     }
 
     @Override
@@ -81,6 +120,7 @@ public class GuiProfile extends GuiScreen {
             }
         }
         super.handleMouseInput();
+        Mouse.getDWheel();
     }
 
     public void startProfile(){
@@ -119,6 +159,12 @@ public class GuiProfile extends GuiScreen {
             case BUTTON_ANALYZE_RESULTS:
                 analyzeResults();
                 break;
+            case BUTTON_DONATE:
+                DonateButton.donate();
+                break;
+            case BUTTON_OPTIONS:
+                mc.displayGuiScreen(new GuiInGameConfig(this));
+                break;
         }
     }
 
@@ -126,4 +172,5 @@ public class GuiProfile extends GuiScreen {
     public boolean doesGuiPauseGame(){
         return false;
     }
+
 }

@@ -34,8 +34,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import static cf.terminator.laggoggles.util.Graphical.mu;
-
 public class GuiSingleEntities extends GuiScrollingList {
 
     private ArrayList<GuiScanResults.LagSource> LAGSOURCES;
@@ -52,13 +50,16 @@ public class GuiSingleEntities extends GuiScrollingList {
         Collections.sort(LAGSOURCES);
 
         for(GuiScanResults.LagSource src : LAGSOURCES){
-            COLUMN_WIDTH_NANOS = Math.max(COLUMN_WIDTH_NANOS, FONTRENDERER.getStringWidth(String.valueOf(Double.valueOf(Calculations.nanosPerTick(src.nanos)).intValue())));
+            COLUMN_WIDTH_NANOS = Math.max(COLUMN_WIDTH_NANOS, FONTRENDERER.getStringWidth(Calculations.muPerTickString(src.nanos)));
         }
         for(GuiScanResults.LagSource src : LAGSOURCES){
-            COLUMN_WIDTH_PERCENTAGES = Math.max(COLUMN_WIDTH_PERCENTAGES, FONTRENDERER.getStringWidth(Calculations.tickPercent(src.nanos)));
+            COLUMN_WIDTH_PERCENTAGES = Math.max(COLUMN_WIDTH_PERCENTAGES, FONTRENDERER.getStringWidth(getPercent(src.nanos)));
         }
     }
 
+    private String getPercent(long nanos){
+        return Calculations.tickPercent(nanos);
+    }
 
     @Override
     protected int getSize() {
@@ -114,24 +115,14 @@ public class GuiSingleEntities extends GuiScrollingList {
         }
         GuiScanResults.LagSource source = LAGSOURCES.get(slot);
 
-        int color = Graphical.RGBtoInt(
-                Graphical.heatToColor(
-                        Calculations.heat(
-                                source.nanos)));
+        double heat = Calculations.heat(source.nanos);
+        double[] RGB = Graphical.heatToColor(heat);
+        int color = Graphical.RGBtoInt(RGB);
 
         int offSet = 5 + COLUMN_WIDTH_NANOS;
         /* microseconds */
-        drawStringToLeftOf(String.valueOf(Double.valueOf(Calculations.nanosPerTick(source.nanos)/1000).intValue()) + " " + mu + "s/t", offSet, slotTop, color);
-
+        drawStringToLeftOf(Calculations.muPerTickString(source.nanos), offSet, slotTop, color);
         offSet = offSet + 5;
-
-
-        /* Percent
-        drawString(Calculations.tickPercent(source.nanos), offSet, slotTop, color);
-
-        offSet = offSet + COLUMN_WIDTH_PERCENTAGES + 5;
-        */
-
 
         /* Name */
         drawString(source.data.name, offSet, slotTop, color);

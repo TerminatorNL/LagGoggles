@@ -1,6 +1,6 @@
 package cf.terminator.laggoggles.util;
 
-import cf.terminator.laggoggles.ConfigData;
+import cf.terminator.laggoggles.client.ConfigData;
 
 import static cf.terminator.laggoggles.client.ClientProxy.LAST_SCAN_RESULT;
 import static cf.terminator.laggoggles.util.Graphical.mu;
@@ -14,11 +14,7 @@ public class Calculations {
     }
 
     public static String tickPercent(long nanos){
-        return (int) Math.floor((nanos/LAST_SCAN_RESULT.TOTAL_TICKS)/NANOS_IN_A_TICK*10000)/100 + "%";
-    }
-
-    public static double nanosPerTick(long nanos){
-        return nanos/LAST_SCAN_RESULT.TOTAL_TICKS;
+        return Math.floor((nanos / LAST_SCAN_RESULT.TOTAL_TICKS)/NANOS_IN_A_TICK*10000)/100d + "%";
     }
 
     public static double muPerTick(long nanos){
