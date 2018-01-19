@@ -28,7 +28,7 @@ public class TeleportRequestHandler implements IMessageHandler<TeleportRequest, 
             public void run() {
                 Entity e = FMLCommonHandler.instance().getMinecraftServerInstance().getEntityFromUuid(message.uuid);
                 if(e == null){
-                    player.addChatMessage(new TextComponentString(TextFormatting.RED + "Woops! This tile entity no longer exists!"));
+                    player.addChatMessage(new TextComponentString(TextFormatting.RED + "Woops! This entity no longer exists!"));
                     return;
                 }
                 Teleport.teleportPlayer(player, e.dimension, e.posX, e.posY, e.posZ);
