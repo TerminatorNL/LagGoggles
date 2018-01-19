@@ -83,7 +83,7 @@ public class LagOverlayGui {
                 BlockPos pos = new BlockPos(entityData.x, entityData.y, entityData.z);
                 double heat = Calculations.heat(entityData.nanos);
                 BLOCKS_HEAT.put(pos,heat);
-                BLOCKS_NANO.put(pos,Calculations.µPerTickString(entityData.nanos));
+                BLOCKS_NANO.put(pos,Calculations.muPerTickString(entityData.nanos));
                 calculateChunk(pos,heat);
             }else{
                 /* Normal entitiy */
@@ -92,7 +92,7 @@ public class LagOverlayGui {
                         if(entity == MINECRAFT.thePlayer){
                             continue;
                         }
-                        ENTITY_NANO.put(entity, Calculations.µPerTickString(entityData.nanos));
+                        ENTITY_NANO.put(entity, Calculations.muPerTickString(entityData.nanos));
                         ENTITY_HEAT.put(entity, Calculations.heat(entityData.nanos));
                         break;
                     }

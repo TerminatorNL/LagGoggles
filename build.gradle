@@ -32,6 +32,7 @@ repositories {
 
 delete jar.archivePath
 delete "run/mods/".concat(jar.name)
+delete "run 1.10.2/mods/".concat(jar.name)
 
 version = "2.1"
 group= "cf.terminator.laggoggles" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
@@ -88,10 +89,7 @@ dependencies {
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
     //embed 'org.spongepowered:mixin:0.6.10-SNAPSHOT'
 
-
-
-
-    embed('org.spongepowered:mixin:0.7.4-SNAPSHOT') {
+    embed('org.spongepowered:mixin:0.6.15-SNAPSHOT') {
         exclude module: 'launchwrapper'
     }
 }
@@ -140,6 +138,10 @@ task finalize << {
     copy {
         from jar.archivePath
         into "run/mods"
+    }
+    copy {
+        from jar.archivePath
+        into "run 1.10.2/mods"
     }
 }
 

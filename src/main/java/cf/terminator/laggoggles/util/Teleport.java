@@ -20,7 +20,7 @@ public class Teleport {
                 }else{
                     player.setPositionAndUpdate(x,y,z);
                 }
-                player.addChatMessage(new TextComponentString(TextFormatting.GREEN + "Teleported to " + TextFormatting.WHITE + x + ", " +  y + ", " + z));
+                player.addChatMessage(new TextComponentString(TextFormatting.GREEN + "Teleported to: " + TextFormatting.GRAY + " Dim: " + dim + TextFormatting.WHITE + ", " + (int) x + ", " +  (int) y + ", " + (int) z));
             }
         });
     }
