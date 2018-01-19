@@ -14,11 +14,12 @@ public class ScanResult implements IMessage{
 
     public ArrayList<EntityData> DATA = new ArrayList<>();
     public long TOTAL_TICKS = 0L;
+    public boolean hasMore = false;
 
     @Override
     public void fromBytes(ByteBuf buf) {
         TOTAL_TICKS = buf.readLong();
-
+        hasMore = buf.readBoolean();
         int size = buf.readInt();
         for(int i=0; i<size; i++){
             EntityData data = new EntityData();
@@ -31,7 +32,7 @@ public class ScanResult implements IMessage{
     @Override
     public void toBytes(ByteBuf buf) {
         buf.writeLong(TOTAL_TICKS);
-
+        buf.writeBoolean(hasMore);
         buf.writeInt(DATA.size());
         for(EntityData data : DATA){
             data.toBytes(buf);
@@ -101,7 +102,12 @@ public class ScanResult implements IMessage{
                 y = buf.readInt();
                 z = buf.readInt();
             }else {
-                id = UUID.fromString(ByteBufUtils.readUTF8String(buf));
+                String unchecked = ByteBufUtils.readUTF8String(buf);
+                try {
+                    id = UUID.fromString(unchecked);
+                }catch (java.lang.IllegalArgumentException e){
+                    id = UUID.nameUUIDFromBytes(unchecked.getBytes());
+                }
             }
         }
 

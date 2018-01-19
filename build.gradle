@@ -14,7 +14,8 @@ buildscript {
         classpath 'org.spongepowered:mixingradle:0.4-SNAPSHOT'
     }
 }
-println("Compiling hybrid jar")
+boolean isServer = hasProperty("isServer")
+println("Compiling for " + (isServer ? "SERVER" : "CLIENT"))
 
 apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'org.spongepowered.mixin'
@@ -32,10 +33,11 @@ repositories {
 
 delete jar.archivePath
 delete "run/mods/".concat(jar.name)
+delete "run 1.10.2/mods/".concat(jar.name)
 
-version = "2.1"
+version = "1.10.2-2.1"
 group= "cf.terminator.laggoggles" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = "LagGoggles"
+archivesBaseName = "LagGoggles-" + (isServer ? "SERVER" : "CLIENT")
 
 sourceCompatibility = targetCompatibility = "1.8" // Need this here so eclipse task generates correctly.
 compileJava {
@@ -70,7 +72,7 @@ dependencies {
     // or you may define them like so..
     //compile "some.group:artifact:version:classifier"
     //compile "some.group:artifact:version"
-      
+
     // real examples
     //compile 'com.mod-buildcraft:buildcraft:6.0.8:dev'  // adds buildcraft to the dev env
     //compile 'com.googlecode.efficient-java-matrix-library:ejml:0.24' // adds ejml to the dev env
@@ -88,10 +90,7 @@ dependencies {
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
     //embed 'org.spongepowered:mixin:0.6.10-SNAPSHOT'
 
-
-
-
-    embed('org.spongepowered:mixin:0.7.4-SNAPSHOT') {
+    embed(isServer ? 'org.spongepowered:mixin:0.6.15-SNAPSHOT' : 'org.spongepowered:mixin:0.7.5-SNAPSHOT') {
         exclude module: 'launchwrapper'
     }
 }
@@ -123,8 +122,26 @@ sourceSets {
 }
 
 jar {
-    from configurations.embed.collect {it.isDirectory() ? it : zipTree(it)}
-    rename 'LICENSE.txt', 'LICENSE-MIXIN.txt'
+
+    from configurations.embed.collect {
+        if(it.isDirectory()){
+            System.out.println("Directory")
+            return it
+        }else{
+            FileTree tmp = zipTree(it)
+
+            for(File s : tmp.files) {
+                if (s.toString().contains("html")) {
+                    System.out.println("File " + s + " removed")
+                    tmp.files.remove(s)
+                }
+            }
+
+            return tmp
+        }
+
+    }
+
     manifest.attributes(
             'FMLCorePluginContainsFMLMod': 'true',
             'MixinConfigs': 'mixins.laggoggles.json',
@@ -140,6 +157,10 @@ task finalize << {
     copy {
         from jar.archivePath
         into "run/mods"
+    }
+    copy {
+        from jar.archivePath
+        into "run 1.10.2/mods"
     }
 }
 

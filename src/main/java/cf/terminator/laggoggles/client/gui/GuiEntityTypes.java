@@ -16,20 +16,15 @@ import java.util.TreeMap;
 public class GuiEntityTypes extends GuiScrollingList {
 
     private TreeMap<Long, String> DATA = new TreeMap<>();
-    private HashMap<String, String> CLASS_TO_NAME = new HashMap<>();
 
     private final FontRenderer FONTRENDERER;
     private static final int slotHeight = 12;
     private int COLUMN_WIDTH_NANOS = 0;
     private int COLUMN_WIDTH_PERCENTAGES = 0;
 
-
-
-
     public GuiEntityTypes(Minecraft client, int width, int height, int top, int bottom, int left, int screenWidth, int screenHeight, ArrayList<GuiScanResults.LagSource> lagSources) {
         super(client, width, height, top, bottom, left, slotHeight, screenWidth, screenHeight);
         FONTRENDERER = client.fontRendererObj;
-
 
         HashMap<String, Long> totals = new HashMap<>();
         for(GuiScanResults.LagSource src : lagSources){
@@ -38,13 +33,11 @@ public class GuiEntityTypes extends GuiScrollingList {
             }else{
                 totals.put(src.data.className, src.nanos + totals.get(src.data.className));
             }
-            CLASS_TO_NAME.putIfAbsent(src.data.className, src.data.name);
         }
 
         for(Map.Entry<String, Long> entry : totals.entrySet()){
             DATA.put(entry.getValue(), entry.getKey());
-
-            COLUMN_WIDTH_NANOS = Math.max(COLUMN_WIDTH_NANOS, FONTRENDERER.getStringWidth(String.valueOf(Double.valueOf(Calculations.µPerTick(entry.getValue())/1000).intValue())));
+            COLUMN_WIDTH_NANOS = Math.max(COLUMN_WIDTH_NANOS, FONTRENDERER.getStringWidth(Calculations.muPerTickString(entry.getValue())));
             COLUMN_WIDTH_PERCENTAGES = Math.max(COLUMN_WIDTH_PERCENTAGES, FONTRENDERER.getStringWidth(Calculations.tickPercent(entry.getValue())));
         }
     }
@@ -88,15 +81,17 @@ public class GuiEntityTypes extends GuiScrollingList {
         Long nanos = DATA.descendingKeySet().toArray(new Long[0])[slot];
         String name = DATA.get(nanos);
 
-        int color = Graphical.RGBtoInt(Graphical.heatToColor(Calculations.heat(nanos)));
-        /* µs */
-        drawStringToLeftOf(String.valueOf(Double.valueOf(Calculations.µPerTick(nanos)/1000).intValue()),left + 10 + COLUMN_WIDTH_NANOS + 5, slotTop, color);
+        double heat = Calculations.heat(nanos);
+        double[] RGB = Graphical.heatToColor(heat);
+        int color = Graphical.RGBtoInt(RGB);
+        /* microseconds */
+        drawStringToLeftOf(Calculations.muPerTickString(nanos),left + COLUMN_WIDTH_NANOS + 5, slotTop, color);
 
         /* Percent */
-        drawString(Calculations.tickPercent(nanos), left + 10 + COLUMN_WIDTH_NANOS + 10, slotTop, color);
+        drawString(Calculations.tickPercent(nanos), left + COLUMN_WIDTH_NANOS + 10, slotTop, color);
 
         /* Name */
-        drawString(name, left + 10 + COLUMN_WIDTH_NANOS + 10 + COLUMN_WIDTH_PERCENTAGES + 10, slotTop, 0x4C4C4C);
+        drawString(name, left + COLUMN_WIDTH_NANOS + 10 + FONTRENDERER.getStringWidth(Calculations.tickPercent(nanos)) + 5, slotTop, 0x4C4C4C);
     }
 
 

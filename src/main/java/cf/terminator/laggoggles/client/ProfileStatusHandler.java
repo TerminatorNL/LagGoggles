@@ -11,6 +11,7 @@ public class ProfileStatusHandler implements IMessageHandler<ProfileStatus, IMes
     @Override
     public IMessage onMessage(ProfileStatus message, MessageContext ctx) {
         GuiProfile.LAST_STATUS = message;
+        GuiProfile.PROFILE_END_TIME = System.currentTimeMillis() + (message.length * 1000);
         GuiProfile.update();
         return null;
     }

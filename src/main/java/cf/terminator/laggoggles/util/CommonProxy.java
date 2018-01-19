@@ -19,6 +19,8 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.Side;
 
+import java.util.ArrayList;
+
 public class CommonProxy {
 
     public static final SimpleNetworkWrapper NETWORK_WRAPPER = NetworkRegistry.INSTANCE.newSimpleChannel(Main.MODID);
@@ -56,7 +58,24 @@ public class CommonProxy {
     }
 
     public static void sendTo(IMessage msg, EntityPlayerMP player){
-        NETWORK_WRAPPER.sendTo(msg, player);
+        if(msg instanceof ScanResult) {
+            /* ScanResult is a big packet and 1.10.2 acts funky on those, therefore we must split it
+             * I chose to do 1 packet per 50 entities */
+            ArrayList<ScanResult.EntityData> DATA = ((ScanResult) msg).DATA;
+            while (DATA.size() > 0) {
+                ArrayList<ScanResult.EntityData> SUBLIST = new ArrayList<>();
+                for (int i = 0; i < 50 && DATA.size() > 0; i++) {
+                    SUBLIST.add(DATA.remove(0));
+                }
+                ScanResult SUBRESULT = new ScanResult();
+                SUBRESULT.hasMore = DATA.size() > 0;
+                SUBRESULT.DATA = SUBLIST;
+                SUBRESULT.TOTAL_TICKS = ((ScanResult) msg).TOTAL_TICKS;
+                NETWORK_WRAPPER.sendTo(SUBRESULT, player);
+            }
+        }else{
+            NETWORK_WRAPPER.sendTo(msg, player);
+        }
     }
 
     public void serverStartingEvent(FMLServerStartingEvent e){
