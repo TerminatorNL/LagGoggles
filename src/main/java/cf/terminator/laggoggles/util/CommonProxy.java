@@ -58,6 +58,7 @@ public class CommonProxy {
     }
 
     public static void sendTo(IMessage msg, EntityPlayerMP player){
+        Main.LOGGER.info("Sending " + msg.getClass().toGenericString() + " to " + player.getName());
         if(msg instanceof ScanResult) {
             /* ScanResult is a big packet and 1.10.2 acts funky on those, therefore we must split it
              * I chose to do 1 packet per 50 entities */

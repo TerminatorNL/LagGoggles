@@ -75,7 +75,7 @@ public class ProfileManager {
             }
             return result;
         } catch (Throwable e) {
-            Main.LOGGER.error("Woa! Something went wrong while processing results! Please contact submit the following error in an issue at github!");
+            Main.LOGGER.error("Woa! Something went wrong while processing results! Please contact Terminator_NL and submit the following error in an issue at github!");
             e.printStackTrace();
             return null;
         }
