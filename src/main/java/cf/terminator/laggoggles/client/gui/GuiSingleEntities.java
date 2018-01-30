@@ -20,9 +20,9 @@
 package cf.terminator.laggoggles.client.gui;
 
 import cf.terminator.laggoggles.client.ClientProxy;
-import cf.terminator.laggoggles.packet.ScanResult;
-import cf.terminator.laggoggles.packet.TeleportRequest;
-import cf.terminator.laggoggles.packet.TeleportToTileEntityRequest;
+import cf.terminator.laggoggles.packet.CPacketRequestEntityTeleport;
+import cf.terminator.laggoggles.packet.CPacketRequestTileEntityTeleport;
+import cf.terminator.laggoggles.packet.SPacketScanResult;
 import cf.terminator.laggoggles.util.Calculations;
 import cf.terminator.laggoggles.util.Graphical;
 import net.minecraft.client.Minecraft;
@@ -36,7 +36,7 @@ import java.util.Collections;
 
 public class GuiSingleEntities extends GuiScrollingList {
 
-    private ArrayList<GuiScanResults.LagSource> LAGSOURCES;
+    private ArrayList<GuiScanResults.LagSource> LAGSOURCES = new ArrayList<>();
     private int selected = -1;
     private final FontRenderer FONTRENDERER;
     private static final int slotHeight = 12;
@@ -46,7 +46,14 @@ public class GuiSingleEntities extends GuiScrollingList {
     public GuiSingleEntities(Minecraft client, int width, int height, int top, int bottom, int left, int screenWidth, int screenHeight, ArrayList<GuiScanResults.LagSource> lagSources) {
         super(client, width, height, top, bottom, left, slotHeight, screenWidth, screenHeight);
         FONTRENDERER = client.fontRenderer;
-        LAGSOURCES = lagSources;
+        for(GuiScanResults.LagSource src : lagSources){
+            switch(src.data.type){
+                case BLOCK:
+                case ENTITY:
+                case TILE_ENTITY:
+                    LAGSOURCES.add(src);
+            }
+        }
         Collections.sort(LAGSOURCES);
 
         for(GuiScanResults.LagSource src : LAGSOURCES){
@@ -70,20 +77,16 @@ public class GuiSingleEntities extends GuiScrollingList {
     protected void elementClicked(int slot, boolean doubleClick) {
         selected = slot;
         if(doubleClick){
-            if(LAGSOURCES.get(slot).data.isTileEntity){
-                TeleportToTileEntityRequest request = new TeleportToTileEntityRequest();
-                ScanResult.EntityData data = LAGSOURCES.get(slot).data;
-                request.dim = data.worldID;
-                request.x = data.x;
-                request.y = data.y;
-                request.z = data.z;
-                ClientProxy.NETWORK_WRAPPER.sendToServer(request);
-                Minecraft.getMinecraft().displayGuiScreen(null);
-            }else {
-                TeleportRequest request = new TeleportRequest();
-                request.uuid = LAGSOURCES.get(slot).data.id;
-                ClientProxy.NETWORK_WRAPPER.sendToServer(request);
-                Minecraft.getMinecraft().displayGuiScreen(null);
+            switch (LAGSOURCES.get(slot).data.type) {
+                case TILE_ENTITY:
+                case BLOCK:
+                    ClientProxy.NETWORK_WRAPPER.sendToServer(new CPacketRequestTileEntityTeleport(LAGSOURCES.get(slot).data));
+                    Minecraft.getMinecraft().displayGuiScreen(null);
+                    break;
+                case ENTITY:
+                    ClientProxy.NETWORK_WRAPPER.sendToServer(new CPacketRequestEntityTeleport(LAGSOURCES.get(slot).data.getValue(SPacketScanResult.EntityData.Entry.ENTITY_UUID)));
+                    Minecraft.getMinecraft().displayGuiScreen(null);
+                    break;
             }
         }
     }
@@ -124,13 +127,30 @@ public class GuiSingleEntities extends GuiScrollingList {
         drawStringToLeftOf(Calculations.muPerTickString(source.nanos), offSet, slotTop, color);
         offSet = offSet + 5;
 
-        /* Name */
-        drawString(source.data.name, offSet, slotTop, color);
+        String name;
+        String className;
+        switch (source.data.type){
+            case ENTITY:
+                name = source.data.getValue(SPacketScanResult.EntityData.Entry.ENTITY_NAME);
+                className = source.data.getValue(SPacketScanResult.EntityData.Entry.ENTITY_CLASS_NAME);
+                break;
+            case BLOCK:
+            case TILE_ENTITY:
+                name = source.data.getValue(SPacketScanResult.EntityData.Entry.BLOCK_NAME);
+                className = source.data.getValue(SPacketScanResult.EntityData.Entry.BLOCK_CLASS_NAME);
+                break;
+            default:
+                name = "Error! Please submit an issue at github";
+                className = source.data.type.toString();
+        }
 
-        offSet = offSet + FONTRENDERER.getStringWidth(source.data.name) + 5;
+        /* Name */
+        drawString(name, offSet, slotTop, color);
+
+        offSet = offSet + FONTRENDERER.getStringWidth(name) + 5;
 
         /* class */
-        drawString(source.data.className, offSet, slotTop, 0x4C4C4C);
+        drawString(className, offSet, slotTop, 0x4C4C4C);
     }
 
 

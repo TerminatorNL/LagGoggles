@@ -1,7 +1,8 @@
 package cf.terminator.laggoggles.server;
 
 import cf.terminator.laggoggles.Main;
-import cf.terminator.laggoggles.packet.TeleportRequest;
+import cf.terminator.laggoggles.packet.CPacketRequestEntityTeleport;
+import cf.terminator.laggoggles.packet.SPacketMessage;
 import cf.terminator.laggoggles.util.Perms;
 import cf.terminator.laggoggles.util.RunInServerThread;
 import cf.terminator.laggoggles.util.Teleport;
@@ -14,21 +15,21 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
-public class TeleportRequestHandler implements IMessageHandler<TeleportRequest, IMessage> {
+public class TeleportRequestHandler implements IMessageHandler<CPacketRequestEntityTeleport, IMessage> {
 
     @Override
-    public IMessage onMessage(TeleportRequest message, MessageContext ctx) {
+    public IMessage onMessage(CPacketRequestEntityTeleport message, MessageContext ctx) {
         EntityPlayerMP player = ctx.getServerHandler().player;
-        if(Perms.isOP(player) == false){
+        if(Perms.hasPermission(player, Perms.Permission.FULL) == false){
             Main.LOGGER.info(player.getName() + " tried to teleport, but was denied to do so!");
-            return null;
+            return new SPacketMessage("No permission");
         }
         new RunInServerThread(new Runnable() {
             @Override
             public void run() {
                 Entity e = FMLCommonHandler.instance().getMinecraftServerInstance().getEntityFromUuid(message.uuid);
                 if(e == null){
-                    player.sendMessage(new TextComponentString(TextFormatting.RED + "Woops! This tile entity no longer exists!"));
+                    player.sendMessage(new TextComponentString(TextFormatting.RED + "Woops! This entity no longer exists!"));
                     return;
                 }
                 Teleport.teleportPlayer(player, e.dimension, e.posX, e.posY, e.posZ);

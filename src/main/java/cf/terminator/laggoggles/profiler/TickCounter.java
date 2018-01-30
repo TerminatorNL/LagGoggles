@@ -7,7 +7,6 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class TickCounter {
 
-
     public static AtomicLong ticks = new AtomicLong(0L);
 
     @SubscribeEvent

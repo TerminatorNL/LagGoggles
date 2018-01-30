@@ -1,9 +1,9 @@
 package cf.terminator.laggoggles.client.gui;
 
 import cf.terminator.laggoggles.client.ClientProxy;
-import cf.terminator.laggoggles.packet.ProfileStatus;
-import cf.terminator.laggoggles.packet.RequestScan;
-import cf.terminator.laggoggles.packet.ScanResult;
+import cf.terminator.laggoggles.client.ServerDataPacketHandler;
+import cf.terminator.laggoggles.packet.*;
+import cf.terminator.laggoggles.util.Perms;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiLabel;
@@ -24,11 +24,19 @@ public class GuiProfile extends GuiScreen {
     private static final int LABEL_ID                = 3;
     private static final int BUTTON_DONATE           = 4;
     private static final int BUTTON_OPTIONS          = 5;
+    private static final int BUTTON_DOWNLOAD         = 6;
 
-    public static ProfileStatus LAST_STATUS = null;
-    public static long PROFILE_END_TIME = 0;
+    public static SPacketProfileStatus LAST_STATUS = null;
+    public static long PROFILE_END_TIME = 0L;
+
+    public static SPacketMessage MESSAGE = null;
+    public static long MESSAGE_END_TIME = 0L;
+
+
     private GuiButton startProfile;
-    private int seconds = 30;
+    private DownloadButton downloadButton;
+    private GuiButton optionsButton;
+    private int seconds = Math.min(30, ServerDataPacketHandler.MAX_SECONDS);
 
     public GuiProfile(){
         super();
@@ -38,6 +46,10 @@ public class GuiProfile extends GuiScreen {
         if(isThisGuiOpen() == false){
             return;
         }
+        Minecraft.getMinecraft().displayGuiScreen(new GuiProfile());
+    }
+
+    public static void open(){
         Minecraft.getMinecraft().displayGuiScreen(new GuiProfile());
     }
 
@@ -57,7 +69,9 @@ public class GuiProfile extends GuiScreen {
 
         boolean profileLoaded = LAST_SCAN_RESULT != null;
 
-        startProfile = new GuiButton(BUTTON_START_PROFILE_ID, centerX - 100, centerY - 25, "Profile for " + seconds + " seconds");
+        startProfile = new ProfileButton(BUTTON_START_PROFILE_ID, centerX - 100, centerY - 25, "Profile for " + seconds + " seconds");
+        downloadButton = new DownloadButton(BUTTON_DOWNLOAD, centerX + 80, centerY - 25);
+        optionsButton = new OptionsButton(BUTTON_OPTIONS, centerX - 100, centerY + 75);
         GuiButton showToggle  = new GuiButton(BUTTON_SHOW_TOGGLE, centerX - 100, centerY +  5, lagOverlayGui.isShowing.get() ? "Hide latest scan results" : "Show latest scan results");
         GuiButton analyzeResults  = new GuiButton(BUTTON_ANALYZE_RESULTS, centerX - 100, centerY +  30, "Analyze results");
 
@@ -67,10 +81,11 @@ public class GuiProfile extends GuiScreen {
         analyzeResults.enabled = profileLoaded;
 
         addButton(startProfile);
+        addButton(downloadButton);
         addButton(showToggle);
         addButton(analyzeResults);
         addButton(new DonateButton(BUTTON_DONATE, centerX + 10, centerY + 75));
-        addButton(new OptionsButton(BUTTON_OPTIONS, centerX - 100, centerY + 75));
+        addButton(optionsButton);
         GuiLabel scrollHint = new GuiLabel(fontRenderer, LABEL_ID, centerX - 100, centerY - 55, 200, 20, 0xFFFFFF);
         scrollHint.addLine("Scroll while hovering over the button");
         scrollHint.addLine("to change time time!");
@@ -91,22 +106,36 @@ public class GuiProfile extends GuiScreen {
     };
 
     private void updateButton(){
-        if(LAST_STATUS != null && LAST_STATUS.isProfiling == true && getSecondsLeft() >= 0 && startProfile.displayString.equalsIgnoreCase("Sending command...") == false){
+        if(getSecondsLeftForMessage() >= 0){
+            startProfile.displayString = MESSAGE.message;
             startProfile.enabled = false;
-            if(LAST_STATUS.issuedBy.equals("No permission")){
-                startProfile.displayString = LAST_STATUS.issuedBy;
-            }else {
-                startProfile.displayString = LAST_STATUS.issuedBy + " > " + getSecondsLeft() + " seconds.";
-            }
+            new Thread(buttonUpdateTask).start();
+        }else if(getSecondsLeftForProfiler() >= 0){
+            startProfile.displayString = LAST_STATUS.issuedBy + " > " + getSecondsLeftForProfiler() + " seconds.";
+            startProfile.enabled = false;
             new Thread(buttonUpdateTask).start();
         }else{
-            startProfile.enabled = true;
-            startProfile.displayString = "Profile for " + seconds + " seconds";
+            if(ServerDataPacketHandler.PERMISSION.ordinal() >= Perms.Permission.START.ordinal()) {
+                startProfile.enabled = true;
+                startProfile.displayString = "Profile for " + seconds + " seconds";
+            }else{
+                startProfile.enabled = false;
+                startProfile.displayString = "Profiling requires OP.";
+            }
+        }
+        downloadButton.enabled = ServerDataPacketHandler.PERMISSION.ordinal() >= Perms.Permission.GET.ordinal();
+    }
+
+    private static int getSecondsLeftForProfiler(){
+        if(LAST_STATUS != null) {
+            return new Double(Math.ceil((PROFILE_END_TIME - System.currentTimeMillis()) / 1000)).intValue();
+        }else{
+            return -1;
         }
     }
 
-    private int getSecondsLeft(){
-        return new Double(Math.ceil((PROFILE_END_TIME - System.currentTimeMillis()) / 1000)).intValue();
+    private static int getSecondsLeftForMessage(){
+        return new Double(Math.ceil((MESSAGE_END_TIME - System.currentTimeMillis()) / 1000)).intValue();
     }
 
     @Override
@@ -116,7 +145,13 @@ public class GuiProfile extends GuiScreen {
             if(wheel != 0) {
                 seconds = seconds + ((wheel / 120) * 5); /* 1 Click is 120, 1 click is 5 seconds */
                 seconds = Math.max(seconds, 5);
-                startProfile.displayString = "Profile for " + seconds + " seconds";
+                boolean triedMore = seconds > ServerDataPacketHandler.MAX_SECONDS;
+                seconds = Math.min(seconds, ServerDataPacketHandler.MAX_SECONDS);
+                if(triedMore){
+                    startProfile.displayString = "Limited to " + seconds + " seconds.";
+                }else {
+                    startProfile.displayString = "Profile for " + seconds + " seconds";
+                }
             }
         }
         super.handleMouseInput();
@@ -124,19 +159,17 @@ public class GuiProfile extends GuiScreen {
     }
 
     public void startProfile(){
-        RequestScan scan = new RequestScan();
+        CPacketRequestScan scan = new CPacketRequestScan();
         scan.length = seconds;
-        ClientProxy.NETWORK_WRAPPER.sendToServer(scan);
         startProfile.enabled = false;
         startProfile.displayString = "Sending command...";
+        ClientProxy.NETWORK_WRAPPER.sendToServer(scan);
     }
 
     public void analyzeResults(){
         ArrayList<GuiScanResults.LagSource> entityList = new ArrayList<>();
-        for(ScanResult.EntityData entity : LAST_SCAN_RESULT.DATA){
-            if(entity.name.equals("Dead") == false) {
-                entityList.add(new GuiScanResults.LagSource(entity.nanos, entity));
-            }
+        for(SPacketScanResult.EntityData entity : LAST_SCAN_RESULT.DATA){
+                entityList.add(new GuiScanResults.LagSource(entity.<Long>getValue(SPacketScanResult.EntityData.Entry.NANOS), entity));
         }
         mc.displayGuiScreen(new GuiScanResults(entityList));
     }
@@ -165,7 +198,16 @@ public class GuiProfile extends GuiScreen {
             case BUTTON_OPTIONS:
                 mc.displayGuiScreen(new GuiInGameConfig(this));
                 break;
+            case BUTTON_DOWNLOAD:
+                ClientProxy.NETWORK_WRAPPER.sendToServer(new CPacketRequestResult());
+                break;
         }
+    }
+
+    @Override
+    public void onGuiClosed(){
+        super.onGuiClosed();
+        //TODO: Load the config, and install changes
     }
 
     @Override

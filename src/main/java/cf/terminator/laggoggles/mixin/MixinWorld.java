@@ -19,6 +19,7 @@ import static cf.terminator.laggoggles.profiler.world.ProfileManager.worldTiming
 public abstract class MixinWorld {
 
     Long LAGGOGGLES_START = null;
+
     @Inject(
             method = "updateEntities()V",
             at = @At(
@@ -46,5 +47,4 @@ public abstract class MixinWorld {
             worldTimingManager.addBlockTime(tileentity.getWorld().provider.getDimension(), pos, System.nanoTime() - LAGGOGGLES_START);
         }
     }
-
 }

@@ -1,7 +1,7 @@
 package cf.terminator.laggoggles.client.gui;
 
 import cf.terminator.laggoggles.Main;
-import cf.terminator.laggoggles.packet.ScanResult;
+import cf.terminator.laggoggles.packet.SPacketScanResult;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiScreen;
@@ -18,6 +18,7 @@ public class GuiScanResults extends GuiScreen {
 
     private GuiSingleEntities guiSingleEntities;
     private GuiEntityTypes guiEntityTypes;
+    private GuiEventTypes guiEventTypes;
 
     private ArrayList<LagSource> data;
 
@@ -38,10 +39,10 @@ public class GuiScanResults extends GuiScreen {
     public void initGui() {
         super.initGui();
 
-        /*                                            width  , height     , top, bottom, left      , screenWidth, screenHeight, LAGSOURCES*/
-        guiSingleEntities = new GuiSingleEntities(mc, width/2, height - 25, 45 , height,  0        , width      , height      , data);
-        guiEntityTypes    = new GuiEntityTypes(   mc, width/2, height - 25, 45 , height,  width/2  , width      , height      , data);
-
+        /*                                            width  , height              , top                   , bottom         , left      , screenWidth, screenHeight, LAGSOURCES*/
+        guiSingleEntities = new GuiSingleEntities(mc, width/2, height - 25         , 45                    , height         ,  0        , width      , height      , data);
+        guiEntityTypes    = new GuiEntityTypes(   mc, width/2, (height - 25)/2     , 45                    , (height - 25)/2,  width/2  , width      , height      , data);
+        guiEventTypes     = new GuiEventTypes(    mc, width/2, (height - 25)/2 - 12, ((height - 25)/2) + 12, height         ,  width/2  , width      , height      , data);
     }
 
     @Override
@@ -50,10 +51,12 @@ public class GuiScanResults extends GuiScreen {
         super.drawScreen(mouseX, mouseY, partialTicks);
         guiSingleEntities.drawScreen(mouseX, mouseY, partialTicks);
         guiEntityTypes.drawScreen(mouseX, mouseY, partialTicks);
+        guiEventTypes.drawScreen(mouseX, mouseY, partialTicks);
         drawString(Main.MODID + ": profile data", 5, 5, 0xFFFFFF);
         drawString("Times are presented in microseconds", 5, 15, 0xCCCCCC);
         drawString("Single entities", 5, 35, 0xFFFFFF);
-        drawString("Entities by type", width/2, 35, 0xFFFFFF);
+        drawString("Entities by type", width/2 + 5, 35, 0xFFFFFF);
+        drawString("Event subscribers", width/2 + 5, ((height - 25)/2) + 2, 0xFFFFFF);
     }
 
 
@@ -68,6 +71,7 @@ public class GuiScanResults extends GuiScreen {
         super.handleMouseInput();
         guiSingleEntities.handleMouseInput();
         guiEntityTypes.handleMouseInput();
+        guiEventTypes.handleMouseInput();
     }
 
     private void drawString(String text, int x, int y, int color) {
@@ -79,9 +83,9 @@ public class GuiScanResults extends GuiScreen {
     public static class LagSource implements Comparable<LagSource>{
 
         final long nanos;
-        final ScanResult.EntityData data;
+        final SPacketScanResult.EntityData data;
 
-        public LagSource(long nanos, ScanResult.EntityData e){
+        public LagSource(long nanos, SPacketScanResult.EntityData e){
             this.nanos = nanos;
             data = e;
         }

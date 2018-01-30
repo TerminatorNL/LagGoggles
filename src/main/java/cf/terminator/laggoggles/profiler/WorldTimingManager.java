@@ -1,6 +1,9 @@
 package cf.terminator.laggoggles.profiler;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.eventhandler.Event;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -35,9 +38,20 @@ public class WorldTimingManager {
         }
     }
 
+    public void addEventTime(String listener, Event event, long time){
+        if(TIMINGS.containsKey(0) == false){
+            WorldData data = new WorldData();
+            data.addEventTime(listener, event, time);
+            TIMINGS.put(0, data);
+        }else{
+            TIMINGS.get(0).addEventTime(listener, event, time);
+        }
+    }
+
     public class WorldData {
-        private HashMap<BlockPos, AtomicLong> blockTimes = new HashMap<>();
-        private HashMap<UUID,    AtomicLong> entityTimes = new HashMap<>();
+        private HashMap<BlockPos,AtomicLong> blockTimes   = new HashMap<>();
+        private HashMap<UUID,AtomicLong>     entityTimes  = new HashMap<>();
+        private HashMap<String,EventTimings> eventTimes   = new HashMap<>();
 
         public void addBlockTime(BlockPos pos, long time){
             if(blockTimes.containsKey(pos) == false){
@@ -55,6 +69,20 @@ public class WorldTimingManager {
             }
         }
 
+        public void addEventTime(String listener, Event event, long time){
+            if(eventTimes.containsKey(listener) == false){
+                EventTimings.ThreadType type = EventTimings.ThreadType.ASYNC;
+                if(FMLCommonHandler.instance().getMinecraftServerInstance().isCallingFromMinecraftThread()){
+                    type = EventTimings.ThreadType.SERVER;
+                }else if(Minecraft.getMinecraft().isCallingFromMinecraftThread()){
+                    type = EventTimings.ThreadType.CLIENT;
+                }
+                eventTimes.put(listener, new EventTimings(time, listener, event.getClass(), type));
+            }else{
+                eventTimes.get(listener).addAndGet(time);
+            }
+        }
+
         public TreeMap<BlockPos, Long> getBlockTimes(){
             TreeMap<BlockPos, Long> data = new TreeMap<>();
             for(Map.Entry<BlockPos, AtomicLong> entry : blockTimes.entrySet()){
@@ -69,6 +97,46 @@ public class WorldTimingManager {
                 data.put(entry.getKey(), entry.getValue().longValue());
             }
             return data;
+        }
+
+        public HashMap<String, EventTimings> getEventTimes(){
+            return new HashMap<>(eventTimes);
+        }
+    }
+
+    public static class EventTimings extends AtomicLong{
+
+        public enum ThreadType{
+            SERVER,
+            CLIENT,
+            ASYNC
+        }
+
+        public final String listener;
+        public final ThreadType threadType;
+        public final Class eventClass;
+
+        EventTimings(long val, String listener, Class eventClass, ThreadType threadType){
+            super(val);
+            this.listener = listener;
+            this.threadType = threadType;
+            this.eventClass = eventClass;
+        }
+
+        @Override
+        public int hashCode(){
+            return listener.hashCode();
+        }
+
+        @Override
+        public boolean equals(Object o){
+            if(o instanceof EventTimings == false){
+                return false;
+            }
+            EventTimings other = ((EventTimings) o);
+            return listener.equals(other.listener) &&
+                    threadType == other.threadType &&
+                    eventClass.equals(other.eventClass);
         }
     }
 }

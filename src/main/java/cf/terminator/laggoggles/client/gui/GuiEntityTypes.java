@@ -1,5 +1,6 @@
 package cf.terminator.laggoggles.client.gui;
 
+import cf.terminator.laggoggles.packet.SPacketScanResult;
 import cf.terminator.laggoggles.util.Calculations;
 import cf.terminator.laggoggles.util.Graphical;
 import net.minecraft.client.Minecraft;
@@ -28,10 +29,22 @@ public class GuiEntityTypes extends GuiScrollingList {
 
         HashMap<String, Long> totals = new HashMap<>();
         for(GuiScanResults.LagSource src : lagSources){
-            if(totals.containsKey(src.data.className) == false){
-                totals.put(src.data.className, src.nanos);
+            String className;
+            switch (src.data.type) {
+                case ENTITY:
+                    className = src.data.getValue(SPacketScanResult.EntityData.Entry.ENTITY_CLASS_NAME);
+                    break;
+                case BLOCK:
+                case TILE_ENTITY:
+                    className = src.data.getValue(SPacketScanResult.EntityData.Entry.BLOCK_CLASS_NAME);
+                    break;
+                default:
+                    continue;
+            }
+            if(totals.containsKey(className) == false){
+                totals.put(className, src.nanos);
             }else{
-                totals.put(src.data.className, src.nanos + totals.get(src.data.className));
+                totals.put(className, src.nanos + totals.get(className));
             }
         }
 
