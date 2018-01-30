@@ -1,6 +1,6 @@
 package cf.terminator.laggoggles.client.gui;
 
-import cf.terminator.laggoggles.packet.ScanResult;
+import cf.terminator.laggoggles.packet.SPacketScanResult;
 import cf.terminator.laggoggles.util.Calculations;
 import cf.terminator.laggoggles.util.Graphical;
 import cf.terminator.laggoggles.util.RunInClientThread;
@@ -18,6 +18,7 @@ import org.lwjgl.opengl.GL11;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class LagOverlayGui {
@@ -29,7 +30,7 @@ public class LagOverlayGui {
     private final HashMap<BlockPos, Double> BLOCKS_HEAT = new HashMap<>();
     private final HashMap<Entity,   String> ENTITY_NANO = new HashMap<>();
     private final HashMap<Entity,   Double> ENTITY_HEAT = new HashMap<>();
-    private final ArrayList<ScanResult.EntityData> data;
+    private final ArrayList<SPacketScanResult.EntityData> data;
     public AtomicBoolean isShowing = new AtomicBoolean(false);
 
     private double flash = 1;
@@ -41,7 +42,7 @@ public class LagOverlayGui {
         this(new ArrayList<>());
     }
 
-    public LagOverlayGui(ArrayList<ScanResult.EntityData> data){
+    public LagOverlayGui(ArrayList<SPacketScanResult.EntityData> data){
 
         MINECRAFT = Minecraft.getMinecraft();
         RENDER_MANAGER = MINECRAFT.getRenderManager();
@@ -75,28 +76,36 @@ public class LagOverlayGui {
             isShowing.set(false);
             return;
         }
-        for(ScanResult.EntityData entityData : data){
-            if(entityData.worldID != MINECRAFT.theWorld.provider.getDimension()){
-                continue;
-            }
-            if(entityData.isTileEntity){
-                BlockPos pos = new BlockPos(entityData.x, entityData.y, entityData.z);
-                double heat = Calculations.heat(entityData.nanos);
-                BLOCKS_HEAT.put(pos,heat);
-                BLOCKS_NANO.put(pos,Calculations.muPerTickString(entityData.nanos));
-                calculateChunk(pos,heat);
-            }else{
-                /* Normal entitiy */
-                for(Entity entity : MINECRAFT.theWorld.loadedEntityList){
-                    if(entity.getPersistentID().equals(entityData.id)){
-                        if(entity == MINECRAFT.thePlayer){
-                            continue;
-                        }
-                        ENTITY_NANO.put(entity, Calculations.muPerTickString(entityData.nanos));
-                        ENTITY_HEAT.put(entity, Calculations.heat(entityData.nanos));
-                        break;
+        for(SPacketScanResult.EntityData entityData : data){
+            long nanos = entityData.getValue(SPacketScanResult.EntityData.Entry.NANOS);
+            switch (entityData.type){
+                case TILE_ENTITY:
+                case BLOCK:
+                    if((int) entityData.getValue(SPacketScanResult.EntityData.Entry.WORLD_ID) != MINECRAFT.theWorld.provider.getDimension()){
+                        continue;
                     }
-                }
+                    BlockPos pos = new BlockPos(entityData.getValue(SPacketScanResult.EntityData.Entry.BLOCK_POS_X), entityData.getValue(SPacketScanResult.EntityData.Entry.BLOCK_POS_Y), entityData.getValue(SPacketScanResult.EntityData.Entry.BLOCK_POS_Z));
+                    double heat = Calculations.heat(nanos);
+                    BLOCKS_HEAT.put(pos,heat);
+                    BLOCKS_NANO.put(pos,Calculations.muPerTickString(nanos));
+                    calculateChunk(pos,heat);
+                    break;
+                case ENTITY:
+                    if((int) entityData.getValue(SPacketScanResult.EntityData.Entry.WORLD_ID) != MINECRAFT.theWorld.provider.getDimension()){
+                        continue;
+                    }
+                    UUID entityID = entityData.getValue(SPacketScanResult.EntityData.Entry.ENTITY_UUID);
+                    for(Entity entity : MINECRAFT.theWorld.loadedEntityList){
+                        if(entity.getPersistentID().equals(entityID)){
+                            if(entity == MINECRAFT.thePlayer){
+                                continue;
+                            }
+                            ENTITY_NANO.put(entity, Calculations.muPerTickString(nanos));
+                            ENTITY_HEAT.put(entity, Calculations.heat(nanos));
+                            break;
+                        }
+                    }
+                    break;
             }
         }
     }

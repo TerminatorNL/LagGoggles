@@ -4,6 +4,10 @@ public class Graphical {
 
     public static final String mu = "\u00B5";
 
+    public static String formatClassName(String in){
+        return in.startsWith("class ") ? in.substring(6) : in;
+    }
+
     public static double[] heatToColor(double heat){
         double[] map = new double[3];
         map[2] = 0;

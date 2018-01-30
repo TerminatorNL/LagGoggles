@@ -5,9 +5,14 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 
 import java.util.UUID;
 
-public class TeleportRequest implements IMessage {
+public class CPacketRequestEntityTeleport implements IMessage {
 
     public UUID uuid;
+    public CPacketRequestEntityTeleport(){}
+    public CPacketRequestEntityTeleport(UUID uuid){
+        this.uuid = uuid;
+    }
+
 
     @Override
     public void fromBytes(ByteBuf buf){

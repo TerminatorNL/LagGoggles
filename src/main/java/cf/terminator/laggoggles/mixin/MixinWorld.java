@@ -47,5 +47,4 @@ public abstract class MixinWorld {
             worldTimingManager.addBlockTime(tileentity.getWorld().provider.getDimension(), pos, System.nanoTime() - LAGGOGGLES_START);
         }
     }
-
 }
