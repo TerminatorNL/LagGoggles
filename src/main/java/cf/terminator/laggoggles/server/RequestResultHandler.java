@@ -1,5 +1,6 @@
 package cf.terminator.laggoggles.server;
 
+import cf.terminator.laggoggles.CommonProxy;
 import cf.terminator.laggoggles.packet.CPacketRequestResult;
 import cf.terminator.laggoggles.packet.SPacketMessage;
 import cf.terminator.laggoggles.util.Perms;
@@ -33,7 +34,8 @@ public class RequestResultHandler implements IMessageHandler<CPacketRequestResul
             }
             LAST_RESULT_REQUEST.put(player.getGameProfile().getId(), System.currentTimeMillis());
         }
-        return Perms.getResultFor(player, ScanRequestHandler.LAST_RESULT);
+        CommonProxy.sendTo(Perms.getResultFor(player, ScanRequestHandler.LAST_RESULT), player);
+        return null;
     }
 
 }
