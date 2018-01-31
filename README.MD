@@ -19,6 +19,7 @@ With LagGoggles, you can look around and see that alot of small things like pipe
 
 ![alt text](docs/menu.png "LagGoggles menu")
 ![alt text](docs/menu-5sec.png "LagGoggles menu")
+![alt text](docs/sheep.png "Entity view")
 ![alt text](docs/timingsmenu.png "Analyzer")
 
 ## Features
