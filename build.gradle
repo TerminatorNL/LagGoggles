@@ -8,7 +8,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
         classpath 'org.spongepowered:mixingradle:0.4-SNAPSHOT'
     }
 }
@@ -37,7 +37,7 @@ if(isClient == false) {
     }
 }
 
-version = "1.10.2-3.0"
+version = "1.10.2-3.1"
 group= "cf.terminator.laggoggles" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "LagGoggles-" + buildType
 
@@ -132,10 +132,6 @@ jar {
 task finalize << {
     if(isClient == false) {
         println("Copied " + jar.archivePath + " into run/mods")
-        copy {
-            from jar.archivePath
-            into "run/mods"
-        }
         copy {
             from jar.archivePath
             into "run 1.10.2/mods"
