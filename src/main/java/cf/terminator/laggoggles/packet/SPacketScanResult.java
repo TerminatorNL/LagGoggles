@@ -107,12 +107,12 @@ public class SPacketScanResult implements IMessage{
             data.put(Entry.NANOS, nanos);
         }
 
-        public EntityData(WorldTimingManager.EventTimings eventTimings){
+        public EntityData(WorldTimingManager.EventTimings eventTimings, long nanos){
             type = Type.EVENT_BUS_LISTENER;
             data.put(Entry.EVENT_BUS_EVENT_CLASS_NAME, formatClassName(eventTimings.eventClass.toString()));
             data.put(Entry.EVENT_BUS_LISTENER_CLASS_NAME, formatClassName(eventTimings.listener));
             data.put(Entry.EVENT_BUS_THREAD_TYPE, eventTimings.threadType.ordinal());
-            data.put(Entry.NANOS, eventTimings.get());
+            data.put(Entry.NANOS, nanos);
         }
 
         @SuppressWarnings("unchecked")
