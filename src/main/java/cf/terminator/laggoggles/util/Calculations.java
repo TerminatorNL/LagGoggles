@@ -17,10 +17,16 @@ public class Calculations {
     }
 
     public static String tickPercent(long nanos) {
+        if(LAST_SCAN_RESULT == null){
+            return "?";
+        }
         return Math.floor((nanos / LAST_SCAN_RESULT.TOTAL_TICKS) / NANOS_IN_A_TICK * 10000) / 100d + "%";
     }
 
     public static double muPerTick(long nanos) {
+        if(LAST_SCAN_RESULT == null){
+            return 0;
+        }
         return (nanos / LAST_SCAN_RESULT.TOTAL_TICKS) / 1000;
     }
 
@@ -29,6 +35,9 @@ public class Calculations {
     }
 
     public static String muPerTickString(long nanos) {
+        if(LAST_SCAN_RESULT == null){
+            return "?";
+        }
         return Double.valueOf((nanos / LAST_SCAN_RESULT.TOTAL_TICKS) / 1000).intValue() + " " + mu + "s/t";
     }
 

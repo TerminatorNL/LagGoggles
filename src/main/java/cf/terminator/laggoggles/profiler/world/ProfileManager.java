@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static cf.terminator.laggoggles.util.Graphical.formatClassName;
 
@@ -88,8 +89,8 @@ public class ProfileManager {
                     }
                 }
 
-                for(Map.Entry<String, WorldTimingManager.EventTimings> eventTimes : entry.getValue().getEventTimes().entrySet()){
-                    result.DATA.add(new SPacketScanResult.EntityData(eventTimes.getValue()));
+                for(Map.Entry<WorldTimingManager.EventTimings, AtomicLong> eventTimes : entry.getValue().getEventTimes().entrySet()){
+                    result.DATA.add(new SPacketScanResult.EntityData(eventTimes.getKey(), eventTimes.getValue().get()));
                 }
 
             }
