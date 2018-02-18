@@ -85,6 +85,10 @@ public class LagOverlayGui {
                         continue;
                     }
                     BlockPos pos = new BlockPos(entityData.getValue(SPacketScanResult.EntityData.Entry.BLOCK_POS_X), entityData.getValue(SPacketScanResult.EntityData.Entry.BLOCK_POS_Y), entityData.getValue(SPacketScanResult.EntityData.Entry.BLOCK_POS_Z));
+                    if(MINECRAFT.player.getDistanceSq(pos) > 36864){
+                        /* More than 12 chunks away, we don't draw. */
+                        continue;
+                    }
                     double heat = Calculations.heat(nanos);
                     BLOCKS_HEAT.put(pos,heat);
                     BLOCKS_NANO.put(pos,Calculations.muPerTickString(nanos));

@@ -8,6 +8,7 @@ import cf.terminator.laggoggles.packet.*;
 import cf.terminator.laggoggles.profiler.TickCounter;
 import cf.terminator.laggoggles.server.*;
 import cf.terminator.laggoggles.util.Perms;
+import cf.terminator.laggoggles.util.RunInServerThread;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -63,7 +64,12 @@ public class CommonProxy {
 
     public static void sendTo(IMessage msg, EntityPlayerMP player){
         if(msg instanceof SPacketScanResult) {
-            NETWORK_WRAPPER.sendTo(Perms.getResultFor(player, (SPacketScanResult) msg), player);
+            new RunInServerThread(new Runnable() {
+                @Override
+                public void run() {
+                    NETWORK_WRAPPER.sendTo(Perms.getResultFor(player, (SPacketScanResult) msg), player);
+                }
+            });
         }else{
             NETWORK_WRAPPER.sendTo(msg, player);
         }
