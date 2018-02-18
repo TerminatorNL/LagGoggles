@@ -95,7 +95,7 @@ public class LagOverlayGui {
                         continue;
                     }
                     UUID entityID = entityData.getValue(SPacketScanResult.EntityData.Entry.ENTITY_UUID);
-                    for(Entity entity : MINECRAFT.world.loadedEntityList){
+                    for(Entity entity : new ArrayList<>(MINECRAFT.world.loadedEntityList)){
                         if(entity.getPersistentID().equals(entityID)){
                             if(entity == MINECRAFT.player){
                                 continue;

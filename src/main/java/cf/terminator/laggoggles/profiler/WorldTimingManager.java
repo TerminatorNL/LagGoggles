@@ -4,14 +4,11 @@ import cf.terminator.laggoggles.util.ThreadChecker;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.eventhandler.Event;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class WorldTimingManager {
-    private HashMap<Integer, WorldData> TIMINGS = new HashMap<>();
+    private Map<Integer, WorldData> TIMINGS = Collections.synchronizedMap(new HashMap<>());
 
     public HashMap<Integer, WorldData> getTimings(){
         return new HashMap<>(TIMINGS);
@@ -48,9 +45,9 @@ public class WorldTimingManager {
     }
 
     public class WorldData {
-        private HashMap<BlockPos,AtomicLong>     blockTimes   = new HashMap<>();
-        private HashMap<UUID,AtomicLong>         entityTimes  = new HashMap<>();
-        private HashMap<EventTimings,AtomicLong> eventTimes   = new HashMap<>();
+        private Map<BlockPos,AtomicLong>     blockTimes   = Collections.synchronizedMap(new HashMap<>());
+        private Map<UUID,AtomicLong>         entityTimes  = Collections.synchronizedMap(new HashMap<>());
+        private Map<EventTimings,AtomicLong> eventTimes   = Collections.synchronizedMap(new HashMap<>());
 
         public void addBlockTime(BlockPos pos, long time){
             if(blockTimes.containsKey(pos) == false){
@@ -120,11 +117,6 @@ public class WorldTimingManager {
         public int hashCode(){
             return listener.hashCode();
         }
-
-        /**
-         * IMPROPER IMPLEMENTATION OF EQUALS! DO NOT USE THIS AS AN EXAMPLE TO LEARN FROM!
-         * This is done deliberately to quickly find a matching listener.
-         */
 
         @Override
         public boolean equals(Object o){

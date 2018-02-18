@@ -12,6 +12,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.WorldServer;
+import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
 import java.util.HashMap;
@@ -45,8 +46,12 @@ public class ProfileManager {
             }
             for(Map.Entry<Integer, WorldTimingManager.WorldData> entry : data.entrySet()){
                 int worldID = entry.getKey();
+                WorldServer world = DimensionManager.getWorld(worldID);
+                if(world == null){
+                    continue;
+                }
                 for(Map.Entry<UUID, Long> entityTimes : entry.getValue().getEntityTimes().entrySet()){
-                    Entity e = minecraftServer.getWorld(worldID).getEntityFromUuid(entityTimes.getKey());
+                    Entity e = world.getEntityFromUuid(entityTimes.getKey());
                     if(e == null){
                         continue;
                     }
@@ -59,7 +64,6 @@ public class ProfileManager {
                     );
                 }
                 for(Map.Entry<BlockPos, Long> tileEntityTimes : entry.getValue().getBlockTimes().entrySet()){
-                    WorldServer world = FMLCommonHandler.instance().getMinecraftServerInstance().getWorld(worldID);
                     TileEntity e = world.getTileEntity(tileEntityTimes.getKey());
                     if(e != null) {
                         String name;

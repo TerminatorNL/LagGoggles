@@ -70,7 +70,7 @@ public class GuiProfile extends GuiScreen {
         boolean profileLoaded = LAST_SCAN_RESULT != null;
 
         startProfile = new ProfileButton(BUTTON_START_PROFILE_ID, centerX - 100, centerY - 25, "Profile for " + seconds + " seconds");
-        downloadButton = new DownloadButton(BUTTON_DOWNLOAD, centerX + 80, centerY - 25);
+        downloadButton = new DownloadButton(this, BUTTON_DOWNLOAD, centerX + 80, centerY - 25);
         optionsButton = new OptionsButton(BUTTON_OPTIONS, centerX - 100, centerY + 75);
         GuiButton showToggle  = new GuiButton(BUTTON_SHOW_TOGGLE, centerX - 100, centerY +  5, lagOverlayGui.isShowing.get() ? "Hide latest scan results" : "Show latest scan results");
         GuiButton analyzeResults  = new GuiButton(BUTTON_ANALYZE_RESULTS, centerX - 100, centerY +  30, "Analyze results");
@@ -81,7 +81,6 @@ public class GuiProfile extends GuiScreen {
         analyzeResults.enabled = profileLoaded;
 
         addButton(startProfile);
-        addButton(downloadButton);
         addButton(showToggle);
         addButton(analyzeResults);
         addButton(new DonateButton(BUTTON_DONATE, centerX + 10, centerY + 75));
@@ -90,6 +89,7 @@ public class GuiProfile extends GuiScreen {
         scrollHint.addLine("Scroll while hovering over the button");
         scrollHint.addLine("to change time time!");
         labelList.add(scrollHint);
+        addButton(downloadButton);
     }
 
     private Runnable buttonUpdateTask = new Runnable() {
@@ -134,7 +134,7 @@ public class GuiProfile extends GuiScreen {
         }
     }
 
-    private static int getSecondsLeftForMessage(){
+    public static int getSecondsLeftForMessage(){
         return new Double(Math.ceil((MESSAGE_END_TIME - System.currentTimeMillis()) / 1000)).intValue();
     }
 

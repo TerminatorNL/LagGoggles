@@ -1,6 +1,7 @@
 package cf.terminator.laggoggles.client;
 
 import cf.terminator.laggoggles.Main;
+import cf.terminator.laggoggles.util.ColorBlindMode;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.config.ConfigManager;
 import net.minecraftforge.common.config.Configuration;
@@ -26,10 +27,12 @@ public class ClientConfig {
                     "This also affects the analyze results window")
     public static int MINIMUM_AMOUNT_OF_MICROSECONDS_THRESHOLD = 1;
 
-    /*
-    @Config.Comment("")
-    public static int COLORBLIND_MODE = 25;
-    */
+    @Config.Comment("If you're colorblind, change this to fit your needs.\n" +
+                    "Available options:\n" +
+                    "- GREEN_TO_RED\n" +
+                    "- BLUE_TO_RED\n" +
+                    "- GREEN_TO_BLUE")
+    public static ColorBlindMode COLORS = ColorBlindMode.GREEN_TO_RED;
 
     @Mod.EventBusSubscriber
     public static class ConfigurationHolder {

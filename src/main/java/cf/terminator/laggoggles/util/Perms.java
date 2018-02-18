@@ -8,9 +8,11 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.WorldServer;
+import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 public class Perms {
 
@@ -38,7 +40,18 @@ public class Perms {
     }
 
     public static ArrayList<EntityPlayerMP> getLagGogglesUsers(){
-        return RequestDataHandler.playersWithLagGoggles;
+        ArrayList<EntityPlayerMP> list = new ArrayList<>();
+        MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
+        if(server == null){
+            return list;
+        }
+        for(UUID uuid : RequestDataHandler.playersWithLagGoggles){
+            Entity entity = server.getEntityFromUuid(uuid);
+            if(entity instanceof EntityPlayerMP){
+                list.add((EntityPlayerMP) entity);
+            }
+        }
+        return list;
     }
 
     public static SPacketScanResult getResultFor(EntityPlayerMP player, SPacketScanResult result){
@@ -72,7 +85,7 @@ public class Perms {
         }
         switch(data.type){
             case ENTITY:
-                WorldServer world = server.getWorld(data.getValue(SPacketScanResult.EntityData.Entry.WORLD_ID));
+                WorldServer world = DimensionManager.getWorld(data.getValue(SPacketScanResult.EntityData.Entry.WORLD_ID));
                 Entity e;
                 if(world != null && (e = world.getEntityFromUuid(data.getValue(SPacketScanResult.EntityData.Entry.ENTITY_UUID))) != null){
                     return checkRange(player, e.posX, e.posY, e.posZ);
