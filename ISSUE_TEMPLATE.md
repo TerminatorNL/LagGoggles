@@ -23,7 +23,7 @@
 
 
 ```
-> #### Other notes
+> #### Other notes:
 ```
 
 
