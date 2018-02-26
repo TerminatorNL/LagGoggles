@@ -6,6 +6,7 @@ You can use LagGoggles as a player too! This is my attempt to create an understa
 I noticed some common misconceptions like having machines spread out over different chunks causes less lag than putting it in one chunk.<br>
 With LagGoggles, you can look around and see that alot of small things like pipes or cables cause a tiny bit of lag most of the time, often resulting in more lag than a machine right next to the source would.
 
+LagGoggles can also profile clientside FPS as of version 4.0!
 
 ### Download: [here](https://minecraft.curseforge.com/projects/laggoggles/files)
 
@@ -28,9 +29,12 @@ With LagGoggles, you can look around and see that alot of small things like pipe
 * Client GUI, including overlay and clickable menus
 * Colour scale for easy spotting of sources of lag.
 * Calculations are done on the client, so each client can have a different colour scale.
+* Clientside FPS support!
+   * Checks render time for Entities, Tile entities and event subscribers
+   * It's very young, but it should give some insight in what may cause FPS issues.
 * Config for client:
-    * Custom gradient based on microseconds
-    * Custom filter based on milliseconds
+    * Custom gradients
+    * Colorblindess support
 * Config for server
     * Custom permissions for players (non-operators)
 
@@ -40,7 +44,7 @@ With LagGoggles, you can look around and see that alot of small things like pipe
 * Clients can edit the config to change the colour scale.
 
 ## How it works
-At startup [Mixin](https://github.com/SpongePowered/Mixin) handles each class being loaded. On the server side, this mod hooks into the loading mechanism. This is the same mechanism [SpongeForge](https://github.com/SpongePowered/SpongeForge) uses, that's why it's compatible (SPONGEFORGE version only).<br>
+At startup [Mixin](https://github.com/SpongePowered/Mixin) handles each class being loaded. On the server side, this mod hooks into the loading mechanism. This is the same mechanism [SpongeForge](https://github.com/SpongePowered/SpongeForge) uses, that's why it's compatible.<br>
 <br>
 Entities, blocks and event-subscribers are timed using System.nanotime() before and after the tick() and update() methods. These times are being recorded and sent to the client when the profiler is done.
 
@@ -53,6 +57,6 @@ As of version 3.0, you'll have to pick the right version of LagGoggles.<br>
 If you are a player, you can simply install the FORGE edition.<br>
 <br>
 If you're installing it on the server you have to use either the FORGE or SPONGEFORGE version.<br>
-Quick answer: Running SpongeForge or ForgeEssentials? Install the SPONGEFORGE version.<br>
+Quick answer: Running SpongeForge? Install the SPONGEFORGE version.<br>
 <br>
 Elaboration: SpongeForge changes classes at startup in such a way it's completely incompatible with LagGoggles's FORGE edit's on WorldServer.class, therefore I made an alternative WorldServer.class just to be compatible with SpongeForge.
