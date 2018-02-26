@@ -1,5 +1,6 @@
 package cf.terminator.laggoggles.server;
 
+import cf.terminator.laggoggles.CommonProxy;
 import cf.terminator.laggoggles.packet.CPacketRequestResult;
 import cf.terminator.laggoggles.packet.SPacketMessage;
 import cf.terminator.laggoggles.util.Perms;
@@ -10,6 +11,9 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 import java.util.HashMap;
 import java.util.UUID;
+
+import static cf.terminator.laggoggles.profiler.ProfileManager.LAST_PROFILE_RESULT;
+import static cf.terminator.laggoggles.profiler.ScanType.FPS;
 
 public class RequestResultHandler implements IMessageHandler<CPacketRequestResult, IMessage> {
 
@@ -22,7 +26,7 @@ public class RequestResultHandler implements IMessageHandler<CPacketRequestResul
         if(Perms.getPermission(player).ordinal() < Perms.Permission.GET.ordinal()){
             return new SPacketMessage("No permission");
         }
-        if(ScanRequestHandler.LAST_RESULT == null){
+        if(LAST_PROFILE_RESULT.get() == null || LAST_PROFILE_RESULT.get().getType() == FPS){
             return new SPacketMessage("No data available");
         }
         if(Perms.getPermission(player).ordinal() < Perms.Permission.FULL.ordinal()){
@@ -33,7 +37,8 @@ public class RequestResultHandler implements IMessageHandler<CPacketRequestResul
             }
             LAST_RESULT_REQUEST.put(player.getGameProfile().getId(), System.currentTimeMillis());
         }
-        return Perms.getResultFor(player, ScanRequestHandler.LAST_RESULT);
+        CommonProxy.sendTo(LAST_PROFILE_RESULT.get(), player);
+        return null;
     }
 
 }

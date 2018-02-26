@@ -1,6 +1,8 @@
 package cf.terminator.laggoggles.client.gui;
 
-import cf.terminator.laggoggles.packet.SPacketScanResult;
+import cf.terminator.laggoggles.packet.ObjectData;
+import cf.terminator.laggoggles.profiler.ProfileResult;
+import cf.terminator.laggoggles.profiler.ScanType;
 import cf.terminator.laggoggles.util.Calculations;
 import cf.terminator.laggoggles.util.Graphical;
 import cf.terminator.laggoggles.util.RunInClientThread;
@@ -20,6 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class LagOverlayGui {
 
@@ -30,25 +33,56 @@ public class LagOverlayGui {
     private final HashMap<BlockPos, Double> BLOCKS_HEAT = new HashMap<>();
     private final HashMap<Entity,   String> ENTITY_NANO = new HashMap<>();
     private final HashMap<Entity,   Double> ENTITY_HEAT = new HashMap<>();
-    private final ArrayList<SPacketScanResult.EntityData> data;
-    public AtomicBoolean isShowing = new AtomicBoolean(false);
+    private final ProfileResult result;
+    private AtomicBoolean isShowing = new AtomicBoolean(false);
 
     private double flash = 1;
     private boolean flashIncreasing = false;
 
     private final HashMap<ChunkPos, Double> CHUNKS = new HashMap<>();
+    private final ScanType type;
 
-    public LagOverlayGui(){
-        this(new ArrayList<>());
+    private static AtomicReference<LagOverlayGui> INSTANCE = new AtomicReference<>();
+    private final QuickText quickText;
+
+
+    public static void create(ProfileResult data){
+        if(INSTANCE.get() != null){
+            INSTANCE.get()._hide();
+        }
+        INSTANCE.set(new LagOverlayGui(data));
     }
 
-    public LagOverlayGui(ArrayList<SPacketScanResult.EntityData> data){
+    public static void destroy(){
+        if(INSTANCE.get() != null){
+            INSTANCE.get()._hide();
+            INSTANCE.set(null);
+        }
+    }
 
+    public static void show(){
+        if(INSTANCE.get() != null && INSTANCE.get().isShowing.get() == false){
+            INSTANCE.get()._show();
+        }
+    }
+
+    public static void hide(){
+        if(INSTANCE.get() != null && INSTANCE.get().isShowing.get() == true){
+            INSTANCE.get()._hide();
+        }
+    }
+
+    public static boolean isShowing(){
+        return INSTANCE.get() != null && INSTANCE.get().isShowing.get();
+    }
+
+    private LagOverlayGui(ProfileResult data){
+        this.result = data;
+        this.type = result.getType();
         MINECRAFT = Minecraft.getMinecraft();
         RENDER_MANAGER = MINECRAFT.getRenderManager();
         FONT_RENDERER = MINECRAFT.fontRenderer;
-
-        this.data = data;
+        this.quickText = new QuickText(result.getType().getText(result));
         scanAndAddEntities();
     }
 
@@ -73,39 +107,72 @@ public class LagOverlayGui {
         ENTITY_HEAT.clear();
         CHUNKS.clear();
         if(MINECRAFT.isGamePaused() || MINECRAFT.world == null || MINECRAFT.world.loadedEntityList == null){
-            isShowing.set(false);
             return;
         }
-        for(SPacketScanResult.EntityData entityData : data){
-            long nanos = entityData.getValue(SPacketScanResult.EntityData.Entry.NANOS);
-            switch (entityData.type){
+        if(type == ScanType.WORLD){
+            scanWorldTypes();
+        }else{
+            scanGuiTypes();
+        }
+    }
+
+    private void scanGuiTypes() {
+        for (ObjectData objectData : result.getData()) {
+            long nanos = objectData.getValue(ObjectData.Entry.NANOS);
+            switch (objectData.type) {
+                case GUI_BLOCK:
+                    BlockPos pos = new BlockPos(objectData.getValue(ObjectData.Entry.BLOCK_POS_X), objectData.getValue(ObjectData.Entry.BLOCK_POS_Y), objectData.getValue(ObjectData.Entry.BLOCK_POS_Z));
+                    BLOCKS_HEAT.put(pos, Calculations.heatNF(nanos, result));
+                    BLOCKS_NANO.put(pos, Calculations.NFString(nanos, result.getTotalFrames()));
+                    break;
+                case GUI_ENTITY:
+                    UUID entityID = objectData.getValue(ObjectData.Entry.ENTITY_UUID);
+                    for (Entity entity : new ArrayList<>(MINECRAFT.world.loadedEntityList)) {
+                        if (entity.getPersistentID().equals(entityID)) {
+                            if (entity == MINECRAFT.player) {
+                                continue;
+                            }
+                            ENTITY_HEAT.put(entity, Calculations.heatNF(nanos, result));
+                            ENTITY_NANO.put(entity, Calculations.NFString(nanos, result.getTotalFrames()));
+                            break;
+                        }
+                    }
+
+            }
+        }
+    }
+
+    private void scanWorldTypes(){
+        for(ObjectData objectData : result.getData()){
+            long nanos = objectData.getValue(ObjectData.Entry.NANOS);
+            switch (objectData.type){
                 case TILE_ENTITY:
                 case BLOCK:
-                    if((int) entityData.getValue(SPacketScanResult.EntityData.Entry.WORLD_ID) != MINECRAFT.world.provider.getDimension()){
+                    if((int) objectData.getValue(ObjectData.Entry.WORLD_ID) != MINECRAFT.world.provider.getDimension()){
                         continue;
                     }
-                    BlockPos pos = new BlockPos(entityData.getValue(SPacketScanResult.EntityData.Entry.BLOCK_POS_X), entityData.getValue(SPacketScanResult.EntityData.Entry.BLOCK_POS_Y), entityData.getValue(SPacketScanResult.EntityData.Entry.BLOCK_POS_Z));
+                    BlockPos pos = new BlockPos(objectData.getValue(ObjectData.Entry.BLOCK_POS_X), objectData.getValue(ObjectData.Entry.BLOCK_POS_Y), objectData.getValue(ObjectData.Entry.BLOCK_POS_Z));
                     if(MINECRAFT.player.getDistanceSq(pos) > 36864){
                         /* More than 12 chunks away, we don't draw. */
                         continue;
                     }
-                    double heat = Calculations.heat(nanos);
+                    double heat = Calculations.heat(nanos, result);
                     BLOCKS_HEAT.put(pos,heat);
-                    BLOCKS_NANO.put(pos,Calculations.muPerTickString(nanos));
+                    BLOCKS_NANO.put(pos,Calculations.muPerTickString(nanos, result));
                     calculateChunk(pos,heat);
                     break;
                 case ENTITY:
-                    if((int) entityData.getValue(SPacketScanResult.EntityData.Entry.WORLD_ID) != MINECRAFT.world.provider.getDimension()){
+                    if((int) objectData.getValue(ObjectData.Entry.WORLD_ID) != MINECRAFT.world.provider.getDimension()){
                         continue;
                     }
-                    UUID entityID = entityData.getValue(SPacketScanResult.EntityData.Entry.ENTITY_UUID);
+                    UUID entityID = objectData.getValue(ObjectData.Entry.ENTITY_UUID);
                     for(Entity entity : new ArrayList<>(MINECRAFT.world.loadedEntityList)){
                         if(entity.getPersistentID().equals(entityID)){
                             if(entity == MINECRAFT.player){
                                 continue;
                             }
-                            ENTITY_NANO.put(entity, Calculations.muPerTickString(nanos));
-                            ENTITY_HEAT.put(entity, Calculations.heat(nanos));
+                            ENTITY_NANO.put(entity, Calculations.muPerTickString(nanos, result));
+                            ENTITY_HEAT.put(entity, Calculations.heat(nanos, result));
                             break;
                         }
                     }
@@ -216,6 +283,7 @@ public class LagOverlayGui {
         drawEntityTags(partialTicks);
 
 
+
         /* Restore settings */
         GL11.glEnable(GL11.GL_LIGHTING);
         GL11.glEnable(GL11.GL_DEPTH_TEST);
@@ -225,7 +293,7 @@ public class LagOverlayGui {
 
     }
 
-    public void highLightMob(Entity entity, double heat, float partialTicks){
+    private void highLightMob(Entity entity, double heat, float partialTicks){
 
         double[] c = Graphical.heatToColor(heat);
 
@@ -250,7 +318,7 @@ public class LagOverlayGui {
         GL11.glVertex3d(pX, pY + 2.3 ,  pZ);
     }
 
-    public void drawBlocksAndChunks(double pY){
+    private void drawBlocksAndChunks(double pY){
         /* Draw blocks! */
         GL11.glBegin(GL11.GL_QUADS);
         for(Map.Entry<BlockPos, Double> e : BLOCKS_HEAT.entrySet()){
@@ -266,8 +334,7 @@ public class LagOverlayGui {
         GL11.glEnd();
     }
 
-    public void drawEntities(float partialTicks){
-        //GL11.glLineWidth(5);
+    private void drawEntities(float partialTicks){
         GL11.glBegin(GL11.GL_LINES);
         for(Map.Entry<Entity, Double> e : ENTITY_HEAT.entrySet()) {
             highLightMob(e.getKey(), e.getValue(), partialTicks);
@@ -275,7 +342,7 @@ public class LagOverlayGui {
         GL11.glEnd();
     }
 
-    public void drawTileEntityTags(){
+    private void drawTileEntityTags(){
         /* TILE ENTITIES */
         GL11.glEnable(GL11.GL_TEXTURE_2D);
         for(Map.Entry<BlockPos, String> e : BLOCKS_NANO.entrySet()){
@@ -298,7 +365,7 @@ public class LagOverlayGui {
         GL11.glDisable(GL11.GL_TEXTURE_2D);
     }
 
-    public void drawEntityTags(float partialTicks){
+    private void drawEntityTags(float partialTicks){
         /* ENTITIES */
         for(Map.Entry<Entity, String> e : ENTITY_NANO.entrySet()){
             GL11.glPushMatrix();
@@ -351,15 +418,17 @@ public class LagOverlayGui {
         }
     }
 
-    public void hide(){
+    private void _hide(){
         MinecraftForge.EVENT_BUS.unregister(this);
+        quickText.hide();
         isShowing.set(false);
     }
 
-    public void show(){
+    private void _show(){
         isShowing.set(true);
         new Thread(TIMELY_UPDATES).start();
         MinecraftForge.EVENT_BUS.register(this);
+        quickText.show();
     }
 
     private Runnable TIMELY_UPDATES = new Runnable() {
@@ -371,7 +440,9 @@ public class LagOverlayGui {
                     new RunInClientThread(new Runnable() {
                         @Override
                         public void run() {
-                            scanAndAddEntities();
+                            if(isShowing.get()) {
+                                scanAndAddEntities();
+                            }
                         }
                     });
                 } catch (InterruptedException e) {

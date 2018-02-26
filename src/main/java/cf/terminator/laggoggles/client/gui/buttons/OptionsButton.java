@@ -1,4 +1,4 @@
-package cf.terminator.laggoggles.client.gui;
+package cf.terminator.laggoggles.client.gui.buttons;
 
 import net.minecraft.client.gui.GuiButton;
 

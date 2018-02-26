@@ -5,6 +5,7 @@ import cf.terminator.laggoggles.client.ProfileStatusHandler;
 import cf.terminator.laggoggles.client.ScanResultHandler;
 import cf.terminator.laggoggles.client.ServerDataPacketHandler;
 import cf.terminator.laggoggles.packet.*;
+import cf.terminator.laggoggles.profiler.ProfileResult;
 import cf.terminator.laggoggles.profiler.TickCounter;
 import cf.terminator.laggoggles.server.*;
 import cf.terminator.laggoggles.util.Perms;
@@ -63,22 +64,23 @@ public class CommonProxy {
     }
 
     public static void sendTo(IMessage msg, EntityPlayerMP player){
-        if(msg instanceof SPacketScanResult) {
-            new RunInServerThread(new Runnable() {
-                @Override
-                public void run() {
-                    NETWORK_WRAPPER.sendTo(Perms.getResultFor(player, (SPacketScanResult) msg), player);
+        NETWORK_WRAPPER.sendTo(msg, player);
+    }
+
+    public static void sendTo(ProfileResult result, EntityPlayerMP player){
+        new RunInServerThread(new Runnable() {
+            @Override
+            public void run() {
+                SPacketScanResult packet = Perms.getResultFor(player, result).getPacket();
+                if(packet != null) {
+                    NETWORK_WRAPPER.sendTo(packet, player);
                 }
-            });
-        }else{
-            NETWORK_WRAPPER.sendTo(msg, player);
-        }
+            }
+        });
     }
 
     public void serverStartingEvent(FMLServerStartingEvent e){
         MinecraftForge.EVENT_BUS.register(new TickCounter());
         MinecraftForge.EVENT_BUS.register(new RequestDataHandler());
     }
-
-
 }

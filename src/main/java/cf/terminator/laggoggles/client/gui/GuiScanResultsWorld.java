@@ -1,16 +1,16 @@
 package cf.terminator.laggoggles.client.gui;
 
 import cf.terminator.laggoggles.Main;
-import cf.terminator.laggoggles.packet.SPacketScanResult;
+import cf.terminator.laggoggles.packet.ObjectData;
+import cf.terminator.laggoggles.profiler.ProfileResult;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiScreen;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.TreeMap;
 
-public class GuiScanResults extends GuiScreen {
+public class GuiScanResultsWorld extends GuiScreen {
 
     private final FontRenderer FONTRENDERER;
     public final TreeMap<Integer, LagSource> DATA_ID_TO_SOURCE = new TreeMap<>();
@@ -20,29 +20,22 @@ public class GuiScanResults extends GuiScreen {
     private GuiEntityTypes guiEntityTypes;
     private GuiEventTypes guiEventTypes;
 
-    private ArrayList<LagSource> data;
+    private ProfileResult result;
 
-    public GuiScanResults(ArrayList<LagSource> data){
+    public GuiScanResultsWorld(ProfileResult result){
         super();
         FONTRENDERER = Minecraft.getMinecraft().fontRenderer;
-        this.data = data;
-        int i = 0;
-        for(LagSource source : data){
-            DATA_ID_TO_SOURCE.put(i, source);
-            DATA_SOURCE_TO_ID.put(source, i);
-            i++;
-        }
-
+        this.result = result;
     }
 
     @Override
     public void initGui() {
         super.initGui();
 
-        /*                                            width  , height              , top                   , bottom         , left      , screenWidth, screenHeight, LAGSOURCES*/
-        guiSingleEntities = new GuiSingleEntities(mc, width/2, height - 25         , 45                    , height         ,  0        , width      , height      , data);
-        guiEntityTypes    = new GuiEntityTypes(   mc, width/2, (height - 25)/2     , 45                    , (height - 25)/2,  width/2  , width      , height      , data);
-        guiEventTypes     = new GuiEventTypes(    mc, width/2, (height - 25)/2 - 12, ((height - 25)/2) + 12, height         ,  width/2  , width      , height      , data);
+        /*                                            width  , height              , top                   , bottom         , left      , screenWidth, screenHeight, ProfileResult*/
+        guiSingleEntities = new GuiSingleEntities(mc, width/2, height - 25         , 45                    , height         ,  0        , width      , height      , result);
+        guiEntityTypes    = new GuiEntityTypes(   mc, width/2, (height - 25)/2     , 45                    , (height - 25)/2,  width/2  , width      , height      , result);
+        guiEventTypes     = new GuiEventTypes(    mc, width/2, (height - 25)/2 - 12, ((height - 25)/2) + 12, height         ,  width/2  , width      , height      , result);
     }
 
     @Override
@@ -52,7 +45,7 @@ public class GuiScanResults extends GuiScreen {
         guiSingleEntities.drawScreen(mouseX, mouseY, partialTicks);
         guiEntityTypes.drawScreen(mouseX, mouseY, partialTicks);
         guiEventTypes.drawScreen(mouseX, mouseY, partialTicks);
-        drawString(Main.MODID + ": profile data", 5, 5, 0xFFFFFF);
+        drawString(Main.MODID + ": profile data for WORLD scan results", 5, 5, 0xFFFFFF);
         drawString("Times are presented in microseconds", 5, 15, 0xCCCCCC);
         drawString("Single entities", 5, 35, 0xFFFFFF);
         drawString("Entities by type", width/2 + 5, 35, 0xFFFFFF);
@@ -83,9 +76,9 @@ public class GuiScanResults extends GuiScreen {
     public static class LagSource implements Comparable<LagSource>{
 
         final long nanos;
-        final SPacketScanResult.EntityData data;
+        final ObjectData data;
 
-        public LagSource(long nanos, SPacketScanResult.EntityData e){
+        public LagSource(long nanos, ObjectData e){
             this.nanos = nanos;
             data = e;
         }

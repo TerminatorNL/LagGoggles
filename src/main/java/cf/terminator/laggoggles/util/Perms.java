@@ -1,6 +1,7 @@
 package cf.terminator.laggoggles.util;
 
-import cf.terminator.laggoggles.packet.SPacketScanResult;
+import cf.terminator.laggoggles.packet.ObjectData;
+import cf.terminator.laggoggles.profiler.ProfileResult;
 import cf.terminator.laggoggles.server.RequestDataHandler;
 import cf.terminator.laggoggles.server.ServerConfig;
 import net.minecraft.entity.Entity;
@@ -16,7 +17,6 @@ import java.util.UUID;
 
 public class Perms {
 
-    private static MinecraftServer server;
     public static final double MAX_RANGE_FOR_PLAYERS_HORIZONTAL_SQ = ServerConfig.NON_OPS_MAX_HORIZONTAL_RANGE * ServerConfig.NON_OPS_MAX_HORIZONTAL_RANGE;
     public static final double MAX_RANGE_FOR_PLAYERS_VERTICAL_SQ = ServerConfig.NON_OPS_MAX_VERTICAL_RANGE * ServerConfig.NON_OPS_MAX_HORIZONTAL_RANGE;
 
@@ -54,8 +54,7 @@ public class Perms {
         return list;
     }
 
-    public static SPacketScanResult getResultFor(EntityPlayerMP player, SPacketScanResult result){
-        server = FMLCommonHandler.instance().getMinecraftServerInstance();
+    public static ProfileResult getResultFor(EntityPlayerMP player, ProfileResult result){
         Permission permission = getPermission(player);
         if(permission == Permission.NONE){
             return null;
@@ -63,37 +62,33 @@ public class Perms {
         if(permission == Permission.FULL){
             return result;
         }
-        SPacketScanResult trimmedResult = new SPacketScanResult();
-        trimmedResult.endTime = result.endTime;
-        trimmedResult.hasMore = result.hasMore;
-        trimmedResult.TOTAL_TICKS = result.TOTAL_TICKS;
-        trimmedResult.DATA = new ArrayList<>(result.DATA);
-        for(SPacketScanResult.EntityData data : result.DATA){
+        ProfileResult trimmedResult = result.copy();
+        for(ObjectData data : result.getData()){
             if(isInRange(data, player) == false){
-                trimmedResult.DATA.remove(data);
+                trimmedResult.removeData(data);
             }
         }
         return trimmedResult;
     }
 
-    public static boolean isInRange(SPacketScanResult.EntityData data, EntityPlayerMP player){
-        if(data.type == SPacketScanResult.EntityData.Type.EVENT_BUS_LISTENER){
+    public static boolean isInRange(ObjectData data, EntityPlayerMP player){
+        if(data.type == ObjectData.Type.EVENT_BUS_LISTENER){
             return ServerConfig.ALLOW_NON_OPS_TO_SEE_EVENT_SUBSCRIBERS;
         }
-        if(data.<Integer>getValue(SPacketScanResult.EntityData.Entry.WORLD_ID) != player.dimension){
+        if(data.<Integer>getValue(ObjectData.Entry.WORLD_ID) != player.dimension){
             return false;
         }
         switch(data.type){
             case ENTITY:
-                WorldServer world = DimensionManager.getWorld(data.getValue(SPacketScanResult.EntityData.Entry.WORLD_ID));
+                WorldServer world = DimensionManager.getWorld(data.getValue(ObjectData.Entry.WORLD_ID));
                 Entity e;
-                if(world != null && (e = world.getEntityFromUuid(data.getValue(SPacketScanResult.EntityData.Entry.ENTITY_UUID))) != null){
+                if(world != null && (e = world.getEntityFromUuid(data.getValue(ObjectData.Entry.ENTITY_UUID))) != null){
                     return checkRange(player, e.posX, e.posY, e.posZ);
                 }
                 return false;
             case BLOCK:
             case TILE_ENTITY:
-                return checkRange(player, data.getValue(SPacketScanResult.EntityData.Entry.BLOCK_POS_X), data.getValue(SPacketScanResult.EntityData.Entry.BLOCK_POS_Y), data.getValue(SPacketScanResult.EntityData.Entry.BLOCK_POS_Z));
+                return checkRange(player, data.getValue(ObjectData.Entry.BLOCK_POS_X), data.getValue(ObjectData.Entry.BLOCK_POS_Y), data.getValue(ObjectData.Entry.BLOCK_POS_Z));
             default:
                 return false;
         }

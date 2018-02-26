@@ -21,8 +21,8 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import java.util.Iterator;
 
-import static cf.terminator.laggoggles.profiler.world.ProfileManager.PROFILE_ENABLED;
-import static cf.terminator.laggoggles.profiler.world.ProfileManager.worldTimingManager;
+import static cf.terminator.laggoggles.profiler.ProfileManager.PROFILE_ENABLED;
+import static cf.terminator.laggoggles.profiler.ProfileManager.timingManager;
 
 @Mixin(value = WorldServer.class, priority = 1001)
 public abstract class MixinWorldServer extends World {
@@ -54,7 +54,7 @@ public abstract class MixinWorldServer extends World {
     )
     public void afterUpdate(boolean bool, CallbackInfoReturnable<Boolean> ci, int integer, Iterator iterator, NextTickListEntry nextTickListEntry, int integer2, IBlockState state){
         if (PROFILE_ENABLED.get() && LAGGOGGLES_START_TICK != null) {
-            worldTimingManager.addBlockTime(provider.getDimension(), nextTickListEntry.position, System.nanoTime() - LAGGOGGLES_START_TICK);
+            timingManager.addBlockTime(provider.getDimension(), nextTickListEntry.position, System.nanoTime() - LAGGOGGLES_START_TICK);
         }
     }
 
@@ -79,7 +79,7 @@ public abstract class MixinWorldServer extends World {
     )
     public void afterUpdateBlocks(CallbackInfo ci, int int1, boolean bool1, boolean bool2, Iterator iterator, Chunk chunk, int j, int k, ExtendedBlockStorage[] storage, int int4, int int5, ExtendedBlockStorage extendedblockstorage, int int6, int int7, int k1, int l1, int i2, IBlockState state, Block block){
         if (PROFILE_ENABLED.get() && LAGGOGGLES_START_RANDOM != null) {
-            worldTimingManager.addBlockTime(provider.getDimension(), new BlockPos(k1 + j, i2 + extendedblockstorage.getYLocation(), l1 + k), System.nanoTime() - LAGGOGGLES_START_RANDOM);
+            timingManager.addBlockTime(provider.getDimension(), new BlockPos(k1 + j, i2 + extendedblockstorage.getYLocation(), l1 + k), System.nanoTime() - LAGGOGGLES_START_RANDOM);
         }
     }
 

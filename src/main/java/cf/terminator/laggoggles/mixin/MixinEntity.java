@@ -9,8 +9,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.UUID;
 
-import static cf.terminator.laggoggles.profiler.world.ProfileManager.PROFILE_ENABLED;
-import static cf.terminator.laggoggles.profiler.world.ProfileManager.worldTimingManager;
+import static cf.terminator.laggoggles.profiler.ProfileManager.PROFILE_ENABLED;
+import static cf.terminator.laggoggles.profiler.ProfileManager.timingManager;
 
 @Mixin(value = Entity.class)
 public abstract class MixinEntity {
@@ -31,9 +31,12 @@ public abstract class MixinEntity {
     @Inject(method = "onUpdate", at = @At("RETURN"))
     public void onEntityUpdateRETURN(CallbackInfo info){
         if(PROFILE_ENABLED.get() && LAGGOGGLES_START != null){
-            worldTimingManager.addEntityTime(dimension, entityUniqueID, System.nanoTime() - LAGGOGGLES_START);
+            timingManager.addEntityTime(dimension, entityUniqueID, System.nanoTime() - LAGGOGGLES_START);
         }
     }
+
+
+
 
 
 }

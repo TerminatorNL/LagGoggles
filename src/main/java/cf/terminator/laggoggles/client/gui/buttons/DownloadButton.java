@@ -1,4 +1,4 @@
-package cf.terminator.laggoggles.client.gui;
+package cf.terminator.laggoggles.client.gui.buttons;
 
 import cf.terminator.laggoggles.Main;
 import cf.terminator.laggoggles.util.Perms;
@@ -31,8 +31,8 @@ public class DownloadButton extends GuiButton{
         drawModalRectWithCustomSizedTexture(x+3,y+3,0,0,14,14,14,14);
         if(hovered){
             ArrayList<String> hover = new ArrayList<>();
-            hover.add("Download the latest");
-            hover.add("available result from the server.");
+            hover.add("Download the latest available");
+            hover.add("world result from the server.");
             if(PERMISSION != Perms.Permission.FULL) {
                 hover.add("");
                 hover.add("Because you're not opped, the results");

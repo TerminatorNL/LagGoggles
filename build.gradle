@@ -9,7 +9,7 @@ buildscript {
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
-        classpath 'org.spongepowered:mixingradle:0.4-SNAPSHOT'
+        classpath 'org.spongepowered:mixingradle:0.6-SNAPSHOT'
     }
 }
 boolean isSponge = hasProperty("isSponge")
@@ -32,12 +32,9 @@ if(isClient == false) {
     delete fileTree('run/mods') {
         include 'LagGoggles*'
     }
-    delete fileTree('run 1.10.2/mods') {
-        include 'LagGoggles*'
-    }
 }
 
-version = "1.12.2-3.3"
+version = "1.12.2-4.0"
 group= "cf.terminator.laggoggles" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "LagGoggles-" + buildType
 
@@ -131,10 +128,12 @@ jar {
 }
 
 task finalize << {
-    println("Copied " + jar.archivePath + " into run/mods")
-    copy {
-        from jar.archivePath
-        into "run/mods"
+    if(isClient == false) {
+        println("Copied " + jar.archivePath + " into run/mods")
+        copy {
+            from jar.archivePath
+            into "run/mods"
+        }
     }
 }
 

@@ -11,11 +11,11 @@ public class CPacketRequestTileEntityTeleport implements IMessage{
     public int z;
 
     public CPacketRequestTileEntityTeleport(){}
-    public CPacketRequestTileEntityTeleport(SPacketScanResult.EntityData data){
-        dim = data.getValue(SPacketScanResult.EntityData.Entry.WORLD_ID);
-        x =   data.getValue(SPacketScanResult.EntityData.Entry.BLOCK_POS_X);
-        y =   data.getValue(SPacketScanResult.EntityData.Entry.BLOCK_POS_Y);
-        z =   data.getValue(SPacketScanResult.EntityData.Entry.BLOCK_POS_Z);
+    public CPacketRequestTileEntityTeleport(ObjectData data){
+        dim = data.getValue(ObjectData.Entry.WORLD_ID);
+        x =   data.getValue(ObjectData.Entry.BLOCK_POS_X);
+        y =   data.getValue(ObjectData.Entry.BLOCK_POS_Y);
+        z =   data.getValue(ObjectData.Entry.BLOCK_POS_Z);
     }
 
     @Override

@@ -26,8 +26,8 @@ import org.spongepowered.common.interfaces.block.IMixinBlock;
 import java.util.Iterator;
 import java.util.Random;
 
-import static cf.terminator.laggoggles.profiler.world.ProfileManager.PROFILE_ENABLED;
-import static cf.terminator.laggoggles.profiler.world.ProfileManager.worldTimingManager;
+import static cf.terminator.laggoggles.profiler.ProfileManager.PROFILE_ENABLED;
+import static cf.terminator.laggoggles.profiler.ProfileManager.timingManager;
 
 @Mixin(value = WorldServer.class, priority = 1001)
 public abstract class MixinWorldServerSponge extends World {
@@ -59,7 +59,7 @@ public abstract class MixinWorldServerSponge extends World {
     )
     public void afterUpdate(boolean runAllPending, CallbackInfoReturnable<Boolean> cir, int i, Iterator iterator, NextTickListEntry nextticklistentry1, int k, IBlockState iblockstate, Block var10, WorldServer var11, BlockPos var12, IBlockState var13, Random var14){
         if (PROFILE_ENABLED.get() && LAGGOGGLES_START_TICK != null) {
-            worldTimingManager.addBlockTime(provider.getDimension(), nextticklistentry1.position, System.nanoTime() - LAGGOGGLES_START_TICK);
+            timingManager.addBlockTime(provider.getDimension(), nextticklistentry1.position, System.nanoTime() - LAGGOGGLES_START_TICK);
         }
     }
 
@@ -84,7 +84,7 @@ public abstract class MixinWorldServerSponge extends World {
     )
     public void afterUpdateBlocks(CallbackInfo ci, int i, boolean flag, boolean flag1, PhaseTracker phaseTracker, Iterator iterator, Chunk chunk, World world, int j, int k, ExtendedBlockStorage var10[], int var11, int var12, ExtendedBlockStorage extendedblockstorage, int i1, int j1, int k1, int l1, int i2, IBlockState iblockstate, Block block, BlockPos pos, IMixinBlock spongeBlock, PhaseData currentTuple, IPhaseState phaseState){
         if (PROFILE_ENABLED.get() && LAGGOGGLES_START_RANDOM != null) {
-            worldTimingManager.addBlockTime(provider.getDimension(), new BlockPos(k1 + j, i2 + extendedblockstorage.getYLocation(), l1 + k), System.nanoTime() - LAGGOGGLES_START_RANDOM);
+            timingManager.addBlockTime(provider.getDimension(), new BlockPos(k1 + j, i2 + extendedblockstorage.getYLocation(), l1 + k), System.nanoTime() - LAGGOGGLES_START_RANDOM);
         }
     }
 

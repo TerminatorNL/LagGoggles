@@ -11,14 +11,14 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import java.util.Iterator;
 
-import static cf.terminator.laggoggles.profiler.world.ProfileManager.PROFILE_ENABLED;
-import static cf.terminator.laggoggles.profiler.world.ProfileManager.worldTimingManager;
+import static cf.terminator.laggoggles.profiler.ProfileManager.PROFILE_ENABLED;
+import static cf.terminator.laggoggles.profiler.ProfileManager.timingManager;
 
 @Mixin(value = World.class,
         priority = 1001)
 public abstract class MixinWorld {
 
-    Long LAGGOGGLES_START = null;
+    private Long LAGGOGGLES_START = null;
 
     @Inject(
             method = "updateEntities()V",
@@ -44,7 +44,7 @@ public abstract class MixinWorld {
     )
     public void afterTick(CallbackInfo ci, Iterator iterator, TileEntity tileentity, BlockPos pos) {
         if (PROFILE_ENABLED.get() && LAGGOGGLES_START != null) {
-            worldTimingManager.addBlockTime(tileentity.getWorld().provider.getDimension(), pos, System.nanoTime() - LAGGOGGLES_START);
+            timingManager.addBlockTime(tileentity.getWorld().provider.getDimension(), pos, System.nanoTime() - LAGGOGGLES_START);
         }
     }
 }

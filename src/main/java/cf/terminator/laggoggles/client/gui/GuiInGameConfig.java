@@ -12,4 +12,9 @@ public class GuiInGameConfig extends GuiConfig {
         super(parent, Main.MODID_LOWER, false, false, Main.MODID + " configuration", ClientConfig.class);
         titleLine2 = "Hover with the mouse over a variable to see a description";
     }
+
+    @Override
+    public void onGuiClosed(){
+        super.onGuiClosed();
+    }
 }

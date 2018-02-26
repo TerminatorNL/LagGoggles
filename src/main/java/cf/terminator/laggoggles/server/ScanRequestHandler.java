@@ -2,8 +2,12 @@ package cf.terminator.laggoggles.server;
 
 import cf.terminator.laggoggles.CommonProxy;
 import cf.terminator.laggoggles.Main;
-import cf.terminator.laggoggles.packet.*;
-import cf.terminator.laggoggles.profiler.world.ProfileManager;
+import cf.terminator.laggoggles.api.Profiler;
+import cf.terminator.laggoggles.packet.CPacketRequestScan;
+import cf.terminator.laggoggles.packet.SPacketMessage;
+import cf.terminator.laggoggles.packet.SPacketProfileStatus;
+import cf.terminator.laggoggles.packet.SPacketServerData;
+import cf.terminator.laggoggles.profiler.ScanType;
 import cf.terminator.laggoggles.util.Perms;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
@@ -13,13 +17,13 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import java.util.HashMap;
 import java.util.UUID;
 
-import static cf.terminator.laggoggles.profiler.world.ProfileManager.PROFILE_ENABLED;
+import static cf.terminator.laggoggles.profiler.ProfileManager.LAST_PROFILE_RESULT;
+import static cf.terminator.laggoggles.profiler.ProfileManager.PROFILE_ENABLED;
 import static cf.terminator.laggoggles.server.ServerConfig.NON_OPS_PROFILE_COOL_DOWN_SECONDS;
 
 public class ScanRequestHandler implements IMessageHandler<CPacketRequestScan, IMessage> {
 
     private static HashMap<UUID, Long> COOLDOWN = new HashMap<>();
-    public static SPacketScanResult LAST_RESULT;
 
     @Override
     public IMessage onMessage(CPacketRequestScan request, MessageContext ctx) {
@@ -57,7 +61,7 @@ public class ScanRequestHandler implements IMessageHandler<CPacketRequestScan, I
                 }
 
                 Main.LOGGER.info(Main.MODID + " profiler started by " + requestee.getName() + " (" + request.length + " seconds)");
-                LAST_RESULT = ProfileManager.runProfiler(request);
+                Profiler.runProfiler(request.length, ScanType.WORLD);
                 Main.LOGGER.info(Main.MODID + " finished profiling!");
 
                 /* Send status to users */
@@ -66,11 +70,9 @@ public class ScanRequestHandler implements IMessageHandler<CPacketRequestScan, I
                     CommonProxy.sendTo(status2, user);
                 }
 
-                if(LAST_RESULT != null) {
-                    CommonProxy.sendTo(LAST_RESULT, requestee);
-                    for(EntityPlayerMP user : Perms.getLagGogglesUsers()) {
-                        CommonProxy.sendTo(new SPacketServerData(user), user);
-                    }
+                CommonProxy.sendTo(LAST_PROFILE_RESULT.get().getPacket(), requestee);
+                for(EntityPlayerMP user : Perms.getLagGogglesUsers()) {
+                    CommonProxy.sendTo(new SPacketServerData(user), user);
                 }
             }
         }).start();

@@ -20,10 +20,14 @@ import java.util.Optional;
 @Config(modid = Main.MODID_LOWER, name = Main.MODID + "-client")
 public class ClientConfig {
 
-    @Config.Comment("Define the number of microseconds at which an object is marked with a deep red colour")
+    @Config.Comment("Define the number of microseconds at which an object is marked with a deep red colour for WORLD lag.")
     public static int GRADIENT_MAXED_OUT_AT_MICROSECONDS = 25;
 
+    @Config.Comment("Define the number of microseconds at which an object is marked with a deep red colour for FPS lag.")
+    public static int GRADIENT_MAXED_OUT_AT_NANOSECONDS_FPS = 50000;
+
     @Config.Comment("What is the minimum amount of microseconds required before an object is tracked in the client?\n" +
+                    "This is only for WORLD lag.\n" +
                     "This also affects the analyze results window")
     public static int MINIMUM_AMOUNT_OF_MICROSECONDS_THRESHOLD = 1;
 

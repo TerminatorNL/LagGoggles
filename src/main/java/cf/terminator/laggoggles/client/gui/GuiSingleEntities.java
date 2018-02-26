@@ -22,7 +22,9 @@ package cf.terminator.laggoggles.client.gui;
 import cf.terminator.laggoggles.client.ClientProxy;
 import cf.terminator.laggoggles.packet.CPacketRequestEntityTeleport;
 import cf.terminator.laggoggles.packet.CPacketRequestTileEntityTeleport;
-import cf.terminator.laggoggles.packet.SPacketScanResult;
+import cf.terminator.laggoggles.packet.ObjectData;
+import cf.terminator.laggoggles.profiler.ProfileResult;
+import cf.terminator.laggoggles.profiler.ScanType;
 import cf.terminator.laggoggles.util.Calculations;
 import cf.terminator.laggoggles.util.Graphical;
 import net.minecraft.client.Minecraft;
@@ -36,36 +38,50 @@ import java.util.Collections;
 
 public class GuiSingleEntities extends GuiScrollingList {
 
-    private ArrayList<GuiScanResults.LagSource> LAGSOURCES = new ArrayList<>();
+    private ArrayList<GuiScanResultsWorld.LagSource> LAGSOURCES = new ArrayList<>();
     private int selected = -1;
     private final FontRenderer FONTRENDERER;
     private static final int slotHeight = 12;
     private int COLUMN_WIDTH_NANOS = 0;
     private int COLUMN_WIDTH_PERCENTAGES = 0;
+    private ProfileResult result;
 
-    public GuiSingleEntities(Minecraft client, int width, int height, int top, int bottom, int left, int screenWidth, int screenHeight, ArrayList<GuiScanResults.LagSource> lagSources) {
+    public GuiSingleEntities(Minecraft client, int width, int height, int top, int bottom, int left, int screenWidth, int screenHeight, ProfileResult result) {
         super(client, width, height, top, bottom, left, slotHeight, screenWidth, screenHeight);
         FONTRENDERER = client.fontRenderer;
-        for(GuiScanResults.LagSource src : lagSources){
-            switch(src.data.type){
-                case BLOCK:
-                case ENTITY:
-                case TILE_ENTITY:
-                    LAGSOURCES.add(src);
+        this.result = result;
+        ScanType type = result.getType();
+        if(type == ScanType.WORLD) {
+            for (GuiScanResultsWorld.LagSource src : result.getLagSources()) {
+                switch (src.data.type) {
+                    case BLOCK:
+                    case ENTITY:
+                    case TILE_ENTITY:
+                        LAGSOURCES.add(src);
+                }
+            }
+        }else if (type == ScanType.FPS){
+            for (GuiScanResultsWorld.LagSource src : result.getLagSources()) {
+                switch (src.data.type) {
+                    case GUI_BLOCK:
+                    case GUI_ENTITY:
+                        LAGSOURCES.add(src);
+                }
             }
         }
         Collections.sort(LAGSOURCES);
 
-        for(GuiScanResults.LagSource src : LAGSOURCES){
-            COLUMN_WIDTH_NANOS = Math.max(COLUMN_WIDTH_NANOS, FONTRENDERER.getStringWidth(Calculations.muPerTickString(src.nanos)));
+        if(type == ScanType.WORLD) {
+            for (GuiScanResultsWorld.LagSource src : LAGSOURCES) {
+                COLUMN_WIDTH_NANOS = Math.max(COLUMN_WIDTH_NANOS, FONTRENDERER.getStringWidth(Calculations.muPerTickString(src.nanos, result)));
+                COLUMN_WIDTH_PERCENTAGES = Math.max(COLUMN_WIDTH_PERCENTAGES, FONTRENDERER.getStringWidth(Calculations.tickPercent(src.nanos, result)));
+            }
+        }else if (type == ScanType.FPS){
+            for (GuiScanResultsWorld.LagSource src : LAGSOURCES) {
+                COLUMN_WIDTH_NANOS = Math.max(COLUMN_WIDTH_NANOS, FONTRENDERER.getStringWidth(Calculations.NFStringSimple(src.nanos, result.getTotalFrames())));
+                COLUMN_WIDTH_PERCENTAGES = Math.max(COLUMN_WIDTH_PERCENTAGES, FONTRENDERER.getStringWidth(Calculations.nfPercent(src.nanos, result)));
+            }
         }
-        for(GuiScanResults.LagSource src : LAGSOURCES){
-            COLUMN_WIDTH_PERCENTAGES = Math.max(COLUMN_WIDTH_PERCENTAGES, FONTRENDERER.getStringWidth(getPercent(src.nanos)));
-        }
-    }
-
-    private String getPercent(long nanos){
-        return Calculations.tickPercent(nanos);
     }
 
     @Override
@@ -79,12 +95,14 @@ public class GuiSingleEntities extends GuiScrollingList {
         if(doubleClick){
             switch (LAGSOURCES.get(slot).data.type) {
                 case TILE_ENTITY:
+                case GUI_BLOCK:
                 case BLOCK:
                     ClientProxy.NETWORK_WRAPPER.sendToServer(new CPacketRequestTileEntityTeleport(LAGSOURCES.get(slot).data));
                     Minecraft.getMinecraft().displayGuiScreen(null);
                     break;
                 case ENTITY:
-                    ClientProxy.NETWORK_WRAPPER.sendToServer(new CPacketRequestEntityTeleport(LAGSOURCES.get(slot).data.getValue(SPacketScanResult.EntityData.Entry.ENTITY_UUID)));
+                case GUI_ENTITY:
+                    ClientProxy.NETWORK_WRAPPER.sendToServer(new CPacketRequestEntityTeleport(LAGSOURCES.get(slot).data.getValue(ObjectData.Entry.ENTITY_UUID)));
                     Minecraft.getMinecraft().displayGuiScreen(null);
                     break;
             }
@@ -116,28 +134,44 @@ public class GuiSingleEntities extends GuiScrollingList {
         if(slot == -1){
             return;
         }
-        GuiScanResults.LagSource source = LAGSOURCES.get(slot);
+        GuiScanResultsWorld.LagSource source = LAGSOURCES.get(slot);
 
-        double heat = Calculations.heat(source.nanos);
+        double heat;
+        if(result.getType() == ScanType.WORLD) {
+            heat = Calculations.heat(source.nanos, result);
+        }else{
+            heat = Calculations.heatNF(source.nanos, result);
+        }
         double[] RGB = Graphical.heatToColor(heat);
         int color = Graphical.RGBtoInt(RGB);
 
         int offSet = 5 + COLUMN_WIDTH_NANOS;
-        /* microseconds */
-        drawStringToLeftOf(Calculations.muPerTickString(source.nanos), offSet, slotTop, color);
+        if(result.getType() == ScanType.WORLD) {
+            /* microseconds */
+            drawStringToLeftOf(Calculations.muPerTickString(source.nanos, result), offSet, slotTop, color);
+        }else if(result.getType() == ScanType.FPS){
+            /* nanoseconds */
+            drawStringToLeftOf(Calculations.NFStringSimple(source.nanos, result.getTotalFrames()), offSet, slotTop, color);
+
+            offSet = offSet + 5 + COLUMN_WIDTH_PERCENTAGES;
+            /* percent */
+            drawStringToLeftOf(Calculations.nfPercent(source.nanos, result), offSet, slotTop, color);
+        }
         offSet = offSet + 5;
 
         String name;
         String className;
         switch (source.data.type){
             case ENTITY:
-                name = source.data.getValue(SPacketScanResult.EntityData.Entry.ENTITY_NAME);
-                className = source.data.getValue(SPacketScanResult.EntityData.Entry.ENTITY_CLASS_NAME);
+            case GUI_ENTITY:
+                name = source.data.getValue(ObjectData.Entry.ENTITY_NAME);
+                className = source.data.getValue(ObjectData.Entry.ENTITY_CLASS_NAME);
                 break;
             case BLOCK:
             case TILE_ENTITY:
-                name = source.data.getValue(SPacketScanResult.EntityData.Entry.BLOCK_NAME);
-                className = source.data.getValue(SPacketScanResult.EntityData.Entry.BLOCK_CLASS_NAME);
+            case GUI_BLOCK:
+                name = source.data.getValue(ObjectData.Entry.BLOCK_NAME);
+                className = source.data.getValue(ObjectData.Entry.BLOCK_CLASS_NAME);
                 break;
             default:
                 name = "Error! Please submit an issue at github";

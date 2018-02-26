@@ -1,34 +1,42 @@
 package cf.terminator.laggoggles.client;
 
+import cf.terminator.laggoggles.api.event.LagGogglesEvent;
 import cf.terminator.laggoggles.client.gui.GuiProfile;
 import cf.terminator.laggoggles.client.gui.LagOverlayGui;
+import cf.terminator.laggoggles.packet.ObjectData;
 import cf.terminator.laggoggles.packet.SPacketScanResult;
+import cf.terminator.laggoggles.profiler.ProfileResult;
 import cf.terminator.laggoggles.util.Calculations;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 import java.util.ArrayList;
 
+import static cf.terminator.laggoggles.profiler.ProfileManager.LAST_PROFILE_RESULT;
+
 public class ScanResultHandler implements IMessageHandler<SPacketScanResult, IMessage> {
 
-    ArrayList<SPacketScanResult.EntityData> builder = new ArrayList<>();
+    private ArrayList<ObjectData> builder = new ArrayList<>();
 
     @Override
     public IMessage onMessage(SPacketScanResult message, MessageContext ctx){
-        for(SPacketScanResult.EntityData entityData : message.DATA){
-            if(Calculations.muPerTickCustomTotals(entityData.getValue(SPacketScanResult.EntityData.Entry.NANOS), message.TOTAL_TICKS) >= ClientConfig.MINIMUM_AMOUNT_OF_MICROSECONDS_THRESHOLD){
-                builder.add(entityData);
+        for(ObjectData objectData : message.DATA){
+            if(Calculations.muPerTickCustomTotals(objectData.getValue(ObjectData.Entry.NANOS), message.tickCount) >= ClientConfig.MINIMUM_AMOUNT_OF_MICROSECONDS_THRESHOLD){
+                builder.add(objectData);
             }
         }
         if(message.hasMore == false){
-            message.DATA = new ArrayList<>(builder);
+            ProfileResult result = new ProfileResult(message.startTime, message.endTime, message.tickCount, message.side, message.type);
+            result.addAll(builder);
+            result.lock();
             builder = new ArrayList<>();
-            ClientProxy.LAST_SCAN_RESULT = message;
-            ClientProxy.lagOverlayGui.hide();
-            ClientProxy.lagOverlayGui = new LagOverlayGui(message.DATA);
-            ClientProxy.lagOverlayGui.show();
+            LAST_PROFILE_RESULT.set(result);
+            LagOverlayGui.create(result);
+            LagOverlayGui.show();
             GuiProfile.update();
+            MinecraftForge.EVENT_BUS.post(new LagGogglesEvent.ReceivedFromServer(result));
         }
         return null;
     }
