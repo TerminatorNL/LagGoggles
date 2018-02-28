@@ -42,9 +42,9 @@ public class GuiFPSResults extends GuiScreen{
         drawString(Main.MODID + ": profile data for FPS scan results", 5, 5, 0xFFFFFF);
         drawString("Times are presented in nanoseconds per frame.", 5, 15, 0xCCCCCC);
         drawString("Single entities", 5, 35, 0xFFFFFF);
+        drawString(" (Doubleclick to teleport)", 5 + FONTRENDERER.getStringWidth("Single entities"), 35, 0x666666);
         drawString("Entities by type", width/2 + 5, 35, 0xFFFFFF);
         drawString("Event subscribers", width/2 + 5, ((height - 25)/2) + 2, 0xFFFFFF);
-        drawString(" (in microseconds)", width/2 + 5 + fontRenderer.getStringWidth("Event subscribers"), ((height - 25)/2) + 2, 0xCCCCCC);
     }
 
     private void drawString(String text, int x, int y, int color) {

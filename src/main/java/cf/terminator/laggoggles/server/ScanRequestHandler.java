@@ -19,7 +19,6 @@ import java.util.UUID;
 
 import static cf.terminator.laggoggles.profiler.ProfileManager.LAST_PROFILE_RESULT;
 import static cf.terminator.laggoggles.profiler.ProfileManager.PROFILE_ENABLED;
-import static cf.terminator.laggoggles.server.ServerConfig.NON_OPS_PROFILE_COOL_DOWN_SECONDS;
 
 public class ScanRequestHandler implements IMessageHandler<CPacketRequestScan, IMessage> {
 
@@ -43,11 +42,18 @@ public class ScanRequestHandler implements IMessageHandler<CPacketRequestScan, I
             return new SPacketMessage("Profiler is already running");
         }
 
+        /*
         long secondsLeft = (COOLDOWN.getOrDefault(requestee.getGameProfile().getId(),0L) - System.currentTimeMillis())/1000;
         if(secondsLeft > 0 && requesteePerms != Perms.Permission.FULL){
             return new SPacketMessage("Please wait " + secondsLeft + " seconds.");
         }
         COOLDOWN.put(requestee.getGameProfile().getId(), System.currentTimeMillis() + (1000 * NON_OPS_PROFILE_COOL_DOWN_SECONDS));
+*/
+
+        long secondsLeft = secondsLeft(requestee.getGameProfile().getId());
+        if(secondsLeft > 0 && requesteePerms != Perms.Permission.FULL){
+            return new SPacketMessage("Please wait " + secondsLeft + " seconds.");
+        }
 
         /* Start profiler */
         new Thread(new Runnable() {
@@ -70,12 +76,22 @@ public class ScanRequestHandler implements IMessageHandler<CPacketRequestScan, I
                     CommonProxy.sendTo(status2, user);
                 }
 
-                CommonProxy.sendTo(LAST_PROFILE_RESULT.get().getPacket(), requestee);
+                CommonProxy.sendTo(LAST_PROFILE_RESULT.get(), requestee);
                 for(EntityPlayerMP user : Perms.getLagGogglesUsers()) {
                     CommonProxy.sendTo(new SPacketServerData(user), user);
                 }
             }
         }).start();
         return null;
+    }
+
+
+    public static long secondsLeft(UUID uuid){
+        long lastRequest = COOLDOWN.getOrDefault(uuid, 0L);
+        long secondsLeft = ServerConfig.NON_OPS_PROFILE_COOL_DOWN_SECONDS - ((System.currentTimeMillis() - lastRequest)/1000);
+        if(secondsLeft <= 0){
+            COOLDOWN.put(uuid, System.currentTimeMillis());
+        }
+        return secondsLeft;
     }
 }

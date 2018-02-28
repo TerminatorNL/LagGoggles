@@ -18,6 +18,7 @@ import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.MinecraftForge;
 
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.UUID;
@@ -56,6 +57,10 @@ public class ProfileManager {
                 @Override
                 public void run() {
                     try{
+                        ArrayList<Entity> ignoredEntities = new ArrayList<>();
+                        ArrayList<TileEntity> ignoredTileEntities = new ArrayList<>();
+                        ArrayList<BlockPos> ignoredBlocks = new ArrayList<>();
+
                         Main.LOGGER.info("Processing results synchronously...");
                         ProfileResult result = new ProfileResult(start, System.nanoTime(), TickCounter.ticks.get(), getSide(), type);
                         if(Side.getSide().isClient()) {
@@ -73,44 +78,56 @@ public class ProfileManager {
                                 if(e == null){
                                     continue;
                                 }
-                                result.addData(new ObjectData(
-                                        worldID,
-                                        e.getName(),
-                                        formatClassName(e.getClass().toString()),
-                                        e.getPersistentID(),
-                                        entityTimes.getValue(),
-                                        ObjectData.Type.ENTITY)
-                                );
+                                try {
+                                    result.addData(new ObjectData(
+                                            worldID,
+                                            e.getName(),
+                                            formatClassName(e.getClass().toString()),
+                                            e.getPersistentID(),
+                                            entityTimes.getValue(),
+                                            ObjectData.Type.ENTITY)
+                                    );
+                                }catch (Throwable t){
+                                    ignoredEntities.add(e);
+                                }
                             }
                             for(Map.Entry<BlockPos, Long> tileEntityTimes : entry.getValue().getBlockTimes().entrySet()){
                                 TileEntity e = world.getTileEntity(tileEntityTimes.getKey());
                                 if(e != null) {
-                                    String name;
-                                    ITextComponent displayName = e.getDisplayName();
-                                    if (displayName != null) {
-                                        name = displayName.getFormattedText();
-                                    } else {
-                                        name = e.getClass().getSimpleName();
+                                    try {
+                                        String name;
+                                        ITextComponent displayName = e.getDisplayName();
+                                        if (displayName != null) {
+                                            name = displayName.getFormattedText();
+                                        } else {
+                                            name = e.getClass().getSimpleName();
+                                        }
+                                        result.addData(new ObjectData(
+                                                worldID,
+                                                name,
+                                                formatClassName(e.getClass().toString()),
+                                                e.getPos(),
+                                                tileEntityTimes.getValue(),
+                                                ObjectData.Type.TILE_ENTITY)
+                                        );
+                                    }catch (Throwable t){
+                                        ignoredTileEntities.add(e);
                                     }
-                                    result.addData(new ObjectData(
-                                            worldID,
-                                            name,
-                                            formatClassName(e.getClass().toString()),
-                                            e.getPos(),
-                                            tileEntityTimes.getValue(),
-                                            ObjectData.Type.TILE_ENTITY)
-                                    );
                                 }else{
                                     /* The block is not a tile entity, get the actual block. */
-                                    IBlockState state = world.getBlockState(tileEntityTimes.getKey());
-                                    String name = state.getBlock().getLocalizedName();
-                                    result.addData(new ObjectData(
-                                            worldID,
-                                            name,
-                                            formatClassName(state.getBlock().getClass().toString()),
-                                            tileEntityTimes.getKey(),
-                                            tileEntityTimes.getValue(),
-                                            ObjectData.Type.BLOCK));
+                                    try {
+                                        IBlockState state = world.getBlockState(tileEntityTimes.getKey());
+                                        String name = state.getBlock().getUnlocalizedName();
+                                        result.addData(new ObjectData(
+                                                worldID,
+                                                name,
+                                                formatClassName(state.getBlock().getClass().toString()),
+                                                tileEntityTimes.getKey(),
+                                                tileEntityTimes.getValue(),
+                                                ObjectData.Type.BLOCK));
+                                    }catch (Throwable t){
+                                        ignoredBlocks.add(tileEntityTimes.getKey());
+                                    }
                                 }
                             }
                         }
@@ -124,6 +141,12 @@ public class ProfileManager {
                         LAST_PROFILE_RESULT.set(result);
                         synchronized (LOCK){
                             LOCK.notifyAll();
+                        }
+                        if(ignoredBlocks.size() + ignoredEntities.size() + ignoredTileEntities.size() > 0) {
+                            Main.LOGGER.info("Ignored some tracked elements:");
+                            Main.LOGGER.info("Entities: " + ignoredEntities);
+                            Main.LOGGER.info("Tile entities: " + ignoredTileEntities);
+                            Main.LOGGER.info("Blocks in locations: " + ignoredBlocks);
                         }
                     } catch (Throwable e) {
                         Main.LOGGER.error("Woa! Something went wrong while processing results! Please contact Terminator_NL and submit the following error in an issue at github!");

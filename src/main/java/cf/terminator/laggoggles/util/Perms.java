@@ -57,15 +57,15 @@ public class Perms {
     public static ProfileResult getResultFor(EntityPlayerMP player, ProfileResult result){
         Permission permission = getPermission(player);
         if(permission == Permission.NONE){
-            return null;
+            return ProfileResult.EMPTY_RESULT;
         }
         if(permission == Permission.FULL){
             return result;
         }
-        ProfileResult trimmedResult = result.copy();
+        ProfileResult trimmedResult = result.copyStatsOnly();
         for(ObjectData data : result.getData()){
-            if(isInRange(data, player) == false){
-                trimmedResult.removeData(data);
+            if(isInRange(data, player) == true){
+                trimmedResult.addData(data);
             }
         }
         return trimmedResult;

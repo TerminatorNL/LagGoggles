@@ -1,5 +1,6 @@
 package cf.terminator.laggoggles.client.gui;
 
+import cf.terminator.laggoggles.Main;
 import cf.terminator.laggoggles.packet.ObjectData;
 import cf.terminator.laggoggles.profiler.ProfileResult;
 import cf.terminator.laggoggles.profiler.ScanType;
@@ -13,37 +14,51 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraftforge.fml.client.GuiScrollingList;
 
 import java.io.IOException;
-import java.util.TreeMap;
+import java.util.Collections;
+import java.util.TreeSet;
 
 import static cf.terminator.laggoggles.client.ServerDataPacketHandler.NON_OPS_CAN_SEE_EVENT_SUBSCRIBERS;
 import static cf.terminator.laggoggles.client.ServerDataPacketHandler.PERMISSION;
+import static cf.terminator.laggoggles.util.Graphical.formatClassName;
 
 public class GuiEventTypes extends GuiScrollingList {
 
     final private FontRenderer FONTRENDERER;
     private static final int slotHeight = 24;
     private int COLUMN_WIDTH_NANOS = 0;
-    private TreeMap<Long, GuiScanResultsWorld.LagSource> DATA = new TreeMap<>();
+    private TreeSet<GuiScanResultsWorld.LagSource> DATA = new TreeSet<>(Collections.reverseOrder());
     private final ProfileResult result;
 
     public GuiEventTypes(Minecraft client, int width, int height, int top, int bottom, int left, int screenWidth, int screenHeight, ProfileResult result) {
         super(client, width, height, top, bottom, left, slotHeight, screenWidth, screenHeight);
         FONTRENDERER = client.fontRenderer;
         this.result = result;
+
         for(GuiScanResultsWorld.LagSource src : result.getLagSources()){
             if(src.data.type == ObjectData.Type.EVENT_BUS_LISTENER){
-                if(result.getType() == ScanType.WORLD || TimingManager.EventTimings.ThreadType.values()[src.data.<Integer>getValue(ObjectData.Entry.EVENT_BUS_THREAD_TYPE)] == TimingManager.EventTimings.ThreadType.CLIENT) {
-                    DATA.put(src.data.getValue(ObjectData.Entry.NANOS), src);
-                    COLUMN_WIDTH_NANOS = Math.max(COLUMN_WIDTH_NANOS, FONTRENDERER.getStringWidth(Calculations.muPerTickString(src.data.getValue(ObjectData.Entry.NANOS), result)));
+                TimingManager.EventTimings.ThreadType type = TimingManager.EventTimings.ThreadType.values()[src.data.<Integer>getValue(ObjectData.Entry.EVENT_BUS_THREAD_TYPE)];
+                if((result.getType() == ScanType.FPS && type == TimingManager.EventTimings.ThreadType.CLIENT) || (result.getType() == ScanType.WORLD && type != TimingManager.EventTimings.ThreadType.CLIENT)){
+
+
+                    /* This removes the LagGoggles tooltip from the results, as it's only visible while profiling, it's clutter. */
+                    if(src.data.<String>getValue(ObjectData.Entry.EVENT_BUS_LISTENER).contains(Main.MODID)){
+                        if(src.data.<String>getValue(ObjectData.Entry.EVENT_BUS_EVENT_CLASS_NAME).equals(formatClassName(net.minecraftforge.client.event.RenderGameOverlayEvent.Post.class.toString()))) {
+                            continue;
+                        }
+                    }
+
+                    DATA.add(src);
+                    COLUMN_WIDTH_NANOS = Math.max(COLUMN_WIDTH_NANOS, FONTRENDERER.getStringWidth(getMuStringFor(src)));
                 }
             }
         }
+
     }
 
 
     @Override
     protected int getSize() {
-        if(NON_OPS_CAN_SEE_EVENT_SUBSCRIBERS == false && PERMISSION.ordinal() < Perms.Permission.FULL.ordinal()){
+        if((NON_OPS_CAN_SEE_EVENT_SUBSCRIBERS == false && result.getType() == ScanType.WORLD ) && PERMISSION.ordinal() < Perms.Permission.FULL.ordinal()){
             return 1;
         }else {
             return DATA.size();
@@ -82,15 +97,14 @@ public class GuiEventTypes extends GuiScrollingList {
 
     @Override
     protected void drawSlot(int slot, int entryRight, int slotTop, int slotBuffer, Tessellator tess) {
-        if(NON_OPS_CAN_SEE_EVENT_SUBSCRIBERS == false && PERMISSION.ordinal() < Perms.Permission.FULL.ordinal()){
+        if((NON_OPS_CAN_SEE_EVENT_SUBSCRIBERS == false && result.getType() == ScanType.WORLD ) && PERMISSION.ordinal() < Perms.Permission.FULL.ordinal()){
             displayCantSeeResults(slotTop);
             return;
         }
         if(slot > DATA.size()){
             return;
         }
-        long nanos = DATA.descendingKeySet().toArray(new Long[0])[slot];
-        GuiScanResultsWorld.LagSource lagSource = DATA.get(nanos);
+        GuiScanResultsWorld.LagSource lagSource = DATA.descendingSet().toArray(new GuiScanResultsWorld.LagSource[0])[slot];
         int threadColor = 0x00FF00;
         String threadType = "(Asynchronous)";
         switch (TimingManager.EventTimings.ThreadType.values()[lagSource.data.<Integer>getValue(ObjectData.Entry.EVENT_BUS_THREAD_TYPE)]){
@@ -102,28 +116,56 @@ public class GuiEventTypes extends GuiScrollingList {
                 threadType = "(Server thread)";
                 threadColor = 0xFF0000;
                 break;
-            case UNKNOWN:
-                threadType = "(Unknown)";
-                threadColor = 0xCCCCCC;
-                break;
         }
-        double heat = Calculations.heat(nanos, result);
+        double heat = Calculations.heatThread(lagSource, result);
         double[] RGB = Graphical.heatToColor(heat);
         int color = Graphical.RGBtoInt(RGB);
-        /* microseconds */
-        drawStringToLeftOf(Calculations.muPerTickString(nanos, result),left + COLUMN_WIDTH_NANOS + 5, slotTop, color);
+
+        /* times */
+        drawStringToLeftOf(getMuStringFor(lagSource),left + COLUMN_WIDTH_NANOS + 5, slotTop, color);
 
         /* Percent */
-        drawString(Calculations.tickPercent(nanos, result), left + COLUMN_WIDTH_NANOS + 10, slotTop, color);
+        String percentString = getPercentStringFor(lagSource);
+        drawString(percentString, left + COLUMN_WIDTH_NANOS + 10, slotTop, color);
+        int percentOffSet = FONTRENDERER.getStringWidth(percentString);
+        int offSet = percentOffSet;
 
         /* Name and blocking */
-        drawString(lagSource.data.getValue(ObjectData.Entry.EVENT_BUS_LISTENER_CLASS_NAME), left + COLUMN_WIDTH_NANOS + 10 + FONTRENDERER.getStringWidth(Calculations.tickPercent(nanos, result)) + 5, slotTop     , 0x4C4C4C);
-        drawString(threadType, left + COLUMN_WIDTH_NANOS + 10 + FONTRENDERER.getStringWidth(Calculations.tickPercent(nanos, result)) + 5 + FONTRENDERER.getStringWidth(lagSource.data.getValue(ObjectData.Entry.EVENT_BUS_LISTENER_CLASS_NAME)) + 5, slotTop , threadColor);
+        String listener = lagSource.data.getValue(ObjectData.Entry.EVENT_BUS_LISTENER);
+        drawString(listener, left + COLUMN_WIDTH_NANOS + 10 + offSet + 5, slotTop, 0x4C4C4C);
+
+        offSet = offSet + FONTRENDERER.getStringWidth(listener);
+        drawString(threadType, left + COLUMN_WIDTH_NANOS + 10 + offSet + 10, slotTop , threadColor);
 
         /* Event class */
-        drawString(lagSource.data.getValue(ObjectData.Entry.EVENT_BUS_EVENT_CLASS_NAME)   , left + COLUMN_WIDTH_NANOS + 10 + FONTRENDERER.getStringWidth(Calculations.tickPercent(nanos, result)) + 5, slotTop + 12, 0x4C4C4C);
+        drawString(lagSource.data.getValue(ObjectData.Entry.EVENT_BUS_EVENT_CLASS_NAME)   , left + COLUMN_WIDTH_NANOS + 10 + percentOffSet + 5, slotTop + 12, 0x4C4C4C);
     }
 
+    private String getMuStringFor(GuiScanResultsWorld.LagSource source){
+        TimingManager.EventTimings.ThreadType type = TimingManager.EventTimings.ThreadType.values()[source.data.<Integer>getValue(ObjectData.Entry.EVENT_BUS_THREAD_TYPE)];
+        if(type == TimingManager.EventTimings.ThreadType.CLIENT) {
+            return Calculations.NFStringSimple(source.nanos, result.getTotalFrames());
+        }else if (type == TimingManager.EventTimings.ThreadType.ASYNC){
+            return  "No impact";
+        }else if(type == TimingManager.EventTimings.ThreadType.SERVER){
+            return Calculations.muPerTickString(source.nanos, result);
+        }else{
+            throw new IllegalStateException("Terminator_NL forgot to add code here... Please submit an issue at github!");
+        }
+    }
+
+    private String getPercentStringFor(GuiScanResultsWorld.LagSource source){
+        TimingManager.EventTimings.ThreadType type = TimingManager.EventTimings.ThreadType.values()[source.data.<Integer>getValue(ObjectData.Entry.EVENT_BUS_THREAD_TYPE)];
+        if(type == TimingManager.EventTimings.ThreadType.CLIENT) {
+            return Calculations.nfPercent(source.nanos, result);
+        }else if (type == TimingManager.EventTimings.ThreadType.ASYNC){
+            return  "";
+        }else if(type == TimingManager.EventTimings.ThreadType.SERVER){
+            return Calculations.tickPercent(source.nanos, result);
+        }else{
+            throw new IllegalStateException("Terminator_NL forgot to add code here... Please submit an issue at github!");
+        }
+    }
 
     private void drawString(String text, int x, int y, int color) {
         FONTRENDERER.drawStringWithShadow(text, x, y, color);

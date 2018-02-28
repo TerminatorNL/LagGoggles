@@ -17,7 +17,7 @@ import static cf.terminator.laggoggles.profiler.ScanType.FPS;
 
 public class RequestResultHandler implements IMessageHandler<CPacketRequestResult, IMessage> {
 
-    private HashMap<UUID, Long> LAST_RESULT_REQUEST = new HashMap<>();
+    private static HashMap<UUID, Long> LAST_RESULT_REQUEST = new HashMap<>();
 
     @Override
     public IMessage onMessage(CPacketRequestResult CPacketRequestResult, MessageContext ctx) {
@@ -30,15 +30,22 @@ public class RequestResultHandler implements IMessageHandler<CPacketRequestResul
             return new SPacketMessage("No data available");
         }
         if(Perms.getPermission(player).ordinal() < Perms.Permission.FULL.ordinal()){
-            long lastRequest = LAST_RESULT_REQUEST.getOrDefault(player.getGameProfile().getId(), 0L);
-            long secondsLeft = ServerConfig.NON_OPS_REQUEST_LAST_SCAN_DATA_TIMEOUT - ((System.currentTimeMillis() - lastRequest)/1000);
+            long secondsLeft = secondsLeft(player.getGameProfile().getId());
             if(secondsLeft > 0){
                 return new SPacketMessage("Please wait " + secondsLeft + " seconds.");
             }
-            LAST_RESULT_REQUEST.put(player.getGameProfile().getId(), System.currentTimeMillis());
         }
         CommonProxy.sendTo(LAST_PROFILE_RESULT.get(), player);
         return null;
+    }
+
+    public static long secondsLeft(UUID uuid){
+        long lastRequest = LAST_RESULT_REQUEST.getOrDefault(uuid, 0L);
+        long secondsLeft = ServerConfig.NON_OPS_REQUEST_LAST_SCAN_DATA_TIMEOUT - ((System.currentTimeMillis() - lastRequest)/1000);
+        if(secondsLeft <= 0){
+            LAST_RESULT_REQUEST.put(uuid, System.currentTimeMillis());
+        }
+        return secondsLeft;
     }
 
 }

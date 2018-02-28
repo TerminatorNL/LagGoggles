@@ -48,6 +48,7 @@ public class GuiScanResultsWorld extends GuiScreen {
         drawString(Main.MODID + ": profile data for WORLD scan results", 5, 5, 0xFFFFFF);
         drawString("Times are presented in microseconds", 5, 15, 0xCCCCCC);
         drawString("Single entities", 5, 35, 0xFFFFFF);
+        drawString(" (Doubleclick to teleport)", 5 + FONTRENDERER.getStringWidth("Single entities"), 35, 0x666666);
         drawString("Entities by type", width/2 + 5, 35, 0xFFFFFF);
         drawString("Event subscribers", width/2 + 5, ((height - 25)/2) + 2, 0xFFFFFF);
     }
@@ -75,8 +76,8 @@ public class GuiScanResultsWorld extends GuiScreen {
     /* LAGSOURCE */
     public static class LagSource implements Comparable<LagSource>{
 
-        final long nanos;
-        final ObjectData data;
+        public final long nanos;
+        public final ObjectData data;
 
         public LagSource(long nanos, ObjectData e){
             this.nanos = nanos;

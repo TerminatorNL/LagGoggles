@@ -122,13 +122,8 @@ public class GuiProfile extends GuiScreen {
             startProfile.enabled = false;
             new Thread(buttonUpdateTask).start();
         }else{
-            if(ServerDataPacketHandler.PERMISSION.ordinal() >= Perms.Permission.START.ordinal()) {
-                startProfile.enabled = true;
-                startProfile.displayString = "Profile for " + seconds + " seconds";
-            }else{
-                startProfile.enabled = false;
-                startProfile.displayString = "Profiling requires OP.";
-            }
+            startProfile.enabled = true;
+            startProfile.displayString = "Profile for " + seconds + " seconds";
         }
         downloadButton.enabled = ServerDataPacketHandler.PERMISSION.ordinal() >= Perms.Permission.GET.ordinal();
     }

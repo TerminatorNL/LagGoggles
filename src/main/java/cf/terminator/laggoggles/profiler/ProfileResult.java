@@ -10,9 +10,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import static cf.terminator.laggoggles.profiler.ProfileManager.LAST_PROFILE_RESULT;
-
 public class ProfileResult {
+
+    public static final ProfileResult EMPTY_RESULT = new ProfileResult(0,0,0,Side.UNKNOWN, ScanType.EMPTY);
 
     private final long startTime;
     private long endTime;
@@ -36,14 +36,17 @@ public class ProfileResult {
         this.type = type;
     }
 
-    public ProfileResult(ProfileResult original){
+    private ProfileResult(ProfileResult original, boolean copyData){
         this.startTime = original.startTime;
         this.endTime = original.endTime;
         this.totalTime = original.totalTime;
         this.tickCount = original.tickCount;
         this.totalFrames = original.totalFrames;
         this.type = original.type;
-        OBJECT_DATA.addAll(original.OBJECT_DATA);
+        this.side = original.side;
+        if(copyData == true) {
+            OBJECT_DATA.addAll(original.OBJECT_DATA);
+        }
     }
 
     public void setFrames(long frames){
@@ -88,9 +91,10 @@ public class ProfileResult {
     public List<GuiScanResultsWorld.LagSource> getLagSources(){
         if(lagSources == null){
             ArrayList<GuiScanResultsWorld.LagSource> tmp = new ArrayList<>();
-            for(ObjectData entity : LAST_PROFILE_RESULT.get().getData()){
+            for(ObjectData entity : getData()){
                 tmp.add(new GuiScanResultsWorld.LagSource(entity.<Long>getValue(ObjectData.Entry.NANOS), entity));
             }
+            Collections.sort(tmp);
             lagSources = Collections.unmodifiableList(tmp);
         }
         return lagSources;
@@ -121,7 +125,11 @@ public class ProfileResult {
     }
 
     public ProfileResult copy(){
-        return new ProfileResult(this);
+        return new ProfileResult(this, true);
+    }
+
+    public ProfileResult copyStatsOnly(){
+        return new ProfileResult(this, false);
     }
 
     public long getTotalTime(){
@@ -130,14 +138,23 @@ public class ProfileResult {
 
     public double getTPS(){
         double seconds = totalTime / 1000000000D;
-        return seconds/tickCount;
+        return tickCount/seconds;
+    }
+
+    public double getFPS(){
+        double seconds = totalTime / 1000000000D;
+        return totalFrames/seconds;
+    }
+
+    public double getNanoPerFrame(){
+        return (double)totalTime/(double)totalFrames;
     }
 
     public void lock(){
         isLocked = true;
     }
 
-    public SPacketScanResult getPacket(){
+    private SPacketScanResult getPacket(){
         SPacketScanResult result = new SPacketScanResult();
         result.endTime = this.endTime;
         result.startTime = this.startTime;
@@ -148,6 +165,30 @@ public class ProfileResult {
         result.totalFrames = this.totalFrames;
         result.DATA.addAll(OBJECT_DATA);
         return result;
+    }
+
+
+    public List<SPacketScanResult> createPackets(){
+        ArrayList<SPacketScanResult> list = new ArrayList<>();
+        ArrayList<ObjectData> data = new ArrayList<>(OBJECT_DATA);
+        while(data.size() > 0) {
+            SPacketScanResult packet = new SPacketScanResult();
+            packet.endTime = this.endTime;
+            packet.startTime = this.startTime;
+            packet.tickCount = this.tickCount;
+            packet.totalTime = this.totalTime;
+            packet.side = this.side;
+            packet.type = this.type;
+            packet.totalFrames = this.totalFrames;
+            packet.hasMore = true;
+
+            ArrayList<ObjectData> sub = new ArrayList<>(data.subList(0,Math.min(10,data.size())));
+            data.removeAll(sub);
+            packet.DATA.addAll(sub);
+            list.add(packet);
+        }
+        list.get(list.size()-1).hasMore = false;
+        return list;
     }
 
 }

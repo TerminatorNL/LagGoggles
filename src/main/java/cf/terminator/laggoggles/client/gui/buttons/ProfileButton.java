@@ -2,11 +2,13 @@ package cf.terminator.laggoggles.client.gui.buttons;
 
 import cf.terminator.laggoggles.Main;
 import cf.terminator.laggoggles.api.Profiler;
+import cf.terminator.laggoggles.client.ServerDataPacketHandler;
 import cf.terminator.laggoggles.client.gui.GuiProfile;
 import cf.terminator.laggoggles.client.gui.LagOverlayGui;
 import cf.terminator.laggoggles.client.gui.QuickText;
 import cf.terminator.laggoggles.profiler.ProfileResult;
 import cf.terminator.laggoggles.profiler.ScanType;
+import cf.terminator.laggoggles.util.Perms;
 import net.minecraft.client.Minecraft;
 
 public class ProfileButton extends SplitButton {
@@ -24,7 +26,10 @@ public class ProfileButton extends SplitButton {
 
     @Override
     public void updateButtons(){
-
+        if(ServerDataPacketHandler.PERMISSION.ordinal() < Perms.Permission.START.ordinal()) {
+            serverButton.enabled = false;
+            serverButton.displayString = "No perms";
+        }
     }
 
     @Override

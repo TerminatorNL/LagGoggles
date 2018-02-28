@@ -41,8 +41,8 @@ public abstract class MixinWorldServerSponge extends World {
 
     @Inject(method = "tickUpdates(Z)Z",
             at = @At(value = "INVOKE",
-                     target = "net/minecraft/block/Block.updateTick(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/state/IBlockState;Ljava/util/Random;)V",
-                     shift = At.Shift.BEFORE
+                    target = "net/minecraft/block/Block.updateTick(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/state/IBlockState;Ljava/util/Random;)V",
+                    shift = At.Shift.BEFORE
             ),
             locals = LocalCapture.CAPTURE_FAILHARD
     )
@@ -66,8 +66,8 @@ public abstract class MixinWorldServerSponge extends World {
 
     @Inject(method = "updateBlocks",
             at = @At(value = "INVOKE",
-                     target = "net/minecraft/block/Block.randomTick(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/state/IBlockState;Ljava/util/Random;)V",
-                     shift = At.Shift.BEFORE
+                    target = "net/minecraft/block/Block.randomTick(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/state/IBlockState;Ljava/util/Random;)V",
+                    shift = At.Shift.BEFORE
             ),
             locals = LocalCapture.CAPTURE_FAILHARD
     )

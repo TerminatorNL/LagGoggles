@@ -144,8 +144,7 @@ public class TimingManager {
         public enum ThreadType{
             SERVER,
             CLIENT,
-            ASYNC,
-            UNKNOWN
+            ASYNC
         }
 
         public final String listener;

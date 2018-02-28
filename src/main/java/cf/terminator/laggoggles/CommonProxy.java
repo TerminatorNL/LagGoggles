@@ -4,6 +4,7 @@ import cf.terminator.laggoggles.client.MessagePacketHandler;
 import cf.terminator.laggoggles.client.ProfileStatusHandler;
 import cf.terminator.laggoggles.client.ScanResultHandler;
 import cf.terminator.laggoggles.client.ServerDataPacketHandler;
+import cf.terminator.laggoggles.command.LagGogglesCommand;
 import cf.terminator.laggoggles.packet.*;
 import cf.terminator.laggoggles.profiler.ProfileResult;
 import cf.terminator.laggoggles.profiler.TickCounter;
@@ -20,6 +21,8 @@ import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.Side;
+
+import java.util.List;
 
 public class CommonProxy {
 
@@ -71,15 +74,16 @@ public class CommonProxy {
         new RunInServerThread(new Runnable() {
             @Override
             public void run() {
-                SPacketScanResult packet = Perms.getResultFor(player, result).getPacket();
-                if(packet != null) {
-                    NETWORK_WRAPPER.sendTo(packet, player);
+                List<SPacketScanResult> packets = Perms.getResultFor(player, result).createPackets();
+                for (SPacketScanResult result : packets){
+                    NETWORK_WRAPPER.sendTo(result, player);
                 }
             }
         });
     }
 
     public void serverStartingEvent(FMLServerStartingEvent e){
+        e.registerServerCommand(new LagGogglesCommand());
         MinecraftForge.EVENT_BUS.register(new TickCounter());
         MinecraftForge.EVENT_BUS.register(new RequestDataHandler());
     }

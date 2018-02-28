@@ -25,8 +25,8 @@ public class DownloadButton extends GuiButton{
     }
 
     @Override
-    public void drawButton(Minecraft mc, int mouseX, int mouseY, float partials) {
-        super.drawButton(mc, mouseX, mouseY, partials);
+    public void drawButton(Minecraft mc, int mouseX, int mouseY, float partial) {
+        super.drawButton(mc, mouseX, mouseY, partial);
         mc.getTextureManager().bindTexture(DOWNLOAD_TEXTURE);
         drawModalRectWithCustomSizedTexture(x+3,y+3,0,0,14,14,14,14);
         if(hovered){

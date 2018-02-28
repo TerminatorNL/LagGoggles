@@ -42,7 +42,7 @@ public class ObjectData implements IMessage {
         BLOCK_POS_Z(Coder.INTEGER),
         BLOCK_CLASS_NAME(Coder.STRING),
 
-        EVENT_BUS_LISTENER_CLASS_NAME(Coder.STRING),
+        EVENT_BUS_LISTENER(Coder.STRING),
         EVENT_BUS_EVENT_CLASS_NAME(Coder.STRING),
         EVENT_BUS_THREAD_TYPE(Coder.INTEGER),
 
@@ -78,7 +78,7 @@ public class ObjectData implements IMessage {
     public ObjectData(TimingManager.EventTimings eventTimings, long nanos){
         type = Type.EVENT_BUS_LISTENER;
         data.put(Entry.EVENT_BUS_EVENT_CLASS_NAME, formatClassName(eventTimings.eventClass.toString()));
-        data.put(Entry.EVENT_BUS_LISTENER_CLASS_NAME, formatClassName(eventTimings.listener));
+        data.put(Entry.EVENT_BUS_LISTENER, formatClassName(eventTimings.listener));
         data.put(Entry.EVENT_BUS_THREAD_TYPE, eventTimings.threadType.ordinal());
         data.put(Entry.NANOS, nanos);
     }

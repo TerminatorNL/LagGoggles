@@ -1,7 +1,10 @@
 package cf.terminator.laggoggles.util;
 
 import cf.terminator.laggoggles.client.ClientConfig;
+import cf.terminator.laggoggles.client.gui.GuiScanResultsWorld;
+import cf.terminator.laggoggles.packet.ObjectData;
 import cf.terminator.laggoggles.profiler.ProfileResult;
+import cf.terminator.laggoggles.profiler.TimingManager;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -14,6 +17,22 @@ public class Calculations {
 
     public static double heat(long nanos, ProfileResult result) {
         return Math.min((muPerTick(nanos, result) / ClientConfig.GRADIENT_MAXED_OUT_AT_MICROSECONDS) * 100, 100);
+    }
+
+    public static double heatThread(GuiScanResultsWorld.LagSource source, ProfileResult result){
+        if(source.data.type != ObjectData.Type.EVENT_BUS_LISTENER){
+            throw new IllegalArgumentException("Expected heat calculation for thread, not " + source.data.type);
+        }
+        TimingManager.EventTimings.ThreadType type = TimingManager.EventTimings.ThreadType.values()[source.data.<Integer>getValue(ObjectData.Entry.EVENT_BUS_THREAD_TYPE)];
+        if(type == TimingManager.EventTimings.ThreadType.CLIENT) {
+            return Math.min(((double) source.nanos / (double) result.getTotalTime()) * 100,100);
+        }else if (type == TimingManager.EventTimings.ThreadType.ASYNC){
+            return  0;
+        }else if(type == TimingManager.EventTimings.ThreadType.SERVER){
+            return Math.floor((source.nanos / result.getTickCount()) / NANOS_IN_A_TICK * 10000) / 100d;
+        }else{
+            throw new IllegalStateException("Terminator_NL forgot to add code here... Please submit an issue at github!");
+        }
     }
 
     public static double heatNF(long nanos, ProfileResult result) {
