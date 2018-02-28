@@ -1,5 +1,7 @@
 package cf.terminator.laggoggles.util;
 
+import cf.terminator.laggoggles.client.ClientConfig;
+
 public class Graphical {
 
     public static final String mu = "\u00B5";
@@ -8,23 +10,12 @@ public class Graphical {
         return in.startsWith("class ") ? in.substring(6) : in;
     }
 
-    public static double[] heatToColor(double heat){
-        double[] map = new double[3];
-        map[2] = 0;
+    public static final int RED_CHANNEL   = 0;
+    public static final int GREEN_CHANNEL = 1;
+    public static final int BLUE_CHANNEL  = 2;
 
-        if(heat < 50){
-            map[0] = (heat / 50);
-            map[1] = 1;
-            return map;
-        }else if(heat == 50){
-            map[0] = 1;
-            map[1] = 1;
-            return map;
-        }else{
-            map[0] = 1;
-            map[1] = 1 - ((heat-50) / 50);
-            return map;
-        }
+    public static double[] heatToColor(double heat){
+        return ClientConfig.COLORS.heatToColor(heat);
     }
 
     public static int RGBtoInt(double[] rgb){

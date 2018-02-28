@@ -10,7 +10,7 @@ public class ProfileStatusHandler implements IMessageHandler<SPacketProfileStatu
 
     @Override
     public IMessage onMessage(SPacketProfileStatus message, MessageContext ctx) {
-        GuiProfile.LAST_STATUS = message;
+        GuiProfile.PROFILING_PLAYER = message.issuedBy;
         if(message.isProfiling == true) {
             GuiProfile.PROFILE_END_TIME = System.currentTimeMillis() + (message.length * 1000);
         }else{

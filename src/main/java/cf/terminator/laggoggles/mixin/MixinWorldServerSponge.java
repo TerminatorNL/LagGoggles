@@ -22,8 +22,8 @@ import org.spongepowered.common.event.tracking.CauseTracker;
 
 import java.util.Iterator;
 
-import static cf.terminator.laggoggles.profiler.world.ProfileManager.PROFILE_ENABLED;
-import static cf.terminator.laggoggles.profiler.world.ProfileManager.worldTimingManager;
+import static cf.terminator.laggoggles.profiler.ProfileManager.PROFILE_ENABLED;
+import static cf.terminator.laggoggles.profiler.ProfileManager.timingManager;
 
 @Mixin(value = WorldServer.class, priority = 1001)
 public abstract class MixinWorldServerSponge extends World {
@@ -37,8 +37,8 @@ public abstract class MixinWorldServerSponge extends World {
 
     @Inject(method = "tickUpdates(Z)Z",
             at = @At(value = "INVOKE",
-                     target = "net/minecraft/block/Block.updateTick(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/state/IBlockState;Ljava/util/Random;)V",
-                     shift = At.Shift.BEFORE
+                    target = "net/minecraft/block/Block.updateTick(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/state/IBlockState;Ljava/util/Random;)V",
+                    shift = At.Shift.BEFORE
             ),
             locals = LocalCapture.CAPTURE_FAILHARD
     )
@@ -55,15 +55,15 @@ public abstract class MixinWorldServerSponge extends World {
     )
     public void afterUpdate(boolean bool, CallbackInfoReturnable<Boolean> ci, int integer, Iterator iterator, NextTickListEntry nextTickListEntry, int integer2, IBlockState state){
         if (PROFILE_ENABLED.get() && LAGGOGGLES_START_TICK != null) {
-            worldTimingManager.addBlockTime(provider.getDimension(), nextTickListEntry.position, System.nanoTime() - LAGGOGGLES_START_TICK);
+            timingManager.addBlockTime(provider.getDimension(), nextTickListEntry.position, System.nanoTime() - LAGGOGGLES_START_TICK);
         }
     }
 
 
     @Inject(method = "updateBlocks",
             at = @At(value = "INVOKE",
-                     target = "net/minecraft/block/Block.randomTick(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/state/IBlockState;Ljava/util/Random;)V",
-                     shift = At.Shift.BEFORE
+                    target = "net/minecraft/block/Block.randomTick(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/state/IBlockState;Ljava/util/Random;)V",
+                    shift = At.Shift.BEFORE
             ),
             locals = LocalCapture.CAPTURE_FAILEXCEPTION
     )
@@ -80,7 +80,7 @@ public abstract class MixinWorldServerSponge extends World {
     )
     public void afterUpdateBlocks(CallbackInfo ci, int int1, boolean bool1, boolean bool2, CauseTracker spongeTracker, Iterator iterator, Chunk chunk, int j, int k, ExtendedBlockStorage[] storage, int int4, int int5, ExtendedBlockStorage extendedblockstorage, int int6, int int7, int k1, int l1, int i2, IBlockState state, Block block){
         if (PROFILE_ENABLED.get() && LAGGOGGLES_START_RANDOM != null) {
-            worldTimingManager.addBlockTime(provider.getDimension(), new BlockPos(k1 + j, i2 + extendedblockstorage.getYLocation(), l1 + k), System.nanoTime() - LAGGOGGLES_START_RANDOM);
+            timingManager.addBlockTime(provider.getDimension(), new BlockPos(k1 + j, i2 + extendedblockstorage.getYLocation(), l1 + k), System.nanoTime() - LAGGOGGLES_START_RANDOM);
         }
     }
 

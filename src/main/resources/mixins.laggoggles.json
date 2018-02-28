@@ -8,6 +8,8 @@
     "MixinEntity",
     "${WORLDSERVER}",
     "MixinEventBus",
-    "MixinASMEventHandler"
+    "MixinASMEventHandler",
+    "MixinTileEntityRendererDispatcher",
+    "MixinRenderManager"
   ]
 }

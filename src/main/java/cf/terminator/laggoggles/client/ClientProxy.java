@@ -6,7 +6,6 @@ import cf.terminator.laggoggles.client.gui.GuiProfile;
 import cf.terminator.laggoggles.client.gui.KeyHandler;
 import cf.terminator.laggoggles.client.gui.LagOverlayGui;
 import cf.terminator.laggoggles.packet.CPacketRequestServerData;
-import cf.terminator.laggoggles.packet.SPacketScanResult;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
@@ -17,11 +16,9 @@ import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import org.lwjgl.input.Keyboard;
 
 import static cf.terminator.laggoggles.client.ServerDataPacketHandler.RECEIVED_RESULT;
+import static cf.terminator.laggoggles.profiler.ProfileManager.LAST_PROFILE_RESULT;
 
 public class ClientProxy extends CommonProxy {
-
-    public static LagOverlayGui lagOverlayGui = new LagOverlayGui();
-    public static SPacketScanResult LAST_SCAN_RESULT = null;
 
     @Override
     public void postinit(FMLPostInitializationEvent e){
@@ -37,11 +34,8 @@ public class ClientProxy extends CommonProxy {
             @SubscribeEvent
             public void onLogin(FMLNetworkEvent.ClientConnectedToServerEvent e){
                 RECEIVED_RESULT = false;
-                if(lagOverlayGui != null){
-                    lagOverlayGui.hide();
-                }
-                lagOverlayGui = new LagOverlayGui();
-                LAST_SCAN_RESULT = null;
+                LagOverlayGui.destroy();
+                LAST_PROFILE_RESULT.set(null);
                 new ClientLoginAction().activate();
             }
         });

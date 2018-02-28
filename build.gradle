@@ -9,7 +9,7 @@ buildscript {
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
-        classpath 'org.spongepowered:mixingradle:0.4-SNAPSHOT'
+        classpath 'org.spongepowered:mixingradle:0.6-SNAPSHOT'
     }
 }
 boolean isSponge = hasProperty("isSponge")
@@ -20,7 +20,6 @@ println("Compiling: " + buildType)
 apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'org.spongepowered.mixin'
 //Only edit below this line, the above code adds and enables the nessasary things for Forge to be setup.
-
 repositories {
     maven {
         name = "sponge"
@@ -29,15 +28,12 @@ repositories {
 }
 
 if(isClient == false) {
-    delete fileTree('run/mods') {
-        include 'LagGoggles*'
-    }
     delete fileTree('run 1.10.2/mods') {
         include 'LagGoggles*'
     }
 }
 
-version = "1.10.2-3.1"
+version = "1.10.2-4.1"
 group= "cf.terminator.laggoggles" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "LagGoggles-" + buildType
 
@@ -66,8 +62,9 @@ configurations {
 }
 
 dependencies {
+    compile 'org.spongepowered:spongeforge:1.10.2-2477-5.2.0-BETA-2793'
     if(isSponge) {
-        compile 'org.spongepowered:mixin:0.6.15-SNAPSHOT'
+        compile 'org.spongepowered:mixin:0.7.4-SNAPSHOT'
     }else{
         embed('org.spongepowered:mixin:0.7.5-SNAPSHOT') {
             exclude module: 'launchwrapper'

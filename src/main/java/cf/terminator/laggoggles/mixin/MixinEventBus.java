@@ -14,8 +14,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import static cf.terminator.laggoggles.profiler.world.ProfileManager.PROFILE_ENABLED;
-import static cf.terminator.laggoggles.profiler.world.ProfileManager.worldTimingManager;
+import static cf.terminator.laggoggles.profiler.ProfileManager.PROFILE_ENABLED;
+import static cf.terminator.laggoggles.profiler.ProfileManager.timingManager;
 
 @Mixin(value = EventBus.class, remap = false, priority = 1001)
 public abstract class MixinEventBus implements IEventExceptionHandler {
@@ -40,7 +40,7 @@ public abstract class MixinEventBus implements IEventExceptionHandler {
                     ModContainer mod = ((ASMEventHandler) listeners[index]).getOwner();
                     if (mod != null) {
                         String identifier = mod.getName() + " (" + mod.getSource().getName() + ")";
-                        worldTimingManager.addEventTime(identifier, event, nanos);
+                        timingManager.addEventTime(identifier, event, nanos);
                     }
                 }
             }

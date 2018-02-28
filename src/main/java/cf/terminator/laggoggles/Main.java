@@ -10,7 +10,7 @@ import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 import org.apache.logging.log4j.Logger;
 
-@Mod(modid = Main.MODID_LOWER, name = Main.MODID, version = Main.VERSION, acceptableRemoteVersions = "*")
+@Mod(modid = Main.MODID_LOWER, name = Main.MODID, version = Main.VERSION, acceptableRemoteVersions = "*", guiFactory = "cf.terminator.laggoggles.client.gui.GuiInGameConfigFactory")
 @IFMLLoadingPlugin.SortingIndex(1001)
 public class Main {
     public static final String MODID = "LagGoggles";

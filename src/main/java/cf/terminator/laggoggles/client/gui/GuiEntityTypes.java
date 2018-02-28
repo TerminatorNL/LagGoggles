@@ -1,6 +1,8 @@
 package cf.terminator.laggoggles.client.gui;
 
-import cf.terminator.laggoggles.packet.SPacketScanResult;
+import cf.terminator.laggoggles.packet.ObjectData;
+import cf.terminator.laggoggles.profiler.ProfileResult;
+import cf.terminator.laggoggles.profiler.ScanType;
 import cf.terminator.laggoggles.util.Calculations;
 import cf.terminator.laggoggles.util.Graphical;
 import net.minecraft.client.Minecraft;
@@ -9,7 +11,6 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraftforge.fml.client.GuiScrollingList;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -22,24 +23,41 @@ public class GuiEntityTypes extends GuiScrollingList {
     private static final int slotHeight = 12;
     private int COLUMN_WIDTH_NANOS = 0;
     private int COLUMN_WIDTH_PERCENTAGES = 0;
+    private ProfileResult result;
 
-    public GuiEntityTypes(Minecraft client, int width, int height, int top, int bottom, int left, int screenWidth, int screenHeight, ArrayList<GuiScanResults.LagSource> lagSources) {
+    public GuiEntityTypes(Minecraft client, int width, int height, int top, int bottom, int left, int screenWidth, int screenHeight, ProfileResult result) {
         super(client, width, height, top, bottom, left, slotHeight, screenWidth, screenHeight);
         FONTRENDERER = client.fontRendererObj;
-
+        this.result = result;
+        ScanType type = result.getType();
         HashMap<String, Long> totals = new HashMap<>();
-        for(GuiScanResults.LagSource src : lagSources){
+        for(GuiScanResultsWorld.LagSource src : result.getLagSources()){
             String className;
-            switch (src.data.type) {
-                case ENTITY:
-                    className = src.data.getValue(SPacketScanResult.EntityData.Entry.ENTITY_CLASS_NAME);
-                    break;
-                case BLOCK:
-                case TILE_ENTITY:
-                    className = src.data.getValue(SPacketScanResult.EntityData.Entry.BLOCK_CLASS_NAME);
-                    break;
-                default:
-                    continue;
+            if(type == ScanType.WORLD) {
+                switch (src.data.type) {
+                    case ENTITY:
+                        className = src.data.getValue(ObjectData.Entry.ENTITY_CLASS_NAME);
+                        break;
+                    case BLOCK:
+                    case TILE_ENTITY:
+                        className = src.data.getValue(ObjectData.Entry.BLOCK_CLASS_NAME);
+                        break;
+                    default:
+                        continue;
+                }
+            }else if(type == ScanType.FPS){
+                switch (src.data.type) {
+                    case GUI_ENTITY:
+                        className = src.data.getValue(ObjectData.Entry.ENTITY_CLASS_NAME);
+                        break;
+                    case GUI_BLOCK:
+                        className = src.data.getValue(ObjectData.Entry.BLOCK_CLASS_NAME);
+                        break;
+                    default:
+                        continue;
+                }
+            }else{
+                continue;
             }
             if(totals.containsKey(className) == false){
                 totals.put(className, src.nanos);
@@ -48,10 +66,18 @@ public class GuiEntityTypes extends GuiScrollingList {
             }
         }
 
-        for(Map.Entry<String, Long> entry : totals.entrySet()){
-            DATA.put(entry.getValue(), entry.getKey());
-            COLUMN_WIDTH_NANOS = Math.max(COLUMN_WIDTH_NANOS, FONTRENDERER.getStringWidth(Calculations.muPerTickString(entry.getValue())));
-            COLUMN_WIDTH_PERCENTAGES = Math.max(COLUMN_WIDTH_PERCENTAGES, FONTRENDERER.getStringWidth(Calculations.tickPercent(entry.getValue())));
+        if(type == ScanType.WORLD) {
+            for(Map.Entry<String, Long> entry : totals.entrySet()){
+                DATA.put(entry.getValue(), entry.getKey());
+                COLUMN_WIDTH_NANOS = Math.max(COLUMN_WIDTH_NANOS, FONTRENDERER.getStringWidth(Calculations.muPerTickString(entry.getValue(), result)));
+                COLUMN_WIDTH_PERCENTAGES = Math.max(COLUMN_WIDTH_PERCENTAGES, FONTRENDERER.getStringWidth(Calculations.tickPercent(entry.getValue(), result)));
+            }
+        }else if (type == ScanType.FPS){
+            for(Map.Entry<String, Long> entry : totals.entrySet()){
+                DATA.put(entry.getValue(), entry.getKey());
+                COLUMN_WIDTH_NANOS = Math.max(COLUMN_WIDTH_NANOS, FONTRENDERER.getStringWidth(Calculations.NFStringSimple(entry.getValue(), result.getTotalFrames())));
+                COLUMN_WIDTH_PERCENTAGES = Math.max(COLUMN_WIDTH_PERCENTAGES, FONTRENDERER.getStringWidth(Calculations.nfPercent(entry.getValue(), result)));
+            }
         }
     }
 
@@ -94,17 +120,37 @@ public class GuiEntityTypes extends GuiScrollingList {
         Long nanos = DATA.descendingKeySet().toArray(new Long[0])[slot];
         String name = DATA.get(nanos);
 
-        double heat = Calculations.heat(nanos);
+        double heat;
+        if(result.getType() == ScanType.WORLD) {
+            heat = Calculations.heat(nanos, result);
+        }else{
+            heat = Calculations.heatNF(nanos, result);
+        }
         double[] RGB = Graphical.heatToColor(heat);
         int color = Graphical.RGBtoInt(RGB);
-        /* microseconds */
-        drawStringToLeftOf(Calculations.muPerTickString(nanos),left + COLUMN_WIDTH_NANOS + 5, slotTop, color);
+        int offSet;
+        if(result.getType() == ScanType.WORLD){
+            /* microseconds */
+            drawStringToLeftOf(Calculations.muPerTickString(nanos, result),left + COLUMN_WIDTH_NANOS + 5, slotTop, color);
 
-        /* Percent */
-        drawString(Calculations.tickPercent(nanos), left + COLUMN_WIDTH_NANOS + 10, slotTop, color);
+            /* Percent */
+            drawString(Calculations.tickPercent(nanos, result), left + COLUMN_WIDTH_NANOS + 10, slotTop, color);
+
+
+            offSet = FONTRENDERER.getStringWidth(Calculations.tickPercent(nanos, result));
+        }else{
+            /* nanoseconds */
+            drawStringToLeftOf(Calculations.NFStringSimple(nanos, result.getTotalFrames()),left + COLUMN_WIDTH_NANOS + 5, slotTop, color);
+
+            /* Percent */
+            drawString(Calculations.nfPercent(nanos, result), left + COLUMN_WIDTH_NANOS + 10, slotTop, color);
+
+
+            offSet = FONTRENDERER.getStringWidth(Calculations.nfPercent(nanos, result));
+        }
 
         /* Name */
-        drawString(name, left + COLUMN_WIDTH_NANOS + 10 + FONTRENDERER.getStringWidth(Calculations.tickPercent(nanos)) + 5, slotTop, 0x4C4C4C);
+        drawString(name, left + COLUMN_WIDTH_NANOS + 15 + offSet, slotTop, 0x4C4C4C);
     }
 
 

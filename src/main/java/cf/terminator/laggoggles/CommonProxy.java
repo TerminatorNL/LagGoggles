@@ -4,10 +4,13 @@ import cf.terminator.laggoggles.client.MessagePacketHandler;
 import cf.terminator.laggoggles.client.ProfileStatusHandler;
 import cf.terminator.laggoggles.client.ScanResultHandler;
 import cf.terminator.laggoggles.client.ServerDataPacketHandler;
+import cf.terminator.laggoggles.command.LagGogglesCommand;
 import cf.terminator.laggoggles.packet.*;
+import cf.terminator.laggoggles.profiler.ProfileResult;
 import cf.terminator.laggoggles.profiler.TickCounter;
 import cf.terminator.laggoggles.server.*;
 import cf.terminator.laggoggles.util.Perms;
+import cf.terminator.laggoggles.util.RunInServerThread;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -19,7 +22,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.Side;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class CommonProxy {
 
@@ -64,36 +67,24 @@ public class CommonProxy {
     }
 
     public static void sendTo(IMessage msg, EntityPlayerMP player){
-        if(msg instanceof SPacketScanResult) {
-            /* SPacketScanResult is a big packet and 1.10.2 acts funky on those, therefore we must split it
-             * I chose to do 1 packet per 50 entities */
-            SPacketScanResult result = Perms.getResultFor(player, (SPacketScanResult) msg);
-            if (result == null) {
-                return;
-            }
-            ArrayList<SPacketScanResult.EntityData> DATA = new ArrayList<>(result.DATA);
-            long endTime = result.endTime;
-            while (DATA.size() > 0) {
-                ArrayList<SPacketScanResult.EntityData> SUBLIST = new ArrayList<>();
-                for (int i = 0; i < 25 && DATA.size() > 0; i++) {
-                    SUBLIST.add(DATA.remove(0));
+        NETWORK_WRAPPER.sendTo(msg, player);
+    }
+
+    public static void sendTo(ProfileResult result, EntityPlayerMP player){
+        new RunInServerThread(new Runnable() {
+            @Override
+            public void run() {
+                List<SPacketScanResult> packets = Perms.getResultFor(player, result).createPackets();
+                for (SPacketScanResult result : packets){
+                    NETWORK_WRAPPER.sendTo(result, player);
                 }
-                SPacketScanResult SUBRESULT = new SPacketScanResult();
-                SUBRESULT.endTime = endTime;
-                SUBRESULT.hasMore = DATA.size() > 0;
-                SUBRESULT.DATA = SUBLIST;
-                SUBRESULT.TOTAL_TICKS = result.TOTAL_TICKS;
-                NETWORK_WRAPPER.sendTo(SUBRESULT, player);
             }
-        }else{
-            NETWORK_WRAPPER.sendTo(msg, player);
-        }
+        });
     }
 
     public void serverStartingEvent(FMLServerStartingEvent e){
+        e.registerServerCommand(new LagGogglesCommand());
         MinecraftForge.EVENT_BUS.register(new TickCounter());
         MinecraftForge.EVENT_BUS.register(new RequestDataHandler());
     }
-
-
 }

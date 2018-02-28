@@ -16,11 +16,12 @@ public class CPacketRequestEntityTeleport implements IMessage {
 
     @Override
     public void fromBytes(ByteBuf buf){
-        uuid = UUID.fromString(new String(buf.readBytes(36).array()));
+        uuid = new UUID(buf.readLong(), buf.readLong());
     }
 
     @Override
     public void toBytes(ByteBuf buf) {
-        buf.writeBytes(uuid.toString().getBytes());
+        buf.writeLong(uuid.getMostSignificantBits());
+        buf.writeLong(uuid.getLeastSignificantBits());
     }
 }
