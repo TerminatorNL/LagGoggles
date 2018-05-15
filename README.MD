@@ -1,6 +1,9 @@
 # LagGoggles <img height="70" src="docs/logo.png">
 Intuitive lag hunting!<br>
 <br>
+> Hey there! I don't have time right now to maintain this mod like I did before due to private reasons, I will still look at pull requests, and review them, if you feel the need to help out.<br>When I get more time on my hands, I will definetly continue support, but at this moment, there's no guarantee.<br>Sorry for the inconvienience.
+<br>
+<br>
 LagGoggles is a profiler where you can see timings in the world, visually. It comes with a custom GUI using a configurable keybind. It's compatible with [SpongeForge](https://github.com/SpongePowered/SpongeForge) and [Mixin](https://github.com/SpongePowered/Mixin)!<br>
 You can use LagGoggles as a player too! This is my attempt to create an understanding of what causes lag on a server to regular players.<br>
 I noticed some common misconceptions like having machines spread out over different chunks causes less lag than putting it in one chunk.<br>
