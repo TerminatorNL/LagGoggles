@@ -33,6 +33,13 @@ LagGoggles can also profile clientside FPS as of version 4.0!
 ![alt text](docs/sheep.png "Entity view")
 ![alt text](docs/timingsmenu.png "Analyzer")
 
+## Video explaining the concept
+Massive thanks for [Grok DuckFarmer](https://www.youtube.com/channel/UCoKMLbTK35pzF8Lv_oj3KlA) for making this video.
+
+
+[Minecraft Talk 35 - LagGoggles and Better Server Play](https://youtu.be/2ALrIvw1S4I)
+[![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/2ALrIvw1S4I/0.jpg)](http://www.youtube.com/watch?v=2ALrIvw1S4I)
+
 ## Features
 * Sponge compatible (use the SPONGEFORGE version!)
 * Teleporting to sources of lag
