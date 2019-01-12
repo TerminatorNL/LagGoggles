@@ -34,7 +34,7 @@ LagGoggles can also profile clientside FPS as of version 4.0!
 ![alt text](docs/timingsmenu.png "Analyzer")
 
 ## Video explaining the concept
-Massive thanks for [Grok DuckFarmer](https://www.youtube.com/channel/UCoKMLbTK35pzF8Lv_oj3KlA) for making this video.
+Massive thanks to [Grok DuckFarmer](https://www.youtube.com/channel/UCoKMLbTK35pzF8Lv_oj3KlA) for making this video.
 
 
 [Minecraft Talk 35 - LagGoggles and Better Server Play](https://youtu.be/2ALrIvw1S4I)

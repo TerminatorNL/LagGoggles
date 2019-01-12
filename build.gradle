@@ -34,7 +34,7 @@ if(isClient == false) {
     }
 }
 
-version = "1.12.2-4.1"
+version = "1.12.2-4.2-HOTFIX"
 group= "cf.terminator.laggoggles" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "LagGoggles-" + buildType
 
@@ -49,12 +49,12 @@ compileJava {
 }
 
 minecraft {
-    version = "1.12.2-14.23.1.2580"
+    version = "1.12.2-14.23.5.2768"
     runDir = "run"
 
     replaceIn "Main.java"
     replace '${version}', buildType + "-" + project.version
-    mappings = "snapshot_20171003"
+    mappings = "snapshot_20180808"
 }
 
 configurations {
@@ -63,11 +63,21 @@ configurations {
 }
 
 dependencies {
-    compile 'org.spongepowered:spongeforge:1.12.2-2586-7.1.0-BETA-2865'
+    compile 'org.spongepowered:spongeforge:1.12.2-2768-7.1.6-RC3643:dev'
+
+
+
     if(isSponge) {
-        compile 'org.spongepowered:mixin:0.7.4-SNAPSHOT'
+        compileOnly ('org.spongepowered:mixin:0.7.11-SNAPSHOT'){
+            ['gson','guava','commons-io'].each {
+                exclude module: it
+            }
+        }
     }else{
-        embed('org.spongepowered:mixin:0.7.5-SNAPSHOT') {
+        embed('org.spongepowered:mixin:0.7.11-SNAPSHOT') {
+            ['gson','guava','commons-io'].each {
+                exclude module: it
+            }
             exclude module: 'launchwrapper'
         }
     }

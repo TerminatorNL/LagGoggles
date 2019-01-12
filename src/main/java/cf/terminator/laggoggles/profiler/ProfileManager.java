@@ -117,7 +117,7 @@ public class ProfileManager {
                                     /* The block is not a tile entity, get the actual block. */
                                     try {
                                         IBlockState state = world.getBlockState(tileEntityTimes.getKey());
-                                        String name = state.getBlock().getUnlocalizedName();
+                                        String name = state.getBlock().getLocalizedName();
                                         result.addData(new ObjectData(
                                                 worldID,
                                                 name,
