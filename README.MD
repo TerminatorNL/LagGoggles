@@ -38,6 +38,7 @@ Massive thanks for [Grok DuckFarmer](https://www.youtube.com/channel/UCoKMLbTK35
 
 
 [Minecraft Talk 35 - LagGoggles and Better Server Play](https://youtu.be/2ALrIvw1S4I)
+
 [![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/2ALrIvw1S4I/0.jpg)](http://www.youtube.com/watch?v=2ALrIvw1S4I)
 
 ## Features
