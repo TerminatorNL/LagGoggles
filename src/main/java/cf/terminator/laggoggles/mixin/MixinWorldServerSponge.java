@@ -19,7 +19,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import org.spongepowered.common.event.tracking.IPhaseState;
-import org.spongepowered.common.event.tracking.PhaseTracker;
+import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.interfaces.block.IMixinBlock;
 
 import java.util.Iterator;
@@ -70,9 +70,10 @@ public abstract class MixinWorldServerSponge extends World {
             ),
             locals = LocalCapture.CAPTURE_FAILHARD
     )
-    public void beforeUpdateBlocks(CallbackInfo ci, int i, boolean flag, boolean flag1, PhaseTracker phaseTracker, Iterator iterator, Chunk chunk, World world, int j, int k, ExtendedBlockStorage var10[], int var11, int var12, ExtendedBlockStorage extendedblockstorage, int i1, int j1, int k1, int l1, int i2, IBlockState iblockstate, Block block, BlockPos pos, IMixinBlock spongeBlock, IPhaseState phaseState){
+    public void beforeUpdateBlocks(CallbackInfo ci, int i, boolean flag, boolean flag1, Iterator iterator, Chunk chunk, World world, int j, int k, ExtendedBlockStorage var10[], int var11, int var12, ExtendedBlockStorage extendedblockstorage, int i1, int j1, int k1, int l1, int i2, IBlockState iblockstate, Block block, BlockPos pos, IMixinBlock spongeBlock, PhaseContext context, IPhaseState phaseState){
         LAGGOGGLES_START_RANDOM = System.nanoTime();
     }
+
 
     @Inject(method = "updateBlocks",
             at = @At(value = "INVOKE",
@@ -81,7 +82,7 @@ public abstract class MixinWorldServerSponge extends World {
             ),
             locals = LocalCapture.CAPTURE_FAILHARD
     )
-    public void afterUpdateBlocks(CallbackInfo ci, int i, boolean flag, boolean flag1, PhaseTracker phaseTracker, Iterator iterator, Chunk chunk, World world, int j, int k, ExtendedBlockStorage var10[], int var11, int var12, ExtendedBlockStorage extendedblockstorage, int i1, int j1, int k1, int l1, int i2, IBlockState iblockstate, Block block, BlockPos pos, IMixinBlock spongeBlock, IPhaseState phaseState){
+    public void afterUpdateBlocks(CallbackInfo ci, int i, boolean flag, boolean flag1, Iterator iterator, Chunk chunk, World world, int j, int k, ExtendedBlockStorage var10[], int var11, int var12, ExtendedBlockStorage extendedblockstorage, int i1, int j1, int k1, int l1, int i2, IBlockState iblockstate, Block block, BlockPos pos, IMixinBlock spongeBlock, PhaseContext context, IPhaseState phaseState){
         if (PROFILE_ENABLED.get() && LAGGOGGLES_START_RANDOM != null) {
             timingManager.addBlockTime(provider.getDimension(), new BlockPos(k1 + j, i2 + extendedblockstorage.getYLocation(), l1 + k), System.nanoTime() - LAGGOGGLES_START_RANDOM);
         }

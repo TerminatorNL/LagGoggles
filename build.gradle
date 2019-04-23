@@ -29,12 +29,12 @@ repositories {
 }
 
 if(isClient == false) {
-    delete fileTree('run/mods') {
+    delete fileTree('run_server_obf/mods') {
         include 'LagGoggles*'
     }
 }
 
-version = "1.12.2-4.2-HOTFIX"
+version = "1.12.2-4.3-HOTFIX"
 group= "cf.terminator.laggoggles" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "LagGoggles-" + buildType
 
@@ -139,10 +139,10 @@ jar {
 
 task finalize << {
     if(isClient == false) {
-        println("Copied " + jar.archivePath + " into run/mods")
+        println("Copied " + jar.archivePath + " into run_server_obf/mods")
         copy {
             from jar.archivePath
-            into "run/mods"
+            into "run_server_obf/mods"
         }
     }
 }
