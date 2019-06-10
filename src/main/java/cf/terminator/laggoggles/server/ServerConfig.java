@@ -21,6 +21,7 @@ import java.util.Optional;
 public class ServerConfig {
 
     @Config.Comment("What's the permission level available to non-operators (Normal players)?\n" +
+                    "Please note that this ONLY works on dedicated servers. If you're playing singleplayer or LAN, the FULL permission is used.\n" +
                     "Available permissions in ascending order are:\n" +
                     "   'NONE'  No permissions are granted, all functionality is denied.\n" +
                     "   'GET'   Allow getting the latest scan result, this will be stripped down to the player's surroundings\n" +
