@@ -100,7 +100,7 @@ public class LagOverlayGui {
         }
     }
 
-    private void scanAndAddEntities(){
+    private synchronized void scanAndAddEntities(){
         BLOCKS_NANO.clear();
         BLOCKS_HEAT.clear();
         ENTITY_NANO.clear();
@@ -110,86 +110,80 @@ public class LagOverlayGui {
             return;
         }
         if(type == ScanType.WORLD){
-            scanWorldTypes();
-        }else{
-            scanGuiTypes();
-        }
-    }
 
-    private void scanGuiTypes() {
-        for (ObjectData objectData : result.getData()) {
-            long nanos = objectData.getValue(ObjectData.Entry.NANOS);
-            switch (objectData.type) {
-                case GUI_BLOCK:
-                    BlockPos pos = new BlockPos(objectData.getValue(ObjectData.Entry.BLOCK_POS_X), objectData.getValue(ObjectData.Entry.BLOCK_POS_Y), objectData.getValue(ObjectData.Entry.BLOCK_POS_Z));
-                    BLOCKS_HEAT.put(pos, Calculations.heatNF(nanos, result));
-                    BLOCKS_NANO.put(pos, Calculations.NFString(nanos, result.getTotalFrames()));
-                    break;
-                case GUI_ENTITY:
-                    UUID entityID = objectData.getValue(ObjectData.Entry.ENTITY_UUID);
-                    for (Entity entity : new ArrayList<>(MINECRAFT.world.loadedEntityList)) {
-                        if (entity.getPersistentID().equals(entityID)) {
-                            if (entity == MINECRAFT.player) {
-                                continue;
-                            }
-                            ENTITY_HEAT.put(entity, Calculations.heatNF(nanos, result));
-                            ENTITY_NANO.put(entity, Calculations.NFString(nanos, result.getTotalFrames()));
-                            break;
+            for(ObjectData objectData : result.getData()){
+                long nanos = objectData.getValue(ObjectData.Entry.NANOS);
+                switch (objectData.type){
+                    case TILE_ENTITY:
+                    case BLOCK:
+                        if((int) objectData.getValue(ObjectData.Entry.WORLD_ID) != MINECRAFT.world.provider.getDimension()){
+                            continue;
                         }
-                    }
-
-            }
-        }
-    }
-
-    private void scanWorldTypes(){
-        for(ObjectData objectData : result.getData()){
-            long nanos = objectData.getValue(ObjectData.Entry.NANOS);
-            switch (objectData.type){
-                case TILE_ENTITY:
-                case BLOCK:
-                    if((int) objectData.getValue(ObjectData.Entry.WORLD_ID) != MINECRAFT.world.provider.getDimension()){
-                        continue;
-                    }
-                    BlockPos pos = new BlockPos(objectData.getValue(ObjectData.Entry.BLOCK_POS_X), objectData.getValue(ObjectData.Entry.BLOCK_POS_Y), objectData.getValue(ObjectData.Entry.BLOCK_POS_Z));
-                    if(MINECRAFT.player.getDistanceSq(pos) > 36864){
-                        /* More than 12 chunks away, we don't draw. */
-                        continue;
-                    }
-                    double heat = Calculations.heat(nanos, result);
-                    BLOCKS_HEAT.put(pos,heat);
-                    BLOCKS_NANO.put(pos,Calculations.muPerTickString(nanos, result));
-                    calculateChunk(pos,heat);
-                    break;
-                case ENTITY:
-                    if((int) objectData.getValue(ObjectData.Entry.WORLD_ID) != MINECRAFT.world.provider.getDimension()){
-                        continue;
-                    }
-                    UUID entityID = objectData.getValue(ObjectData.Entry.ENTITY_UUID);
-                    for(Entity entity : new ArrayList<>(MINECRAFT.world.loadedEntityList)){
-                        if(entity.getPersistentID().equals(entityID)){
-                            if(entity == MINECRAFT.player){
-                                continue;
-                            }
-                            ENTITY_NANO.put(entity, Calculations.muPerTickString(nanos, result));
-                            ENTITY_HEAT.put(entity, Calculations.heat(nanos, result));
-                            break;
+                        BlockPos pos = new BlockPos(objectData.getValue(ObjectData.Entry.BLOCK_POS_X), objectData.getValue(ObjectData.Entry.BLOCK_POS_Y), objectData.getValue(ObjectData.Entry.BLOCK_POS_Z));
+                        if(MINECRAFT.player.getDistanceSq(pos) > 36864){
+                            /* More than 12 chunks away, we don't draw. */
+                            continue;
                         }
-                    }
-                    break;
-            }
-        }
-    }
+                        double heat = Calculations.heat(nanos, result);
+                        BLOCKS_HEAT.put(pos,heat);
+                        BLOCKS_NANO.put(pos,Calculations.muPerTickString(nanos, result));
 
-    private void calculateChunk(BlockPos block, double heat){
-        ChunkPos c = new ChunkPos(block);
-        if(CHUNKS.containsKey(c) == false){
-            CHUNKS.put(c, heat);
+                        ChunkPos c = new ChunkPos(pos);
+                        if(CHUNKS.containsKey(c) == false){
+                            CHUNKS.put(c, heat);
+                        }else{
+                            CHUNKS.put(c, heat + CHUNKS.get(c));
+                        }
+                        if( heat < 0 && CHUNKS.get(c) == 0){
+                            CHUNKS.remove(c);
+                        }
+
+                        break;
+                    case ENTITY:
+                        if((int) objectData.getValue(ObjectData.Entry.WORLD_ID) != MINECRAFT.world.provider.getDimension()){
+                            continue;
+                        }
+                        UUID entityID = objectData.getValue(ObjectData.Entry.ENTITY_UUID);
+                        for(Entity entity : new ArrayList<>(MINECRAFT.world.loadedEntityList)){
+                            if(entity.getPersistentID().equals(entityID)){
+                                if(entity == MINECRAFT.player){
+                                    continue;
+                                }
+                                ENTITY_NANO.put(entity, Calculations.muPerTickString(nanos, result));
+                                ENTITY_HEAT.put(entity, Calculations.heat(nanos, result));
+                                break;
+                            }
+                        }
+                        break;
+                }
+            }
+
         }else{
-            CHUNKS.put(c, heat + CHUNKS.get(c));
-        }
-        if( heat < 0 && CHUNKS.get(c) == 0){
-            CHUNKS.remove(c);
+
+            for (ObjectData objectData : result.getData()) {
+                long nanos = objectData.getValue(ObjectData.Entry.NANOS);
+                switch (objectData.type) {
+                    case GUI_BLOCK:
+                        BlockPos pos = new BlockPos(objectData.getValue(ObjectData.Entry.BLOCK_POS_X), objectData.getValue(ObjectData.Entry.BLOCK_POS_Y), objectData.getValue(ObjectData.Entry.BLOCK_POS_Z));
+                        BLOCKS_HEAT.put(pos, Calculations.heatNF(nanos, result));
+                        BLOCKS_NANO.put(pos, Calculations.NFString(nanos, result.getTotalFrames()));
+                        break;
+                    case GUI_ENTITY:
+                        UUID entityID = objectData.getValue(ObjectData.Entry.ENTITY_UUID);
+                        for (Entity entity : new ArrayList<>(MINECRAFT.world.loadedEntityList)) {
+                            if (entity.getPersistentID().equals(entityID)) {
+                                if (entity == MINECRAFT.player) {
+                                    continue;
+                                }
+                                ENTITY_HEAT.put(entity, Calculations.heatNF(nanos, result));
+                                ENTITY_NANO.put(entity, Calculations.NFString(nanos, result.getTotalFrames()));
+                                break;
+                            }
+                        }
+
+                }
+            }
+
         }
     }
 
@@ -365,7 +359,7 @@ public class LagOverlayGui {
         GL11.glDisable(GL11.GL_TEXTURE_2D);
     }
 
-    private void drawEntityTags(float partialTicks){
+    private synchronized void drawEntityTags(float partialTicks){
         /* ENTITIES */
         for(Map.Entry<Entity, String> e : ENTITY_NANO.entrySet()){
             GL11.glPushMatrix();
