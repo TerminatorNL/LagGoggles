@@ -71,10 +71,4 @@ Entities, blocks and event-subscribers are timed using System.nanotime() before 
 * Learn your players to build lag-free bases.
 
 ## Dependencies
-As of version 3.0, you'll have to pick the right version of LagGoggles.<br>
-If you are a player, you can simply install the FORGE edition.<br>
-<br>
-If you're installing it on the server you have to use either the FORGE or SPONGEFORGE version.<br>
-Quick answer: Running SpongeForge? Install the SPONGEFORGE version.<br>
-<br>
-Elaboration: SpongeForge changes classes at startup in such a way it's completely incompatible with LagGoggles's FORGE edit's on WorldServer.class, therefore I made an alternative WorldServer.class just to be compatible with SpongeForge.
+You can download the latest release here. The ONLY difference between THIN and FAT is that **FAT ships Mixin, which is a library that LagGoggles needs in order to function.** It's possible that another mod already ships Mixin or has another version. Generally speaking, LagGoggles can handle most Mixin releases well. A known mod to ship Mixin is SpongeForge. **If you have SpongeForge or another mod that requires a different version of Mixin, choose the THIN release**.

@@ -71,12 +71,12 @@ public class CommonProxy {
     }
 
     public static void sendTo(ProfileResult result, EntityPlayerMP player){
+        List<SPacketScanResult> packets = Perms.getResultFor(player, result).createPackets(player);
         new RunInServerThread(new Runnable() {
             @Override
             public void run() {
-                List<SPacketScanResult> packets = Perms.getResultFor(player, result).createPackets();
                 for (SPacketScanResult result : packets){
-                    NETWORK_WRAPPER.sendTo(result, player);
+                    sendTo(result, player);
                 }
             }
         });

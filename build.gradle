@@ -12,9 +12,11 @@ buildscript {
         classpath 'org.spongepowered:mixingradle:0.6-SNAPSHOT'
     }
 }
-boolean isSponge = hasProperty("isSponge")
+String spongeForgeVersion = '1.12.2-2838-7.1.7-RC3812'
+
+boolean isFat = hasProperty("isFat")
 boolean isClient = hasProperty("isClient")
-String buildType = (isSponge ? "SPONGEFORGE" : "FORGE")
+String buildType = (isFat ? "FAT" : "THIN")
 println("Compiling: " + buildType)
 
 apply plugin: 'net.minecraftforge.gradle.forge'
@@ -34,7 +36,7 @@ if(isClient == false) {
     }
 }
 
-version = "1.12.2-4.3-HOTFIX"
+version = "1.12.2-4.4"
 group= "cf.terminator.laggoggles" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "LagGoggles-" + buildType
 
@@ -49,36 +51,45 @@ compileJava {
 }
 
 minecraft {
-    version = "1.12.2-14.23.5.2768"
+    version = "1.12.2-14.23.5.2838"
     runDir = "run"
 
     replaceIn "Main.java"
     replace '${version}', buildType + "-" + project.version
     mappings = "snapshot_20180808"
+
+    replaceIn "mixinhelper/MixinConfigPlugin.java"
+    replace '${spongeforge_version}', spongeForgeVersion
+    replaceIn "mixinhelper/MixinConfigPlugin.java"
+    replace '${forge_version}', forgeVersion
 }
 
 configurations {
     embed
     compile.extendsFrom(embed)
+    compileOnly.transitive = false
 }
 
 dependencies {
-    compile 'org.spongepowered:spongeforge:1.12.2-2768-7.1.6-RC3643:dev'
+    /*
+        Sponge
+     */
+    compileOnly 'org.spongepowered:spongeforge:' + spongeForgeVersion + ':dev'
 
 
 
-    if(isSponge) {
-        compileOnly ('org.spongepowered:mixin:0.7.11-SNAPSHOT'){
-            ['gson','guava','commons-io'].each {
-                exclude module: it
-            }
-        }
-    }else{
+    if(isFat) {
         embed('org.spongepowered:mixin:0.7.11-SNAPSHOT') {
             ['gson','guava','commons-io'].each {
                 exclude module: it
             }
             exclude module: 'launchwrapper'
+        }
+    }else{
+        compile ('org.spongepowered:mixin:0.7.11-SNAPSHOT'){
+            ['gson','guava','commons-io'].each {
+                exclude module: it
+            }
         }
     }
 }
@@ -87,13 +98,12 @@ processResources {
     // this will ensure that this task is redone when the versions change.
     inputs.property "version", project.version
     inputs.property "mcversion", project.minecraft.version
-    inputs.property "WORLDSERVER", isSponge ? 'MixinWorldServerSponge' : 'MixinWorldServer'
 
     // replace stuff
     from(sourceSets.main.resources.srcDirs) {
         include 'mcmod.info'
         include 'mixins.laggoggles.json'
-        expand 'version':project.version, 'mcversion':project.minecraft.version, 'WORLDSERVER':(isSponge ? 'MixinWorldServerSponge' : 'MixinWorldServer')
+        expand 'version':project.version, 'mcversion':project.minecraft.version
     }
 
     // copy everything else, thats not the mcmod.info or mixins.laggoggles.json

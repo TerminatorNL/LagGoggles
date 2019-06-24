@@ -4,6 +4,8 @@ import cf.terminator.laggoggles.client.gui.GuiScanResultsWorld;
 import cf.terminator.laggoggles.packet.ObjectData;
 import cf.terminator.laggoggles.packet.SPacketScanResult;
 import cf.terminator.laggoggles.util.Side;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.util.text.TextComponentString;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -168,9 +170,12 @@ public class ProfileResult {
     }
 
 
-    public List<SPacketScanResult> createPackets(){
+    public List<SPacketScanResult> createPackets(EntityPlayerMP player){
         ArrayList<SPacketScanResult> list = new ArrayList<>();
         ArrayList<ObjectData> data = new ArrayList<>(OBJECT_DATA);
+        player.sendMessage(new TextComponentString("LagGoggles: Generating the results for you..."));
+        long time = System.currentTimeMillis();
+        double dataSize = data.size();
         while(data.size() > 0) {
             SPacketScanResult packet = new SPacketScanResult();
             packet.endTime = this.endTime;
@@ -182,12 +187,19 @@ public class ProfileResult {
             packet.totalFrames = this.totalFrames;
             packet.hasMore = true;
 
-            ArrayList<ObjectData> sub = new ArrayList<>(data.subList(0,Math.min(10,data.size())));
+            ArrayList<ObjectData> sub = new ArrayList<>(data.subList(0,Math.min(50,data.size())));
             data.removeAll(sub);
             packet.DATA.addAll(sub);
             list.add(packet);
+            if(time + 5000 < System.currentTimeMillis()){
+                time = System.currentTimeMillis();
+                player.sendMessage(new TextComponentString("LagGoggles: result is processing: " + Math.round(100 - (int) ((double) data.size()/dataSize * 100d)) + "%"));
+            }
         }
-        list.get(list.size()-1).hasMore = false;
+        if(list.size() >= 1) {
+            list.get(list.size() - 1).hasMore = false;
+        }
+        player.sendMessage(new TextComponentString("LagGoggles: Done!"));
         return list;
     }
 

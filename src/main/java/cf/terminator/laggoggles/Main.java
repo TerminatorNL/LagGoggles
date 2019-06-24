@@ -1,6 +1,7 @@
 package cf.terminator.laggoggles;
 
 import cf.terminator.laggoggles.client.ClientProxy;
+import cf.terminator.laggoggles.mixinhelper.MixinValidator;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.SidedProxy;
@@ -29,6 +30,7 @@ public class Main {
     public void preinit(FMLPreInitializationEvent e){
         LOGGER = e.getModLog();
         proxy.preinit(e);
+        MixinValidator.validate();
         Main.LOGGER.info("Registered sided proxy for: " + (proxy instanceof ClientProxy ? "Client" : "Dedicated server"));
     }
 

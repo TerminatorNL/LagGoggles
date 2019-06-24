@@ -25,9 +25,9 @@ import static cf.terminator.laggoggles.profiler.ProfileManager.PROFILE_ENABLED;
 import static cf.terminator.laggoggles.profiler.ProfileManager.timingManager;
 
 @Mixin(value = WorldServer.class, priority = 1001)
-public abstract class MixinWorldServer extends World {
+public abstract class MixinWorldServerForge extends World {
 
-    protected MixinWorldServer(ISaveHandler p_i45749_1_, WorldInfo p_i45749_2_, WorldProvider p_i45749_3_, Profiler p_i45749_4_, boolean p_i45749_5_) {
+    protected MixinWorldServerForge(ISaveHandler p_i45749_1_, WorldInfo p_i45749_2_, WorldProvider p_i45749_3_, Profiler p_i45749_4_, boolean p_i45749_5_) {
         super(p_i45749_1_, p_i45749_2_, p_i45749_3_, p_i45749_4_, p_i45749_5_);
     }
 

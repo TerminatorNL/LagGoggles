@@ -92,6 +92,9 @@ public class ProfileManager {
                                 }
                             }
                             for(Map.Entry<BlockPos, Long> tileEntityTimes : entry.getValue().getBlockTimes().entrySet()){
+                                if(world.isBlockLoaded(tileEntityTimes.getKey()) == false){
+                                    continue;
+                                }
                                 TileEntity e = world.getTileEntity(tileEntityTimes.getKey());
                                 if(e != null) {
                                     try {

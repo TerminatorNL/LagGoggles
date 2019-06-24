@@ -43,6 +43,7 @@ public class GuiProfile extends GuiScreen {
     private ProfileButton startProfile;
     private DownloadButton downloadButton;
     private GuiButton optionsButton;
+    private boolean initialized = false;
     public int seconds = Math.min(30, ServerDataPacketHandler.MAX_SECONDS);
 
     public GuiProfile(){
@@ -97,6 +98,7 @@ public class GuiProfile extends GuiScreen {
         scrollHint.addLine("to change time time!");
         labelList.add(scrollHint);
         addButton(downloadButton);
+        initialized = true;
     }
 
     private Runnable buttonUpdateTask = new Runnable() {
@@ -113,6 +115,9 @@ public class GuiProfile extends GuiScreen {
     };
 
     private void updateButton(){
+        if(initialized == false){
+            return;
+        }
         if(getSecondsLeftForMessage() >= 0){
             startProfile.displayString = MESSAGE.message;
             startProfile.enabled = false;
@@ -142,6 +147,9 @@ public class GuiProfile extends GuiScreen {
 
     @Override
     public void handleMouseInput() throws IOException{
+        if(initialized == false){
+            return;
+        }
         if(startProfile.isMouseOver() && startProfile.enabled){
             int wheel = Mouse.getDWheel();
             if(wheel != 0) {
