@@ -1,19 +1,26 @@
 package cf.terminator.laggoggles.profiler;
 
+import cf.terminator.laggoggles.CommonProxy;
 import cf.terminator.laggoggles.Main;
 import cf.terminator.laggoggles.api.event.LagGogglesEvent;
 import cf.terminator.laggoggles.client.FPSCounter;
 import cf.terminator.laggoggles.packet.ObjectData;
+import cf.terminator.laggoggles.packet.SPacketProfileStatus;
+import cf.terminator.laggoggles.util.Perms;
 import cf.terminator.laggoggles.util.RunInClientThread;
 import cf.terminator.laggoggles.util.RunInServerThread;
 import cf.terminator.laggoggles.util.Side;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.WorldClient;
+import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.MinecraftForge;
@@ -37,11 +44,26 @@ public class ProfileManager {
     private static final Object LOCK = new Object();
     private static final FPSCounter FPS_COUNTER = new FPSCounter();
 
-    public static ProfileResult runProfiler(int seconds, ScanType type) throws IllegalStateException{
+    public static ProfileResult runProfiler(int seconds, ScanType type, ICommandSender issuer) throws IllegalStateException{
         try {
             if(PROFILE_ENABLED.get()){
                 throw new IllegalStateException("Can't start profiler when it's already running!");
             }
+
+            /* Send status to users */
+            SPacketProfileStatus status = new SPacketProfileStatus(true, seconds, issuer.getName());
+
+            new RunInServerThread(new Runnable() {
+                @Override
+                public void run() {
+                    for(EntityPlayerMP user : Perms.getLagGogglesUsers()) {
+                        CommonProxy.sendTo(status, user);
+                    }
+                }
+            });
+            issuer.sendMessage(new TextComponentString(TextFormatting.GRAY + Main.MODID + TextFormatting.WHITE + ": Profiler started for " + seconds + " seconds."));
+            Main.LOGGER.info(Main.MODID + " profiler started by " + issuer.getName() + " (" + seconds + " seconds)");
+
             long start = System.nanoTime();
             TickCounter.ticks.set(0L);
             timingManager = new TimingManager();
@@ -170,6 +192,8 @@ public class ProfileManager {
                 LOCK.wait();
             }
             MinecraftForge.EVENT_BUS.post(new LagGogglesEvent.LocalResult(LAST_PROFILE_RESULT.get()));
+            Main.LOGGER.info("Profiling complete.");
+            issuer.sendMessage(new TextComponentString(TextFormatting.GRAY + Main.MODID + TextFormatting.WHITE + ": Profiling complete."));
             return LAST_PROFILE_RESULT.get();
         } catch (Throwable e) {
             Main.LOGGER.error("Woa! Something went wrong while processing results! Please contact Terminator_NL and submit the following error in an issue at github!");

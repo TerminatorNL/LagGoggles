@@ -12,7 +12,7 @@ import java.util.UUID;
 import static cf.terminator.laggoggles.profiler.ProfileManager.PROFILE_ENABLED;
 import static cf.terminator.laggoggles.profiler.ProfileManager.timingManager;
 
-@Mixin(value = Entity.class)
+@Mixin(value = Entity.class, priority = 1001)
 public abstract class MixinEntity {
 
     @Shadow

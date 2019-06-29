@@ -6,6 +6,7 @@ import cf.terminator.laggoggles.packet.SPacketScanResult;
 import cf.terminator.laggoggles.util.Side;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextFormatting;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -173,7 +174,7 @@ public class ProfileResult {
     public List<SPacketScanResult> createPackets(EntityPlayerMP player){
         ArrayList<SPacketScanResult> list = new ArrayList<>();
         ArrayList<ObjectData> data = new ArrayList<>(OBJECT_DATA);
-        player.sendMessage(new TextComponentString("LagGoggles: Generating the results for you..."));
+        player.sendMessage(new TextComponentString(TextFormatting.GRAY + "LagGoggles" + TextFormatting.WHITE + ": Generating the results for you..."));
         long time = System.currentTimeMillis();
         double dataSize = data.size();
         while(data.size() > 0) {
@@ -193,13 +194,13 @@ public class ProfileResult {
             list.add(packet);
             if(time + 5000 < System.currentTimeMillis()){
                 time = System.currentTimeMillis();
-                player.sendMessage(new TextComponentString("LagGoggles: result is processing: " + Math.round(100 - (int) ((double) data.size()/dataSize * 100d)) + "%"));
+                player.sendMessage(new TextComponentString(TextFormatting.GRAY + "LagGoggles" + TextFormatting.WHITE + ": result is processing: " + Math.round(100 - (int) ((double) data.size()/dataSize * 100d)) + "%"));
             }
         }
         if(list.size() >= 1) {
             list.get(list.size() - 1).hasMore = false;
         }
-        player.sendMessage(new TextComponentString("LagGoggles: Done!"));
+        player.sendMessage(new TextComponentString(TextFormatting.GRAY + "LagGoggles" + TextFormatting.WHITE + ": Done!"));
         return list;
     }
 

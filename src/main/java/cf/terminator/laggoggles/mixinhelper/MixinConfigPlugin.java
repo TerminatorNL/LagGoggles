@@ -1,6 +1,9 @@
 package cf.terminator.laggoggles.mixinhelper;
 
 import cf.terminator.laggoggles.Main;
+import cf.terminator.laggoggles.mixinhelper.extended.DynamicMethodFinder;
+import cf.terminator.laggoggles.mixinhelper.extended.DynamicMethodReplacer;
+import cf.terminator.laggoggles.mixinhelper.extended.MethodHeadInserter;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -171,6 +174,12 @@ public class MixinConfigPlugin implements IMixinConfigPlugin{
     @Override
     public void postApply(String target, ClassNode classNode, String mixin, IMixinInfo iMixinInfo) {
         LOGGER.info("Applied mixin: " + mixin);
+        if(mixin.equals("cf.terminator.laggoggles.mixin.MixinWorldServerSponge")) {
+            LOGGER.info("Applying custom transformer for cf.terminator.laggoggles.mixin.MixinWorldServerSponge");
+            new MethodHeadInserter(classNode).transform();
+            new DynamicMethodFinder(classNode).transform();
+            new DynamicMethodReplacer(classNode).transform();
+        }
         MIXINS_TO_LOAD.remove(mixin);
     }
 }

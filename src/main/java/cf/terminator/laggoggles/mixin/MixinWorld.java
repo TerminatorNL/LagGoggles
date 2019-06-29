@@ -14,8 +14,7 @@ import java.util.Iterator;
 import static cf.terminator.laggoggles.profiler.ProfileManager.PROFILE_ENABLED;
 import static cf.terminator.laggoggles.profiler.ProfileManager.timingManager;
 
-@Mixin(value = World.class,
-        priority = 1001)
+@Mixin(value = World.class, priority = 1001)
 public abstract class MixinWorld {
 
     private Long LAGGOGGLES_START = null;

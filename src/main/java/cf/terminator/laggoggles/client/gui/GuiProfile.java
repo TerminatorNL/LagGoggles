@@ -83,7 +83,6 @@ public class GuiProfile extends GuiScreen {
         GuiButton showToggle  = new GuiButton(BUTTON_SHOW_TOGGLE, centerX - 100, centerY +  5, LagOverlayGui.isShowing() ? "Hide latest scan results" : "Show latest scan results");
         GuiButton analyzeResults  = new GuiButton(BUTTON_ANALYZE_RESULTS, centerX - 100, centerY +  30, "Analyze results");
 
-        updateButton();
 
         showToggle.enabled = profileLoaded;
         analyzeResults.enabled = profileLoaded;
@@ -99,6 +98,7 @@ public class GuiProfile extends GuiScreen {
         labelList.add(scrollHint);
         addButton(downloadButton);
         initialized = true;
+        updateButton();
     }
 
     private Runnable buttonUpdateTask = new Runnable() {

@@ -3,12 +3,10 @@ package cf.terminator.laggoggles.server;
 import cf.terminator.laggoggles.CommonProxy;
 import cf.terminator.laggoggles.Main;
 import cf.terminator.laggoggles.api.Profiler;
-import cf.terminator.laggoggles.packet.CPacketRequestScan;
-import cf.terminator.laggoggles.packet.SPacketMessage;
-import cf.terminator.laggoggles.packet.SPacketProfileStatus;
-import cf.terminator.laggoggles.packet.SPacketServerData;
+import cf.terminator.laggoggles.packet.*;
 import cf.terminator.laggoggles.profiler.ScanType;
 import cf.terminator.laggoggles.util.Perms;
+import cf.terminator.laggoggles.util.RunInServerThread;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
@@ -59,16 +57,7 @@ public class ScanRequestHandler implements IMessageHandler<CPacketRequestScan, I
         new Thread(new Runnable() {
             @Override
             public void run() {
-
-                /* Send status to users */
-                SPacketProfileStatus status = new SPacketProfileStatus(true, request.length, requestee.getName());
-                for(EntityPlayerMP user : Perms.getLagGogglesUsers()) {
-                    CommonProxy.sendTo(status, user);
-                }
-
-                Main.LOGGER.info(Main.MODID + " profiler started by " + requestee.getName() + " (" + request.length + " seconds)");
-                Profiler.runProfiler(request.length, ScanType.WORLD);
-                Main.LOGGER.info(Main.MODID + " finished profiling!");
+                Profiler.runProfiler(request.length, ScanType.WORLD, requestee);
 
                 /* Send status to users */
                 SPacketProfileStatus status2 = new SPacketProfileStatus(false, request.length, requestee.getName());

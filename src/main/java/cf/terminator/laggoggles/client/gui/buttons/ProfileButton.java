@@ -45,7 +45,7 @@ public class ProfileButton extends SplitButton {
                     GuiProfile.PROFILE_END_TIME = System.currentTimeMillis() + (seconds * 1000);
                     GuiProfile.update();
                     text.show();
-                    ProfileResult result = Profiler.runProfiler(seconds, ScanType.FPS);
+                    ProfileResult result = Profiler.runProfiler(seconds, ScanType.FPS, Minecraft.getMinecraft().player);
                     text.hide();
                     Main.LOGGER.info("Clientside profiling done.");
                     LagOverlayGui.create(result);

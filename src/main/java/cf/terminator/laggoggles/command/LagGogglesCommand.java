@@ -55,11 +55,8 @@ public class LagGogglesCommand extends CommandBase {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    Main.LOGGER.info("Profiler started by " + sender.getName() + " ("+seconds+" seconds)");
-                    sender.sendMessage(new TextComponentString("Running..."));
-                    Profiler.runProfiler(seconds, ScanType.WORLD);
-                    sender.sendMessage(new TextComponentString("Done! You can see results using /" + getName() +" dump"));
-                    Main.LOGGER.info("Finished profiling!");
+                    Profiler.runProfiler(seconds, ScanType.WORLD, sender);
+                    sender.sendMessage(new TextComponentString(TextFormatting.GRAY + Main.MODID + TextFormatting.WHITE + ": You can see results using /" + getName() +" dump"));
                 }
             }).start();
             return;
