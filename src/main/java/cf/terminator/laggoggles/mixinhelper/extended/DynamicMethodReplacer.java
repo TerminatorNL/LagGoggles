@@ -1,8 +1,13 @@
 package cf.terminator.laggoggles.mixinhelper.extended;
 
+import cf.terminator.laggoggles.mixinhelper.MixinConfigPlugin;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.spongepowered.asm.lib.Opcodes;
 import org.spongepowered.asm.lib.tree.*;
+import org.spongepowered.asm.obfuscation.mapping.common.MappingField;
+import org.spongepowered.asm.obfuscation.mapping.common.MappingMethod;
+import org.spongepowered.asm.obfuscation.mapping.mcp.MappingFieldSrg;
+import org.spongepowered.tools.obfuscation.mapping.mcp.MappingProviderSrg;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -12,6 +17,7 @@ import java.util.Objects;
 import java.util.regex.Pattern;
 
 import static cf.terminator.laggoggles.mixinhelper.MixinConfigPlugin.LOGGER;
+import static cf.terminator.laggoggles.mixinhelper.MixinConfigPlugin.isProductionEnvironment;
 
 /**
  * Remaps method calls to the target method within this class,
@@ -25,7 +31,8 @@ public class DynamicMethodReplacer implements Transformer {
     @Retention(RetentionPolicy.RUNTIME)
     @java.lang.annotation.Target(ElementType.METHOD)
     public @interface RedirectMethodCalls {
-        String nameRegex();
+        String nameRegexDeobf();
+        String nameRegexObf();
         boolean convertSelf() default false;
     }
 
@@ -45,24 +52,28 @@ public class DynamicMethodReplacer implements Transformer {
             for(AnnotationNode annotation : method.visibleAnnotations){
                 if(annotation.desc.equals("Lcf/terminator/laggoggles/mixinhelper/extended/DynamicMethodReplacer$RedirectMethodCalls;")){
                     String currentKey = null;
-                    String nameRegex = null;
+                    String nameRegexDeobf = null;
+                    String nameRegexObf = null;
                     boolean convertSelf = false;
                     for(Object key_value : annotation.values){
                         if(currentKey == null){
                             currentKey = (String) key_value;
                         }else{
-                            if(currentKey.equals("nameRegex")){
-                                nameRegex = (String) key_value;
+                            if(currentKey.equals("nameRegexDeobf")){
+                                nameRegexDeobf = (String) key_value;
+                            }else if(currentKey.equals("nameRegexObf")){
+                                nameRegexObf = (String) key_value;
                             }else if(currentKey.equals("convertSelf")){
                                 convertSelf = (Boolean) key_value;
                             }
                             currentKey = null;
                         }
                     }
-                    if(nameRegex == null){
+                    if(nameRegexDeobf == null || nameRegexObf == null){
                         LOGGER.fatal("Invalid annotation found. (@DynamicMethodFinder.RedirectMethodCalls)");
                         FMLCommonHandler.instance().exitJava(-1, true);
                     }else{
+                        String nameRegex = isProductionEnvironment() ? nameRegexObf : nameRegexDeobf;
                         for (MethodNode changedMethod : findTargets(classNode, method, nameRegex,convertSelf, 1)){
                             if(changedMethods.contains(changedMethod) == false){
                                 changedMethods.add(changedMethod);

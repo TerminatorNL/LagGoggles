@@ -29,7 +29,7 @@ public abstract class MixinWorldServerSponge extends World {
         throw new RuntimeException("Mixins cannot be instantiated.");
     }
 
-    @DynamicMethodReplacer.RedirectMethodCalls(nameRegex = "randomTick", convertSelf = true)
+    @DynamicMethodReplacer.RedirectMethodCalls(nameRegexDeobf = "randomTick", nameRegexObf = "func_180645_a", convertSelf = true)
     @Dynamic(value = "Overwritten by SpongeForge", mixin = org.spongepowered.common.mixin.core.world.WorldServerMixin.class)
     private void randomBlockTickRedirectorVanilla(Block block, World world, BlockPos pos, IBlockState state, Random random){
         long startTime = System.nanoTime();
@@ -39,7 +39,7 @@ public abstract class MixinWorldServerSponge extends World {
         }
     }
 
-    @DynamicMethodReplacer.RedirectMethodCalls(nameRegex = "randomTickBlock")
+    @DynamicMethodReplacer.RedirectMethodCalls(nameRegexDeobf = "randomTickBlock", nameRegexObf = "randomTickBlock")
     @Dynamic(value = "Overwritten by SpongeForge", mixin = org.spongepowered.common.mixin.core.world.WorldServerMixin.class)
     private static void randomBlockTickRedirectorSponge(ServerWorldBridge bridge, Block block, BlockPos pos, IBlockState state, Random random){
         long startTime = System.nanoTime();
@@ -49,7 +49,7 @@ public abstract class MixinWorldServerSponge extends World {
         }
     }
 
-    @DynamicMethodReplacer.RedirectMethodCalls(nameRegex = "updateTick", convertSelf = true)
+    @DynamicMethodReplacer.RedirectMethodCalls(nameRegexDeobf = "updateTick", nameRegexObf = "func_180650_b", convertSelf = true)
     @Dynamic(value = "Overwritten by SpongeForge", mixin = org.spongepowered.common.mixin.core.world.WorldServerMixin.class)
     private void normalBlockTickRedirectorVanilla(Block block, World world, BlockPos pos, IBlockState state, Random random){
         long startTime = System.nanoTime();
@@ -59,7 +59,7 @@ public abstract class MixinWorldServerSponge extends World {
         }
     }
 
-    @DynamicMethodReplacer.RedirectMethodCalls(nameRegex = "updateTickBlock")
+    @DynamicMethodReplacer.RedirectMethodCalls(nameRegexDeobf = "updateTickBlock", nameRegexObf = "updateTickBlock")
     @Dynamic(value = "Overwritten by SpongeForge", mixin = org.spongepowered.common.mixin.core.world.WorldServerMixin.class)
     private static void normalBlockTickRedirectorSponge(ServerWorldBridge bridge, Block block, BlockPos pos, IBlockState state, Random random){
         long startTime = System.nanoTime();
