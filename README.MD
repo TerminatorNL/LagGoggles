@@ -42,7 +42,7 @@ Massive thanks to [Grok DuckFarmer](https://www.youtube.com/channel/UCoKMLbTK35p
 [![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/2ALrIvw1S4I/0.jpg)](http://www.youtube.com/watch?v=2ALrIvw1S4I)
 
 ## Features
-* Sponge compatible (use the SPONGEFORGE version!)
+* Sponge compatible (Try the THIN version first!)
 * Teleporting to sources of lag
 * Client GUI, including overlay and clickable menus
 * Colour scale for easy spotting of sources of lag.
