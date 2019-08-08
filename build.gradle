@@ -6,13 +6,17 @@ buildscript {
             name = 'sponge'
             url = 'https://repo.spongepowered.org/maven'
         }
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
         classpath 'org.spongepowered:mixingradle:0.6-SNAPSHOT'
+        classpath "com.wynprice.cursemaven:CurseMaven:1.1.0"
     }
 }
-String spongeForgeVersion = '1.12.2-2838-7.1.7-RC3830'
+String spongeForgeVersion = '1.12.2-2838-7.1.7-RC3881'
 
 boolean isFat = hasProperty("isFat")
 boolean isClient = hasProperty("isClient")
@@ -20,13 +24,15 @@ String buildType = (isFat ? "FAT" : "THIN")
 println("Compiling: " + buildType)
 
 apply plugin: 'net.minecraftforge.gradle.forge'
+// EZ testing of compatibility! Nice!
+apply plugin: "com.wynprice.cursemaven"
 apply plugin: 'org.spongepowered.mixin'
 //Only edit below this line, the above code adds and enables the nessasary things for Forge to be setup.
 
 repositories {
     maven {
         name = "sponge"
-        url = "http://repo.spongepowered.org/maven/"
+        url = "https://repo.spongepowered.org/maven/"
     }
 }
 
@@ -36,7 +42,7 @@ if(isClient == false) {
     }
 }
 
-version = "1.12.2-4.6"
+version = "1.12.2-4.8"
 group= "cf.terminator.laggoggles" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "LagGoggles-" + buildType
 

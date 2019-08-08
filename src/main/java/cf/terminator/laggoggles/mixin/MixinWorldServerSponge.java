@@ -12,7 +12,7 @@ import net.minecraft.world.storage.ISaveHandler;
 import net.minecraft.world.storage.WorldInfo;
 import org.spongepowered.asm.mixin.Dynamic;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.common.bridge.world.ServerWorldBridge;
+import org.spongepowered.common.bridge.world.WorldServerBridge;
 import org.spongepowered.common.event.tracking.TrackingUtil;
 
 import java.util.Random;
@@ -41,7 +41,7 @@ public abstract class MixinWorldServerSponge extends World {
 
     @DynamicMethodReplacer.RedirectMethodCalls(nameRegexDeobf = "randomTickBlock", nameRegexObf = "randomTickBlock")
     @Dynamic(value = "Overwritten by SpongeForge", mixin = org.spongepowered.common.mixin.core.world.WorldServerMixin.class)
-    private static void randomBlockTickRedirectorSponge(ServerWorldBridge bridge, Block block, BlockPos pos, IBlockState state, Random random){
+    private static void randomBlockTickRedirectorSponge(WorldServerBridge bridge, Block block, BlockPos pos, IBlockState state, Random random){
         long startTime = System.nanoTime();
         TrackingUtil.randomTickBlock(bridge, block, pos, state, random);
         if(PROFILE_ENABLED.get()) {
@@ -61,7 +61,7 @@ public abstract class MixinWorldServerSponge extends World {
 
     @DynamicMethodReplacer.RedirectMethodCalls(nameRegexDeobf = "updateTickBlock", nameRegexObf = "updateTickBlock")
     @Dynamic(value = "Overwritten by SpongeForge", mixin = org.spongepowered.common.mixin.core.world.WorldServerMixin.class)
-    private static void normalBlockTickRedirectorSponge(ServerWorldBridge bridge, Block block, BlockPos pos, IBlockState state, Random random){
+    private static void normalBlockTickRedirectorSponge(WorldServerBridge bridge, Block block, BlockPos pos, IBlockState state, Random random){
         long startTime = System.nanoTime();
         TrackingUtil.updateTickBlock(bridge, block, pos, state, random);
         if(PROFILE_ENABLED.get()) {
