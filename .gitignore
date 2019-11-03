@@ -1,0 +1,7 @@
+/.gradle/
+/build/
+/run/
+/run_server/*
+!/run_server/server.properties
+/run_client/*
+/run_server_obf/*
