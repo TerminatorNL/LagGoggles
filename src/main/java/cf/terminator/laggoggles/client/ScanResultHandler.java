@@ -22,13 +22,14 @@ public class ScanResultHandler implements IMessageHandler<SPacketScanResult, IMe
 
     @Override
     public IMessage onMessage(SPacketScanResult message, MessageContext ctx){
+        final lon tickCount = message.tickCount > 0 ? message.tickCount : 1;
         for(ObjectData objectData : message.DATA){
-            if(Calculations.muPerTickCustomTotals(objectData.getValue(ObjectData.Entry.NANOS), message.tickCount) >= ClientConfig.MINIMUM_AMOUNT_OF_MICROSECONDS_THRESHOLD){
+            if(Calculations.muPerTickCustomTotals(objectData.getValue(ObjectData.Entry.NANOS), tickCount) >= ClientConfig.MINIMUM_AMOUNT_OF_MICROSECONDS_THRESHOLD){
                 builder.add(objectData);
             }
         }
         if(message.hasMore == false){
-            ProfileResult result = new ProfileResult(message.startTime, message.endTime, message.tickCount, message.side, message.type);
+            ProfileResult result = new ProfileResult(message.startTime, message.endTime, tickCount, message.side, message.type);
             result.addAll(builder);
             result.lock();
             builder = new ArrayList<>();
