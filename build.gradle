@@ -42,7 +42,7 @@ if(isClient == false) {
     }
 }
 
-version = "1.12.2-4.8"
+version = "1.12.2-4.9"
 group= "cf.terminator.laggoggles" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "LagGoggles-" + buildType
 

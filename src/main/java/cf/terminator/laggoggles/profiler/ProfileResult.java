@@ -34,7 +34,7 @@ public class ProfileResult {
         this.startTime = startTime;
         this.endTime = endTime;
         this.totalTime = endTime - startTime;
-        this.tickCount = tickCount;
+        this.tickCount = tickCount == 0 ? 1 : tickCount;
         this.side = side;
         this.type = type;
     }
