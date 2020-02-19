@@ -85,14 +85,14 @@ dependencies {
 
 
     if(isFat) {
-        embed('org.spongepowered:mixin:0.7.11-SNAPSHOT') {
+        embed('org.spongepowered:mixin:0.8-SNAPSHOT') {
             ['gson','guava','commons-io'].each {
                 exclude module: it
             }
             exclude module: 'launchwrapper'
         }
     }else{
-        compile ('org.spongepowered:mixin:0.7.11-SNAPSHOT'){
+        compile ('org.spongepowered:mixin:0.8-SNAPSHOT'){
             ['gson','guava','commons-io'].each {
                 exclude module: it
             }

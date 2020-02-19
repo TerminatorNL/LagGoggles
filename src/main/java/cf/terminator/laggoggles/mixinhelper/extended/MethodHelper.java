@@ -2,10 +2,10 @@ package cf.terminator.laggoggles.mixinhelper.extended;
 
 import cf.terminator.laggoggles.mixinhelper.MixinConfigPlugin;
 import com.sun.istack.internal.NotNull;
-import org.spongepowered.asm.lib.tree.AbstractInsnNode;
-import org.spongepowered.asm.lib.tree.ClassNode;
-import org.spongepowered.asm.lib.tree.MethodInsnNode;
-import org.spongepowered.asm.lib.tree.MethodNode;
+import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.MethodInsnNode;
+import org.objectweb.asm.tree.MethodNode;
 
 import javax.annotation.Nullable;
 import java.util.LinkedList;
