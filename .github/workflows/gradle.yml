@@ -30,10 +30,10 @@ jobs:
         java-version: 1.8
 
     - name: Setup workspace
-      uses: ./gradle/wrapper/gradlew setupDecompWorkspace
+      uses: ./gradlew setupDecompWorkspace
 
     - name: Build FAT jar
-      uses: ./gradle/wrapper/gradlew build -PisFat
+      uses: ./gradlew build -PisFat
 
     - name: Build THIN jar
-      uses: ./gradle/wrapper/gradlew build
+      uses: ./gradlew build
