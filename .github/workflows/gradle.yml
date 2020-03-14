@@ -16,13 +16,15 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: Verify gradle wrapper
+      uses: gradle/wrapper-validation-action@v1
     - name: Set up JDK 1.8
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
     - name: Setup workspace
-      run: java -jar gradle/wrapper/gradle-wrapper.jar setupDecompWorkspace
+      run: gradle setupDecompWorkspace
     - name: Build FAT jar
-      run: java -jar gradle/wrapper/gradle-wrapper.jar build -PisFat
+      run: gradle build -PisFat
     - name: Build THIN jar
-      run: java -jar gradle/wrapper/gradle-wrapper.jar build
+      run: gradle build
