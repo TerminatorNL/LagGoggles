@@ -2,8 +2,8 @@ package cf.terminator.laggoggles.mixinhelper.extended;
 
 import cf.terminator.laggoggles.mixinhelper.MixinConfigPlugin;
 import net.minecraftforge.fml.common.FMLCommonHandler;
-import org.spongepowered.asm.lib.Opcodes;
-import org.spongepowered.asm.lib.tree.*;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.tree.*;
 import org.spongepowered.asm.obfuscation.mapping.common.MappingField;
 import org.spongepowered.asm.obfuscation.mapping.common.MappingMethod;
 import org.spongepowered.asm.obfuscation.mapping.mcp.MappingFieldSrg;
