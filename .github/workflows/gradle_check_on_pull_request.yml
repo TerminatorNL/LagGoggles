@@ -11,7 +11,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      -
     - name: Verify gradle wrapper
       uses: gradle/wrapper-validation-action@v1
 
