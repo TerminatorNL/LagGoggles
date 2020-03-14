@@ -74,10 +74,9 @@ jobs:
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        VERSION: ${{ steps.read_version_data.outputs.text }}
       with:
-        tag_name: $VERSION
-        release_name: $VERSION
+        tag_name: ${{ steps.read_version_data.outputs.text }}
+        release_name: ${{ steps.read_version_data.outputs.text }}
         draft: false
         prerelease: true
 
