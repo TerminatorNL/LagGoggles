@@ -58,8 +58,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ env.$OUTPUT_JAR_VERSION }}
-        release_name: ${{ env.$OUTPUT_JAR_VERSION }}
+        tag_name: ${{ env.OUTPUT_JAR_VERSION }}
+        release_name: ${{ env.OUTPUT_JAR_VERSION }}
         draft: false
         prerelease: true
 
@@ -72,4 +72,15 @@ jobs:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: ${{ env.OUTPUT_JAR_FAT_PATH }}
         asset_name: ${{ env.OUTPUT_JAR_FAT_NAME }}
+        asset_content_type: application/zip
+
+    - name: Attach THIN to release
+      id: upload-release-asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ${{ env.OUTPUT_JAR_THIN_PATH }}
+        asset_name: ${{ env.OUTPUT_JAR_THIN_NAME }}
         asset_content_type: application/zip
