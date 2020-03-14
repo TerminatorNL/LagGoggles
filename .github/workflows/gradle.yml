@@ -39,7 +39,7 @@ jobs:
         release_name: ${{ env.OUTPUT_JAR_VERSION }}
         draft: false
         prerelease: true
- 
+
 
 
 
