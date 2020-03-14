@@ -25,16 +25,16 @@ jobs:
 
     - name: Setup workspace
       uses: eskatos/gradle-command-action@v1
-        with:
-          wrapper-directory: gradle/wrapper
-          arguments: setupDecompWorkspace
+      with:
+        wrapper-directory: gradle/wrapper
+        arguments: setupDecompWorkspace
     - name: Build FAT jar
       uses: eskatos/gradle-command-action@v1
-        with:
-          wrapper-directory: gradle/wrapper
-          arguments: build -PisFat
+      with:
+        wrapper-directory: gradle/wrapper
+        arguments: build -PisFat
     - name: Build THIN jar
       uses: eskatos/gradle-command-action@v1
-       with:
-         wrapper-directory: gradle/wrapper
-         arguments: build
+      with:
+        wrapper-directory: gradle/wrapper
+        arguments: build
