@@ -24,63 +24,82 @@ jobs:
     - name: Make gradlew executable
       run: chmod +x ./gradlew
 
-    - name: Setup workspace
-      uses: eskatos/gradle-command-action@v1
-      with:
-        arguments: setupDecompWorkspace
+# TESTING
+    - name: Testing fake data
+      run: export OUTPUT_JAR_VERSION="Hello"
 
-    - name: Build FAT jar
-      uses: eskatos/gradle-command-action@v1
-      with:
-        arguments: build -PisFat
 
-    - name: Read version data
-      run: export OUTPUT_JAR_VERSION=$(cat ./build/last_version.txt)
+   - name: Create Release
+     id: create_release
+     uses: actions/create-release@v1
+     env:
+       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+     with:
+       tag_name: ${{ env.OUTPUT_JAR_VERSION }}
+       release_name: ${{ env.OUTPUT_JAR_VERSION }}
+       draft: false
+       prerelease: true
 
-    - name: Gather FAT jar data
-      run: |
-        export OUTPUT_JAR_FAT_NAME=$(cat ./build/last_file_name.txt)
-        export OUTPUT_JAR_FAT_PATH=$(cat ./build/last_file_path.txt)
 
-    - name: Build THIN jar
-      uses: eskatos/gradle-command-action@v1
-      with:
-        arguments: build
 
-    - name: Gather THIN jar data
-      run: |
-        export OUTPUT_JAR_THIN_NAME=$(cat ./build/last_file_name.txt)
-        export OUTPUT_JAR_THIN_PATH=$(cat ./build/last_file_path.txt)
 
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ env.OUTPUT_JAR_VERSION }}
-        release_name: ${{ env.OUTPUT_JAR_VERSION }}
-        draft: false
-        prerelease: true
-
-    - name: Attach FAT to release
-      id: upload-fat
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ${{ env.OUTPUT_JAR_FAT_PATH }}
-        asset_name: ${{ env.OUTPUT_JAR_FAT_NAME }}
-        asset_content_type: application/zip
-
-    - name: Attach THIN to release
-      id: upload-thin
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ${{ env.OUTPUT_JAR_THIN_PATH }}
-        asset_name: ${{ env.OUTPUT_JAR_THIN_NAME }}
-        asset_content_type: application/zip
+#    - name: Setup workspace
+#      uses: eskatos/gradle-command-action@v1
+#      with:
+#        arguments: setupDecompWorkspace
+#
+#    - name: Build FAT jar
+#      uses: eskatos/gradle-command-action@v1
+#      with:
+#        arguments: build -PisFat
+#
+#    - name: Read version data
+#      run: export OUTPUT_JAR_VERSION=$(cat ./build/last_version.txt)
+#
+#    - name: Gather FAT jar data
+#      run: |
+#        export OUTPUT_JAR_FAT_NAME=$(cat ./build/last_file_name.txt)
+#        export OUTPUT_JAR_FAT_PATH=$(cat ./build/last_file_path.txt)
+#
+#    - name: Build THIN jar
+#      uses: eskatos/gradle-command-action@v1
+#      with:
+#        arguments: build
+#
+#    - name: Gather THIN jar data
+#      run: |
+#        export OUTPUT_JAR_THIN_NAME=$(cat ./build/last_file_name.txt)
+#        export OUTPUT_JAR_THIN_PATH=$(cat ./build/last_file_path.txt)
+#
+#    - name: Create Release
+#      id: create_release
+#      uses: actions/create-release@v1
+#      env:
+#        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#      with:
+#        tag_name: ${{ env.OUTPUT_JAR_VERSION }}
+#        release_name: ${{ env.OUTPUT_JAR_VERSION }}
+#        draft: false
+#        prerelease: true
+#
+#    - name: Attach FAT to release
+#      id: upload-fat
+#      uses: actions/upload-release-asset@v1
+#      env:
+#        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#      with:
+#        upload_url: ${{ steps.create_release.outputs.upload_url }}
+#        asset_path: ${{ env.OUTPUT_JAR_FAT_PATH }}
+#        asset_name: ${{ env.OUTPUT_JAR_FAT_NAME }}
+#        asset_content_type: application/zip
+#
+#    - name: Attach THIN to release
+#      id: upload-thin
+#      uses: actions/upload-release-asset@v1
+#      env:
+#        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#      with:
+#        upload_url: ${{ steps.create_release.outputs.upload_url }}
+#        asset_path: ${{ env.OUTPUT_JAR_THIN_PATH }}
+#        asset_name: ${{ env.OUTPUT_JAR_THIN_NAME }}
+#        asset_content_type: application/zip
