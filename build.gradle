@@ -16,7 +16,7 @@ buildscript {
         classpath "com.wynprice.cursemaven:CurseMaven:1.1.0"
     }
 }
-String LagGogglesVersion = "1.12.2-4.10"
+String LagGogglesVersion = "1.12.2-4.11"
 String spongeForgeVersion = '1.12.2-2838-7.1.7-RC3881'
 
 boolean isFat = hasProperty("isFat")
@@ -41,7 +41,7 @@ apply plugin: 'net.minecraftforge.gradle.forge'
 // EZ testing of compatibility! Nice!
 apply plugin: "com.wynprice.cursemaven"
 apply plugin: 'org.spongepowered.mixin'
-//Only edit below this line, the above code adds and enables the nessasary things for Forge to be setup.
+//Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 
 repositories {
     maven {
