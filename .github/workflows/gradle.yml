@@ -26,6 +26,7 @@ jobs:
 
 # TESTING
     - name: Testing fake data
+      id: read_version
       run: export OUTPUT_JAR_VERSION="Hello"
 
 
@@ -35,8 +36,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ env.OUTPUT_JAR_VERSION }}
-        release_name: ${{ env.OUTPUT_JAR_VERSION }}
+        tag_name: ${{ steps.read_version.env.OUTPUT_JAR_VERSION }}
+        release_name: ${{ steps.read_version.env.OUTPUT_JAR_VERSION }}
         draft: false
         prerelease: true
 
