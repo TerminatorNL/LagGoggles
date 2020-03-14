@@ -1,7 +1,7 @@
 package cf.terminator.laggoggles.mixinhelper.extended;
 
-import org.spongepowered.asm.lib.Opcodes;
-import org.spongepowered.asm.lib.tree.*;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.tree.*;
 
 import java.lang.reflect.Field;
 import java.util.ListIterator;
