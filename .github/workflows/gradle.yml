@@ -20,7 +20,9 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
-    - name: Build with Gradle
-      run: ./gradlew build
+    - name: Setup workspace
+      run: java -jar gradle/wrapper/gradle-wrapper.jar setupDecompWorkspace
+    - name: Build FAT jar
+      run: java -jar gradle/wrapper/gradle-wrapper.jar build -PisFat
+    - name: Build THIN jar
+      run: java -jar gradle/wrapper/gradle-wrapper.jar build
