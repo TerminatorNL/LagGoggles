@@ -22,7 +22,7 @@ jobs:
       uses: gradle/wrapper-validation-action@v1
 
     - name: Make gradlew executable
-      run: chmod +x gradle/wrapper/gradlew
+      run: chmod +x ./gradlew
 
     - name: Set up JDK 1.8
       uses: actions/setup-java@v1
