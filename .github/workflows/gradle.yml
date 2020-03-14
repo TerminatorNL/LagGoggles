@@ -59,8 +59,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         VERSION: OUTPUT_JAR_VERSION
       with:
-        tag_name: ${{ OUTPUT_JAR_VERSION }}
-        release_name: ${{ OUTPUT_JAR_VERSION }}
+        tag_name: $OUTPUT_JAR_VERSION
+        release_name: $OUTPUT_JAR_VERSION
         draft: false
         prerelease: true
 
