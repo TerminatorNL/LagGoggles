@@ -30,25 +30,10 @@ jobs:
         java-version: 1.8
 
     - name: Setup workspace
-      uses: eskatos/gradle-command-action@v1
-      with:
-        wrapper-directory: gradle/wrapper
-        gradle-executable: gradle/wrapper/gradlew
-        gradle-version: wrapper
-        arguments: setupDecompWorkspace
+      uses: ./gradle/wrapper/gradlew setupDecompWorkspace
 
     - name: Build FAT jar
-      uses: eskatos/gradle-command-action@v1
-      with:
-        wrapper-directory: gradle/wrapper
-        gradle-executable: gradle/wrapper/gradlew
-        gradle-version: wrapper
-        arguments: build -PisFat
+      uses: ./gradle/wrapper/gradlew build -PisFat
 
     - name: Build THIN jar
-      uses: eskatos/gradle-command-action@v1
-      with:
-        wrapper-directory: gradle/wrapper
-        gradle-executable: gradle/wrapper/gradlew
-        gradle-version: wrapper
-        arguments: build
+      uses: ./gradle/wrapper/gradlew build
