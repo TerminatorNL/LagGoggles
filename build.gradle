@@ -16,12 +16,26 @@ buildscript {
         classpath "com.wynprice.cursemaven:CurseMaven:1.1.0"
     }
 }
+String LagGogglesVersion = "1.12.2-4.10"
 String spongeForgeVersion = '1.12.2-2838-7.1.7-RC3881'
 
 boolean isFat = hasProperty("isFat")
-boolean isClient = hasProperty("isClient")
+boolean installIntoServer = hasProperty("isServer")
 String buildType = (isFat ? "FAT" : "THIN")
-println("Compiling: " + buildType)
+
+
+
+String version_file = "./build/last_version.txt"
+String last_file_name = "./build/last_file_name.txt"
+String last_file_path = "./build/last_file_path.txt"
+
+if(project.gradle.startParameter.taskNames.contains("build")) {
+    println("Building: " + buildType)
+    delete version_file
+    delete last_file_name
+    delete last_file_path
+}
+
 
 apply plugin: 'net.minecraftforge.gradle.forge'
 // EZ testing of compatibility! Nice!
@@ -36,13 +50,16 @@ repositories {
     }
 }
 
-if(isClient == false) {
-    delete fileTree('run_server_obf/mods') {
-        include 'LagGoggles*'
+ext.GetCommitCount = { ->
+    def stdout = new ByteArrayOutputStream()
+    exec {
+        commandLine 'git', 'rev-list', '--all', '--count'
+        standardOutput = stdout
     }
+    return stdout.toString().trim()
 }
 
-version = "1.12.2-4.9"
+version = LagGogglesVersion + "-" + GetCommitCount()
 group= "cf.terminator.laggoggles" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "LagGoggles-" + buildType
 
@@ -154,8 +171,15 @@ jar {
 }
 
 task finalize << {
-    if(isClient == false) {
-        println("Copied " + jar.archivePath + " into run_server_obf/mods")
+    new File(projectDir, version_file).text = version
+    new File(projectDir, last_file_name).text = jar.archiveName
+    new File(projectDir, last_file_path).text = jar.archivePath
+
+    if(installIntoServer) {
+        delete fileTree('run_server_obf/mods') {
+            include 'LagGoggles*'
+        }
+        println("Copying " + jar.archivePath + " into run_server_obf/mods")
         copy {
             from jar.archivePath
             into "run_server_obf/mods"

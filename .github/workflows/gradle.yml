@@ -34,28 +34,45 @@ jobs:
       with:
         arguments: build -PisFat
 
+    - name: Read version data
+      uses: export OUTPUT_JAR_VERSION=$(cat ./build/last_version.txt)
+
+    - name: Gather FAT jar data
+      uses: |
+        export OUTPUT_JAR_FAT_NAME=$(cat ./build/last_file_name.txt)
+        export OUTPUT_JAR_FAT_PATH=$(cat ./build/last_file_path.txt)
+
     - name: Build THIN jar
       uses: eskatos/gradle-command-action@v1
       with:
         arguments: build
+
+    - name: Gather THIN jar data
+      uses: |
+        export OUTPUT_JAR_THIN_NAME=$(cat ./build/last_file_name.txt)
+        export OUTPUT_JAR_THIN_PATH=$(cat ./build/last_file_path.txt)
 
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        VERSION: OUTPUT_JAR_VERSION
       with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
+        tag_name: ${{ OUTPUT_JAR_VERSION }}
+        release_name: ${{ OUTPUT_JAR_VERSION }}
         draft: false
         prerelease: true
+
     - name: Attach FAT to release
       id: upload-release-asset
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        FILE_NAME: OUTPUT_JAR_FAT_NAME
+        FILE_PATH: OUTPUT_JAR_FAT_PATH
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-        asset_path: ./my-artifact.zip
-        asset_name: my-artifact.zip
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: $OUTPUT_JAR_FAT_PATH
+        asset_name: $OUTPUT_JAR_FAT_NAME
         asset_content_type: application/zip
