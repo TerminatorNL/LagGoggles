@@ -86,12 +86,10 @@ jobs:
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        FILE_PATH: ${{ steps.read_fat_path.outputs.text }}
-        FILE_NAME: ${{ steps.read_fat_name.outputs.text }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: $FILE_PATH
-        asset_name: $FILE_NAME
+        asset_path: ${{ steps.read_fat_path.outputs.text }}
+        asset_name: ${{ steps.read_fat_name.outputs.text }}
         asset_content_type: application/zip
 
     - name: Attach THIN to release
@@ -99,10 +97,8 @@ jobs:
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        FILE_PATH: ${{ steps.read_thin_path.outputs.text }}
-        FILE_NAME: ${{ steps.read_thin_name.outputs.text }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: $FILE_PATH
-        asset_name: $FILE_NAME
+        asset_path: ${{ steps.read_thin_path.outputs.text }}
+        asset_name: ${{ steps.read_thin_name.outputs.text }}
         asset_content_type: application/zip
