@@ -35,10 +35,10 @@ jobs:
         arguments: build -PisFat
 
     - name: Read version data
-      uses: export OUTPUT_JAR_VERSION=$(cat ./build/last_version.txt)
+      run: export OUTPUT_JAR_VERSION=$(cat ./build/last_version.txt)
 
     - name: Gather FAT jar data
-      uses: |
+      run: |
         export OUTPUT_JAR_FAT_NAME=$(cat ./build/last_file_name.txt)
         export OUTPUT_JAR_FAT_PATH=$(cat ./build/last_file_path.txt)
 
@@ -48,7 +48,7 @@ jobs:
         arguments: build
 
     - name: Gather THIN jar data
-      uses: |
+      run: |
         export OUTPUT_JAR_THIN_NAME=$(cat ./build/last_file_name.txt)
         export OUTPUT_JAR_THIN_PATH=$(cat ./build/last_file_path.txt)
 
