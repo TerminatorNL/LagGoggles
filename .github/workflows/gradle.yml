@@ -24,16 +24,17 @@ jobs:
     - name: Make gradlew executable
       run: chmod +x ./gradlew
 
-    - name: Set up JDK 1.8
-      uses: actions/setup-java@v1
-      with:
-        java-version: 1.8
-
     - name: Setup workspace
-      uses: ./gradlew setupDecompWorkspace
+      uses: OrangeLabs-moe/gradle-actions@v5.0-openjdk-8
+      with:
+        args: setupDecompWorkspace
 
     - name: Build FAT jar
-      uses: ./gradlew build -PisFat
+      uses: OrangeLabs-moe/gradle-actions@v5.0-openjdk-8
+      with:
+        args: build -PisFat
 
     - name: Build THIN jar
-      uses: ./gradlew build
+      uses: OrangeLabs-moe/gradle-actions@v5.0-openjdk-8
+      with:
+        args: build
