@@ -1,0 +1,34 @@
+# This workflow will build a Java project with Gradle
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-gradle
+
+name: Check build status
+
+on: pull_request
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      -
+    - name: Verify gradle wrapper
+      uses: gradle/wrapper-validation-action@v1
+
+    - name: Make gradlew executable
+      run: chmod +x ./gradlew
+
+    - name: Setup workspace
+      uses: eskatos/gradle-command-action@v1
+      with:
+        arguments: setupDecompWorkspace
+
+    - name: Build FAT jar
+      uses: eskatos/gradle-command-action@v1
+      with:
+        arguments: build -PisFat
+
+    - name: Build THIN jar
+      uses: eskatos/gradle-command-action@v1
+      with:
+        arguments: build
