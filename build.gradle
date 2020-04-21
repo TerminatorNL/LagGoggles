@@ -16,7 +16,7 @@ buildscript {
         classpath "com.wynprice.cursemaven:CurseMaven:1.1.0"
     }
 }
-String LagGogglesVersion = "1.12.2-4.11"
+String LagGogglesVersion = "1.12.2-5.0"
 String spongeForgeVersion = '1.12.2-2838-7.1.7-RC3881'
 
 boolean isFat = hasProperty("isFat")
@@ -99,6 +99,7 @@ dependencies {
      */
     compileOnly 'org.spongepowered:spongeforge:' + spongeForgeVersion + ':dev'
 
+    //compileOnly 'tickcentral:TickCentral:1.0'
 
 
     if(isFat) {

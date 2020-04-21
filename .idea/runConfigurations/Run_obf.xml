@@ -1,0 +1,11 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Run obf" type="JarApplication">
+    <option name="JAR_PATH" value="$PROJECT_DIR$/run_server_obf/forge-1.12.2-14.23.5.2847-universal.jar" />
+    <option name="PROGRAM_PARAMETERS" value="nogui" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/run_server_obf/" />
+    <option name="ALTERNATIVE_JRE_PATH" />
+    <method v="2">
+      <option name="Gradle.BeforeRunTask" enabled="true" tasks="build" externalProjectPath="$PROJECT_DIR$" vmOptions="" scriptParameters="-PisFat -PisServer" />
+    </method>
+  </configuration>
+</component>

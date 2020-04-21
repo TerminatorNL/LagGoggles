@@ -1,6 +1,8 @@
 package cf.terminator.laggoggles.util;
 
-import net.minecraft.util.text.*;
+import net.minecraft.util.text.Style;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.event.ClickEvent;
 
 public class ClickableLink {

@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Minecraft Server" type="Application" factoryName="Application">
+  <configuration default="false" name="Minecraft Server FAT" type="Application" factoryName="Application">
     <option name="MAIN_CLASS_NAME" value="GradleStartServer" />
     <module name="LagGoggles-old.main" />
     <option name="PROGRAM_PARAMETERS" value="nogui --mixin mixins.laggoggles.json --tweakClass org.spongepowered.asm.launch.MixinTweaker" />

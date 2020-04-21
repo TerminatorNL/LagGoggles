@@ -5,12 +5,6 @@
   "minVersion": "0.6.0",
   "plugin": "cf.terminator.laggoggles.mixinhelper.MixinConfigPlugin",
   "mixins": [
-    "MixinWorld",
-    "MixinEntity",
-    "MixinWorldServerSponge",
-    "MixinWorldServerForge",
-    "MixinEventBus",
-    "MixinASMEventHandler",
     "MixinTileEntityRendererDispatcher",
     "MixinRenderManager"
   ]

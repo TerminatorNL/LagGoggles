@@ -1,7 +1,5 @@
 package cf.terminator.laggoggles.mixinhelper;
 
-import cf.terminator.laggoggles.Main;
-import cf.terminator.laggoggles.mixinhelper.extended.DynamicMethodReplacer;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -20,7 +18,6 @@ import java.util.jar.JarInputStream;
 
 public class MixinConfigPlugin implements IMixinConfigPlugin{
 
-    public static boolean spongePresent = false;
     public static String spongeForgeVersion = null;
     public static boolean hasClientClasses = true;
     public static boolean MIXIN_CONFIG_PLUGIN_WAS_LOADED = false;
@@ -37,7 +34,7 @@ public class MixinConfigPlugin implements IMixinConfigPlugin{
     private void setup(){
         MixinEnvironment.getDefaultEnvironment().setOption(MixinEnvironment.Option.DEBUG_ALL, true);
         if(MIXIN_CONFIG_PLUGIN_WAS_LOADED == false){
-            File thisJar = new File(Main.class.getProtectionDomain().getCodeSource().getLocation().getFile());
+            File thisJar = new File(MixinConfigPlugin.class.getProtectionDomain().getCodeSource().getLocation().getFile());
             LOGGER.info("I am located here: " + thisJar);
             LOGGER.info("I am designed for Forge version: ${forge_version}");
             MIXIN_CONFIG_PLUGIN_WAS_LOADED = true;
@@ -66,7 +63,6 @@ public class MixinConfigPlugin implements IMixinConfigPlugin{
                 Class spongeForgeClass = Class.forName("org.spongepowered.mod.SpongeCoremod", true, getClass().getClassLoader());
                 LOGGER.info("SpongeForge is present!");
                 LOGGER.info("I am designed for SpongeForge version: ${spongeforge_version}");
-                spongePresent = true;
 
                 File spongeForgeFile = new File(URLDecoder.decode(spongeForgeClass.getProtectionDomain().getCodeSource().getLocation().getFile(),"UTF-8"));
                 JarInputStream SpongeForgeStream = new JarInputStream(new FileInputStream(spongeForgeFile));
@@ -92,7 +88,6 @@ public class MixinConfigPlugin implements IMixinConfigPlugin{
                 LOGGER.warn("Failed to get your currently active Sponge version.");
             } catch (ClassNotFoundException ignored) {
                 LOGGER.info("SpongeForge is not present!");
-                spongePresent = false;
                 try{
                     Class.forName("org.spongepowered.asm.launch.MixinTweaker", false, getClass().getClassLoader());
                 } catch (ClassNotFoundException ignored_1) {
@@ -110,17 +105,6 @@ public class MixinConfigPlugin implements IMixinConfigPlugin{
     }
 
     private boolean shouldApplyMixin(String mixin){
-        if(spongePresent == true){
-            switch (mixin){
-                case "cf.terminator.laggoggles.mixin.MixinWorldServerForge":
-                    return false;
-            }
-        }else{
-            switch (mixin){
-                case "cf.terminator.laggoggles.mixin.MixinWorldServerSponge":
-                    return false;
-            }
-        }
         if(hasClientClasses == false){
             switch (mixin) {
                 case "cf.terminator.laggoggles.mixin.MixinRenderManager":
@@ -171,11 +155,6 @@ public class MixinConfigPlugin implements IMixinConfigPlugin{
 
     @Override
     public void postApply(String target, ClassNode classNode, String mixin, IMixinInfo iMixinInfo) {
-        LOGGER.info("Applied mixin: " + mixin);
-        if(mixin.equals("cf.terminator.laggoggles.mixin.MixinWorldServerSponge")) {
-            LOGGER.info("Applying custom transformer for cf.terminator.laggoggles.mixin.MixinWorldServerSponge");
-            new DynamicMethodReplacer(classNode).transform();
-        }
         MIXINS_TO_LOAD.remove(mixin);
     }
 }
