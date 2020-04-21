@@ -3,21 +3,15 @@ buildscript {
         jcenter()
         maven { url = "http://files.minecraftforge.net/maven" }
         maven {
-            name = 'sponge'
-            url = 'https://repo.spongepowered.org/maven'
-        }
-        maven {
             url "https://plugins.gradle.org/m2/"
         }
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
-        classpath 'org.spongepowered:mixingradle:0.6-SNAPSHOT'
         classpath "com.wynprice.cursemaven:CurseMaven:1.1.0"
     }
 }
-String LagGogglesVersion = "1.12.2-5.0"
-String spongeForgeVersion = '1.12.2-2838-7.1.7-RC3881'
+String LagGogglesVersion = "1.12.2-5.1"
 
 boolean isFat = hasProperty("isFat")
 boolean installIntoServer = hasProperty("isServer")
@@ -40,7 +34,6 @@ if(project.gradle.startParameter.taskNames.contains("build")) {
 apply plugin: 'net.minecraftforge.gradle.forge'
 // EZ testing of compatibility! Nice!
 apply plugin: "com.wynprice.cursemaven"
-apply plugin: 'org.spongepowered.mixin'
 //Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 
 repositories {
@@ -60,7 +53,7 @@ ext.GetCommitCount = { ->
 }
 
 version = LagGogglesVersion + "-" + GetCommitCount()
-group= "cf.terminator.laggoggles" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+group= "com.github.terminatornl.laggoggles" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "LagGoggles-" + buildType
 
 sourceCompatibility = targetCompatibility = "1.8" // Need this here so eclipse task generates correctly.
@@ -80,11 +73,6 @@ minecraft {
     replaceIn "Main.java"
     replace '${version}', buildType + "-" + project.version
     mappings = "snapshot_20180808"
-
-    replaceIn "mixinhelper/MixinConfigPlugin.java"
-    replace '${spongeforge_version}', spongeForgeVersion
-    replaceIn "mixinhelper/MixinConfigPlugin.java"
-    replace '${forge_version}', forgeVersion
 }
 
 configurations {
@@ -94,28 +82,7 @@ configurations {
 }
 
 dependencies {
-    /*
-        Sponge
-     */
-    compileOnly 'org.spongepowered:spongeforge:' + spongeForgeVersion + ':dev'
 
-    //compileOnly 'tickcentral:TickCentral:1.0'
-
-
-    if(isFat) {
-        embed('org.spongepowered:mixin:0.8-SNAPSHOT') {
-            ['gson','guava','commons-io'].each {
-                exclude module: it
-            }
-            exclude module: 'launchwrapper'
-        }
-    }else{
-        compile ('org.spongepowered:mixin:0.8-SNAPSHOT'){
-            ['gson','guava','commons-io'].each {
-                exclude module: it
-            }
-        }
-    }
 }
 
 processResources {
@@ -136,12 +103,6 @@ processResources {
         exclude 'mixins.laggoggles.json'
     }
 
-}
-
-sourceSets {
-    main {
-        refMap = "mixins.laggoggles.refmap.json"
-    }
 }
 
 jar {
