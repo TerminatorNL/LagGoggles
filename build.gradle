@@ -11,7 +11,7 @@ buildscript {
         classpath "com.wynprice.cursemaven:CurseMaven:1.1.0"
     }
 }
-String LagGogglesVersion = "1.12.2-5.1"
+String LagGogglesVersion = "1.12.2-5.2"
 
 boolean isFat = hasProperty("isFat")
 boolean installIntoServer = hasProperty("isServer")
@@ -40,6 +40,14 @@ repositories {
     maven {
         name = "sponge"
         url = "https://repo.spongepowered.org/maven/"
+    }
+}
+
+idea{
+    module{
+        inheritOutputDirs = false
+        outputDir = compileJava.destinationDir
+        testOutputDir = compileTestJava.destinationDir
     }
 }
 

@@ -22,6 +22,7 @@ public class RenderManagerTransformer implements IClassTransformer {
 		if (basicClass == null) {
 			return basicClass;
 		}
+		//noinspection PointlessBooleanExpression
 		if(transformedName.equals("net.minecraft.client.renderer.entity.RenderManager") == false && transformedName.equals("com.github.terminatornl.laggoggles.tickcentral.RenderManagerAdapter") == false){
 			return basicClass;
 		}
@@ -47,14 +48,12 @@ public class RenderManagerTransformer implements IClassTransformer {
 					newNode.instructions = new InsnList();
 					newNode.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
 					newNode.instructions.add(new VarInsnNode(Opcodes.ALOAD, 1));
-					newNode.instructions.add(new VarInsnNode(Opcodes.ALOAD, 2));
-					newNode.instructions.add(new VarInsnNode(Opcodes.ALOAD, 3));
-					newNode.instructions.add(new VarInsnNode(Opcodes.ALOAD, 4));
-					newNode.instructions.add(new VarInsnNode(Opcodes.ALOAD, 5));
-					newNode.instructions.add(new VarInsnNode(Opcodes.ALOAD, 6));
-					newNode.instructions.add(new VarInsnNode(Opcodes.ALOAD, 7));
-					newNode.instructions.add(new VarInsnNode(Opcodes.ALOAD, 8));
-					newNode.instructions.add(new VarInsnNode(Opcodes.ALOAD, 9));
+					newNode.instructions.add(new VarInsnNode(Opcodes.DLOAD, 2));
+					newNode.instructions.add(new VarInsnNode(Opcodes.DLOAD, 4));
+					newNode.instructions.add(new VarInsnNode(Opcodes.DLOAD, 6));
+					newNode.instructions.add(new VarInsnNode(Opcodes.FLOAD, 8));
+					newNode.instructions.add(new VarInsnNode(Opcodes.FLOAD, 9));
+					newNode.instructions.add(new VarInsnNode(Opcodes.ILOAD, 10));
 					newNode.instructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/github/terminatornl/laggoggles/tickcentral/RenderManagerAdapter", "redirectRenderEntity", targetDesc, false));
 					newNode.instructions.add(new InsnNode(Opcodes.RETURN));
 
