@@ -8,6 +8,7 @@ import com.github.terminatornl.laggoggles.util.Graphical;
 import com.github.terminatornl.laggoggles.util.RunInClientThread;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
