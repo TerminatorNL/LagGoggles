@@ -8,6 +8,7 @@ import static com.github.terminatornl.laggoggles.profiler.ProfileManager.timingM
 
 public class RenderManagerAdapter {
 
+	@SuppressWarnings("unused")
 	public static void redirectRenderEntity(RenderManager manager, Entity entityIn, double x, double y, double z, float yaw, float partialTicks, boolean b){
 		if(ProfileManager.PROFILER_ENABLED_UPDATE_SAFE){
 			long LAGGOGGLES_START = System.nanoTime();
@@ -16,9 +17,5 @@ public class RenderManagerAdapter {
 		}else {
 			manager.renderEntity(entityIn, x, y, z, yaw, partialTicks, b);
 		}
-	}
-
-	public static void nj(RenderManager manager, Entity entityIn, double x, double y, double z, float yaw, float partialTicks, boolean b){
-		redirectRenderEntity(manager, entityIn, x, y, z, yaw, partialTicks, b);
 	}
 }

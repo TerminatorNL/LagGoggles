@@ -73,7 +73,7 @@ public class ProfileManager {
             }
             MinecraftForge.EVENT_BUS.register(new Object(){
                 @SubscribeEvent
-                protected void onServerTick(TickEvent.ServerTickEvent e) {
+                protected void onServerTick(TickEvent e) {
                     synchronized (LOCK){
                         PROFILER_ENABLED_UPDATE_SAFE = true;
                         LOCK.notify();
