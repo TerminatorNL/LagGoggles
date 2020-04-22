@@ -1,22 +1,24 @@
 # LagGoggles <img height="70" src="docs/logo.png">
 Intuitive lag hunting!<br>
 <br>
+# Notice: For versions above 5.3 you need to have [TickCentral](https://www.curseforge.com/minecraft/mc-mods/tickcentral/) installed!
+TickCentral provides the functionality to be compatible with Mixin, and is intended to work across various Minecraft versions. I have decided to move away from Mixin because I noticed a lot of people having versioning issues with it. (One mod requiring version X, another shipping version Y, Change in behavior in version Z...)
+
 # I am currently working on a complete rewrite of this mod with added functionality.
 The planned _main_ functionality is listed below:
-* **Throttling block ticking based upon tps**, PER PLAYER. This means that every player gets an equal share of tick time on his/her machines. Needs performance testing to see if this is viable. TileEntities will be assigned owners when placed or claimed by a player.
+* ~~**Throttling block ticking based upon tps**, PER PLAYER. This means that every player gets an equal share of tick time on his/her machines. Needs performance testing to see if this is viable. TileEntities will be assigned owners when placed or claimed by a player.~~
+Done! This is part of [Tiquality](https://www.curseforge.com/minecraft/mc-mods/tiquality)
 * **Network profiling**, monitor in and outgoing bytes
 * **Browser interface instead of in-game**. Allows for multi monitor setups and much more space to fit content in a proper manner.
 
 If you have suggestions, I will take them into consideration.
 <br>
-<br>
-<br>
-LagGoggles is a profiler where you can see timings in the world, visually. It comes with a custom GUI using a configurable keybind. It's compatible with [SpongeForge](https://github.com/SpongePowered/SpongeForge) and [Mixin](https://github.com/SpongePowered/Mixin)!<br>
+LagGoggles is a profiler where you can see timings in the world, visually. It comes with a custom GUI using a configurable keybind. It's compatible with [SpongeForge](https://github.com/SpongePowered/SpongeForge) and [Mixin](https://github.com/SpongePowered/Mixin).<br>
 You can use LagGoggles as a player too! This is my attempt to create an understanding of what causes lag on a server to regular players.<br>
 I noticed some common misconceptions like having machines spread out over different chunks causes less lag than putting it in one chunk.<br>
 With LagGoggles, you can look around and see that alot of small things like pipes or cables cause a tiny bit of lag most of the time, often resulting in more lag than a machine right next to the source would.
 
-LagGoggles can also profile clientside FPS as of version 4.0!
+LagGoggles can also profile clientside FPS as of version 4.0! Note that this only works on rendering entities.
 
 ### Download: [here](https://minecraft.curseforge.com/projects/laggoggles/files)
 
@@ -42,7 +44,6 @@ Massive thanks to [Grok DuckFarmer](https://www.youtube.com/channel/UCoKMLbTK35p
 [![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/2ALrIvw1S4I/0.jpg)](http://www.youtube.com/watch?v=2ALrIvw1S4I)
 
 ## Features
-* Sponge compatible (Try the THIN version first!)
 * Teleporting to sources of lag
 * Client GUI, including overlay and clickable menus
 * Colour scale for easy spotting of sources of lag.
@@ -52,23 +53,25 @@ Massive thanks to [Grok DuckFarmer](https://www.youtube.com/channel/UCoKMLbTK35p
    * It's very young, but it should give some insight in what may cause FPS issues.
 * Config for client:
     * Custom gradients
-    * Colorblindess support
+    * Colorblindness support
 * Config for server
     * Custom permissions for players (non-operators)
 
 ## Configuration
 * Drop the jar in the /mods folder
+* Make sure you have [TickCentral](https://www.curseforge.com/minecraft/mc-mods/tickcentral/) installed. Try the latest version you can find first.
 * Serverside configuration is not required and has no effect.
 * Clients can edit the config to change the colour scale.
 
 ## How it works
-At startup [Mixin](https://github.com/SpongePowered/Mixin) handles each class being loaded. On the server side, this mod hooks into the loading mechanism. This is the same mechanism [SpongeForge](https://github.com/SpongePowered/SpongeForge) uses, that's why it's compatible.<br>
-<br>
-Entities, blocks and event-subscribers are timed using System.nanotime() before and after the tick() and update() methods. These times are being recorded and sent to the client when the profiler is done.
+Entities, blocks and event-subscribers are timed using System.nanotime() before and after the tick() and update() methods. These times are recorded and sent to the client when the profiler is done.
 
 ## Benefits
 * Visualisation of various sources of lag
 * Learn your players to build lag-free bases.
 
 ## Dependencies
-You can download the latest release here. The ONLY difference between THIN and FAT is that **FAT ships Mixin, which is a library that LagGoggles needs in order to function.** It's possible that another mod already ships Mixin or has another version. Generally speaking, LagGoggles can handle most Mixin releases well. A known mod to ship Mixin is SpongeForge. **If you have SpongeForge or another mod that requires a different version of Mixin, choose the THIN release**.
+[TickCentral](https://www.curseforge.com/minecraft/mc-mods/tickcentral/)
+
+## Incompatible
+Tiquality, (for now)

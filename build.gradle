@@ -11,7 +11,7 @@ buildscript {
         classpath "com.wynprice.cursemaven:CurseMaven:1.1.0"
     }
 }
-String LagGogglesVersion = "1.12.2-5.2"
+String LagGogglesVersion = "1.12.2-5.3"
 
 boolean installIntoServer = hasProperty("isServer")
 
