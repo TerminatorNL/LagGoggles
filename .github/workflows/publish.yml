@@ -31,6 +31,9 @@ jobs:
         repository: TerminatorNL/TickCentral
         path: LagGoggles/TickCentral
 
+    - name: Verify gradle wrapper
+      uses: gradle/wrapper-validation-action@v1
+
     - name: Make gradlew executable (TC)
       run: chmod +x ./gradlew
       working-directory: /home/runner/work/LagGoggles/LagGoggles/TickCentral
@@ -38,9 +41,6 @@ jobs:
     - name: Building TC
       run: ./gradlew setupCiWorkspace build publishToMavenLocal --console=plain
       working-directory: /home/runner/work/LagGoggles/LagGoggles/TickCentral
-
-    - name: Verify gradle wrapper
-      uses: gradle/wrapper-validation-action@v1
 
     - name: Make gradlew executable
       run: chmod +x ./gradlew
