@@ -18,6 +18,7 @@ public class Initializer implements com.github.terminatornl.tickcentral.api.Tran
 	public void onLoad(LaunchClassLoader loader) {
 		loader.addTransformerExclusion("com.github.terminatornl.laggoggles.tickcentral.EventBusTransformer");
 		loader.addTransformerExclusion("com.github.terminatornl.laggoggles.tickcentral.RenderManagerTransformer");
+		loader.addTransformerExclusion("com.github.terminatornl.laggoggles.Main");
 	}
 
 	@Nonnull

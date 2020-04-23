@@ -2,7 +2,6 @@ package com.github.terminatornl.laggoggles;
 
 import com.github.terminatornl.laggoggles.client.ClientProxy;
 import com.github.terminatornl.laggoggles.profiler.ProfileManager;
-import com.github.terminatornl.tickcentral.TickCentral;
 import com.github.terminatornl.tickcentral.api.TickHub;
 import com.github.terminatornl.tickcentral.api.TickInterceptor;
 import net.minecraft.block.Block;
@@ -32,7 +31,7 @@ public class Main implements TickInterceptor {
     public static final String MODID = "LagGoggles";
     public static final String MODID_LOWER = "laggoggles";
     public static final String VERSION = "${version}";
-    public static Logger LOGGER = LogManager.getLogger(MODID);
+    public static final Logger LOGGER = LogManager.getLogger(MODID);
 
     @SidedProxy(
             modId = Main.MODID_LOWER,
