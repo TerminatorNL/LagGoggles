@@ -5,3 +5,10 @@
 !/run_server/server.properties
 /run_client/*
 /run_server_obf/*
+
+# idea
+out
+*.ipr
+*.iws
+*.iml
+.idea
