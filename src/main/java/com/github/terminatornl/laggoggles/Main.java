@@ -19,6 +19,7 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Random;
@@ -31,7 +32,7 @@ public class Main implements TickInterceptor {
     public static final String MODID = "LagGoggles";
     public static final String MODID_LOWER = "laggoggles";
     public static final String VERSION = "${version}";
-    public static Logger LOGGER;
+    public static Logger LOGGER = LogManager.getLogger(MODID);
 
     @SidedProxy(
             modId = Main.MODID_LOWER,
@@ -42,7 +43,6 @@ public class Main implements TickInterceptor {
 
     @EventHandler
     public void preinit(FMLPreInitializationEvent e){
-        LOGGER = e.getModLog();
         proxy.preinit(e);
         Main.LOGGER.info("Registered sided proxy for: " + (proxy instanceof ClientProxy ? "Client" : "Dedicated server"));
     }
