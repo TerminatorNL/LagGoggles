@@ -83,6 +83,7 @@ public class RenderManagerTransformer implements IClassTransformer {
 			classNode.accept(writer);
 			return ClassDebugger.WriteClass(classNode, transformedName);
 		} catch (Throwable e) {
+			e.printStackTrace();
 			Main.LOGGER.fatal("Something went wrong!", e);
 			FMLCommonHandler.instance().exitJava(1, false);
 			throw new RuntimeException(e);

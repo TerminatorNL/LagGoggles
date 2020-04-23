@@ -3,6 +3,8 @@ package com.github.terminatornl.laggoggles.tickcentral;
 import com.github.terminatornl.laggoggles.Main;
 import net.minecraft.launchwrapper.IClassTransformer;
 import net.minecraft.launchwrapper.LaunchClassLoader;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.relauncher.Side;
 import org.apache.commons.lang3.StringUtils;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -14,8 +16,11 @@ import java.util.*;
 
 public class Initializer implements com.github.terminatornl.tickcentral.api.TransformerSupplier {
 
+	Side side;
+
 	@Override
-	public void onLoad(LaunchClassLoader loader) {
+	public void onLoad(LaunchClassLoader loader, Side side) {
+		this.side = side;
 		loader.addTransformerExclusion("com.github.terminatornl.laggoggles.tickcentral.EventBusTransformer");
 		loader.addTransformerExclusion("com.github.terminatornl.laggoggles.tickcentral.RenderManagerTransformer");
 		loader.addTransformerExclusion("com.github.terminatornl.laggoggles.Main");
@@ -26,7 +31,9 @@ public class Initializer implements com.github.terminatornl.tickcentral.api.Tran
 	public Collection<Class<? extends IClassTransformer>> getLastTransformers() {
 		ArrayList<Class<? extends IClassTransformer>> list = new ArrayList<>();
 		list.add(EventBusTransformer.class);
-		list.add(RenderManagerTransformer.class);
+		if(side.isClient()){
+			list.add(RenderManagerTransformer.class);
+		}
 		return list;
 	}
 
@@ -35,7 +42,9 @@ public class Initializer implements com.github.terminatornl.tickcentral.api.Tran
 	public Collection<String> getTransformers() {
 		ArrayList<String> list = new ArrayList<>();
 		list.add(EventBusTransformer.class.getName());
-		list.add(RenderManagerTransformer.class.getName());
+		if(side.isClient()){
+			list.add(RenderManagerTransformer.class.getName());
+		}
 		return list;
 	}
 
