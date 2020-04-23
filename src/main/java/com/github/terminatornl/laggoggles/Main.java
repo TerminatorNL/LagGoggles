@@ -26,7 +26,7 @@ import java.util.Random;
 
 import static com.github.terminatornl.laggoggles.profiler.ProfileManager.timingManager;
 
-@Mod(modid = Main.MODID_LOWER, name = Main.MODID, version = Main.VERSION, acceptableRemoteVersions = "*", guiFactory = "com.github.terminatornl.laggoggles.client.gui.GuiInGameConfigFactory", dependencies = "required:tickcentral@[2.0,);")
+@Mod(modid = Main.MODID_LOWER, name = Main.MODID, version = Main.VERSION, acceptableRemoteVersions = "*", guiFactory = "com.github.terminatornl.laggoggles.client.gui.GuiInGameConfigFactory", dependencies = "required:tickcentral@[2.2,);")
 @IFMLLoadingPlugin.SortingIndex(1001)
 public class Main implements TickInterceptor {
     public static final String MODID = "LagGoggles";
