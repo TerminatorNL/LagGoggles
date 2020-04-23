@@ -30,7 +30,7 @@ public class RenderManagerTransformer implements IClassTransformer {
 		}
 		try {
 			if (NORMAL_RENDER_TICK_NAME == null) {
-				NORMAL_RENDER_TICK_NAME = ClassSniffer.performOnSource("net.minecraft.client.renderer.entity.RenderManager", k -> {
+				NORMAL_RENDER_TICK_NAME = ClassSniffer.performOnSource("net/minecraft/client/renderer/entity/RenderManager", k -> {
 					ClassNode classNode = new ClassNode();
 					k.accept(classNode, 0);
 
