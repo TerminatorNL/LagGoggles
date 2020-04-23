@@ -1,16 +1,16 @@
 package com.github.terminatornl.laggoggles.tickcentral;
 
+import com.github.terminatornl.laggoggles.Main;
 import net.minecraft.launchwrapper.IClassTransformer;
 import net.minecraft.launchwrapper.LaunchClassLoader;
+import org.apache.commons.lang3.StringUtils;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.MethodInsnNode;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
+import java.util.*;
 
 public class Initializer implements com.github.terminatornl.tickcentral.api.TransformerSupplier {
 
@@ -18,6 +18,7 @@ public class Initializer implements com.github.terminatornl.tickcentral.api.Tran
 	public void onLoad(LaunchClassLoader loader) {
 		loader.addTransformerExclusion("com.github.terminatornl.laggoggles.tickcentral.EventBusTransformer");
 		loader.addTransformerExclusion("com.github.terminatornl.laggoggles.tickcentral.RenderManagerTransformer");
+		loader.addTransformerExclusion("com.github.terminatornl.laggoggles.Main");
 	}
 
 	@Nonnull
@@ -63,6 +64,8 @@ public class Initializer implements com.github.terminatornl.tickcentral.api.Tran
 
 	public static void renameTargetInstruction(String targetName, String newName, InsnList instructions) {
 		Iterator<AbstractInsnNode> iterator = instructions.iterator();
+		int count = 0;
+		List<String> checked = new LinkedList<>();
 		while (iterator.hasNext()) {
 			AbstractInsnNode node = iterator.next();
 			switch (node.getOpcode()) {
@@ -73,9 +76,15 @@ public class Initializer implements com.github.terminatornl.tickcentral.api.Tran
 					MethodInsnNode methodNode = (MethodInsnNode) node;
 					if (methodNode.name.equals(targetName)) {
 						methodNode.name = newName;
+						count++;
+					}else{
+						checked.add(methodNode.name + methodNode.desc);
 					}
 					break;
 			}
+		}
+		if(count == 0){
+			throw new IllegalStateException("Did not find target method: " + targetName + ". Checked: " + StringUtils.join(checked, System.lineSeparator()));
 		}
 	}
 }

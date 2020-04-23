@@ -28,13 +28,6 @@ public class RenderManagerTransformer implements IClassTransformer {
 		if (basicClass == null) {
 			return basicClass;
 		}
-		if(transformedName.equals("net.minecraft.client.renderer.entity.RenderManager") == false && transformedName.equals("com.github.terminatornl.laggoggles.tickcentral.RenderManagerAdapter") == false){
-			return basicClass;
-		}
-
-
-		ClassReader reader = new ClassReader(basicClass);
-
 		try {
 			if (NORMAL_RENDER_TICK_NAME == null) {
 				NORMAL_RENDER_TICK_NAME = ClassSniffer.performOnSource("net.minecraft.client.renderer.entity.RenderManager", k -> {
@@ -43,47 +36,49 @@ public class RenderManagerTransformer implements IClassTransformer {
 
 					for (MethodNode method : classNode.methods) {
 						if (method.desc.endsWith(";DDDFFZ)V")) {
-							return method.name;
+							return FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(classNode.name, method.name, method.desc);
 						}
 					}
 					throw new IllegalStateException("Did not found the render method in RenderManager!");
 				});
+				Main.LOGGER.info("Found render tick with name: " + NORMAL_RENDER_TICK_NAME);
 			}
+			ClassReader reader = new ClassReader(basicClass);
 			ClassNode classNode = new ClassNode();
 			reader.accept(classNode, 0);
-			if (ClassSniffer.isInstanceOf(reader, FMLDeobfuscatingRemapper.INSTANCE.unmap("net.minecraft.client.renderer.entity.RenderManager").replace(".","/"))) {
-				if (transformedName.equals("net.minecraft.client.renderer.entity.RenderManager")) {
-					MethodNode newNode = null;
-					for (MethodNode method : classNode.methods) {
-						if (method.desc.endsWith(";DDDFFZ)V")) {
-							String targetDesc = "(L" + classNode.name + ";" + method.desc.substring(1);
-							newNode = CopyMethodAppearance(method);
-							newNode.instructions = new InsnList();
-							newNode.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
-							newNode.instructions.add(new VarInsnNode(Opcodes.ALOAD, 1));
-							newNode.instructions.add(new VarInsnNode(Opcodes.DLOAD, 2));
-							newNode.instructions.add(new VarInsnNode(Opcodes.DLOAD, 4));
-							newNode.instructions.add(new VarInsnNode(Opcodes.DLOAD, 6));
-							newNode.instructions.add(new VarInsnNode(Opcodes.FLOAD, 8));
-							newNode.instructions.add(new VarInsnNode(Opcodes.FLOAD, 9));
-							newNode.instructions.add(new VarInsnNode(Opcodes.ILOAD, 10));
-							newNode.instructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/github/terminatornl/laggoggles/tickcentral/RenderManagerAdapter", "redirectRenderEntity", targetDesc, false));
-							newNode.instructions.add(new InsnNode(Opcodes.RETURN));
-							method.name = TRUE_RENDER_TICK;
-						}
+
+			if (transformedName.equals("net.minecraft.client.renderer.entity.RenderManager")) {
+				MethodNode newNode = null;
+				for (MethodNode method : classNode.methods) {
+					if (method.desc.endsWith(";DDDFFZ)V")) {
+						String targetDesc = "(L" + classNode.name + ";" + method.desc.substring(1);
+						newNode = CopyMethodAppearance(method);
+						newNode.instructions = new InsnList();
+						newNode.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
+						newNode.instructions.add(new VarInsnNode(Opcodes.ALOAD, 1));
+						newNode.instructions.add(new VarInsnNode(Opcodes.DLOAD, 2));
+						newNode.instructions.add(new VarInsnNode(Opcodes.DLOAD, 4));
+						newNode.instructions.add(new VarInsnNode(Opcodes.DLOAD, 6));
+						newNode.instructions.add(new VarInsnNode(Opcodes.FLOAD, 8));
+						newNode.instructions.add(new VarInsnNode(Opcodes.FLOAD, 9));
+						newNode.instructions.add(new VarInsnNode(Opcodes.ILOAD, 10));
+						newNode.instructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/github/terminatornl/laggoggles/tickcentral/RenderManagerAdapter", "redirectRenderEntity", targetDesc, false));
+						newNode.instructions.add(new InsnNode(Opcodes.RETURN));
+						method.name = TRUE_RENDER_TICK;
 					}
-					classNode.methods.add(newNode);
 				}
-			}else{
+				classNode.methods.add(newNode);
+
+			} else if (transformedName.equals("com.github.terminatornl.laggoggles.tickcentral.RenderManagerAdapter")) {
 				//com.github.terminatornl.laggoggles.tickcentral.RenderManagerAdapter
 				for (MethodNode method : classNode.methods) {
 					if(method.name.equals("redirectRenderEntity")){
 						Initializer.renameTargetInstruction(NORMAL_RENDER_TICK_NAME, TRUE_RENDER_TICK, method.instructions);
 					}
 				}
+			} else {
+				return basicClass;
 			}
-
-
 			ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 			classNode.accept(writer);
 			return ClassDebugger.WriteClass(classNode, transformedName);
@@ -97,10 +92,11 @@ public class RenderManagerTransformer implements IClassTransformer {
 
 	/**
 	 * Copies the method in a way that Java will see this method as identical, but without the body.
+	 *
 	 * @param node the methodnode
 	 * @return a shiny new imitator
 	 */
-	public static MethodNode CopyMethodAppearance(MethodNode node){
+	public static MethodNode CopyMethodAppearance(MethodNode node) {
 		MethodNode newNode = new MethodNode();
 		newNode.access = node.access;
 		newNode.name = node.name;
@@ -113,7 +109,7 @@ public class RenderManagerTransformer implements IClassTransformer {
 	}
 
 	@Nonnull
-	public static List<ParameterNode> CopyParameterNodes(@Nonnull List<ParameterNode> nodes){
+	public static List<ParameterNode> CopyParameterNodes(@Nonnull List<ParameterNode> nodes) {
 		List<ParameterNode> list = new LinkedList<>();
 		for (ParameterNode node : nodes) {
 			list.add(CopyParameterNode(node));
@@ -121,7 +117,7 @@ public class RenderManagerTransformer implements IClassTransformer {
 		return list;
 	}
 
-	public static ParameterNode CopyParameterNode(ParameterNode node){
+	public static ParameterNode CopyParameterNode(ParameterNode node) {
 		return new ParameterNode(node.name, node.access);
 	}
 }

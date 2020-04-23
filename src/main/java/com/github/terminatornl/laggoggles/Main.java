@@ -2,7 +2,6 @@ package com.github.terminatornl.laggoggles;
 
 import com.github.terminatornl.laggoggles.client.ClientProxy;
 import com.github.terminatornl.laggoggles.profiler.ProfileManager;
-import com.github.terminatornl.tickcentral.TickCentral;
 import com.github.terminatornl.tickcentral.api.TickHub;
 import com.github.terminatornl.tickcentral.api.TickInterceptor;
 import net.minecraft.block.Block;
@@ -19,19 +18,20 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Random;
 
 import static com.github.terminatornl.laggoggles.profiler.ProfileManager.timingManager;
 
-@Mod(modid = Main.MODID_LOWER, name = Main.MODID, version = Main.VERSION, acceptableRemoteVersions = "*", guiFactory = "com.github.terminatornl.laggoggles.client.gui.GuiInGameConfigFactory", dependencies = "required:tickcentral@[2.0,);")
+@Mod(modid = Main.MODID_LOWER, name = Main.MODID, version = Main.VERSION, acceptableRemoteVersions = "*", guiFactory = "com.github.terminatornl.laggoggles.client.gui.GuiInGameConfigFactory", dependencies = "required:tickcentral@[2.2,);")
 @IFMLLoadingPlugin.SortingIndex(1001)
 public class Main implements TickInterceptor {
     public static final String MODID = "LagGoggles";
     public static final String MODID_LOWER = "laggoggles";
     public static final String VERSION = "${version}";
-    public static Logger LOGGER;
+    public static final Logger LOGGER = LogManager.getLogger(MODID);
 
     @SidedProxy(
             modId = Main.MODID_LOWER,
@@ -42,7 +42,6 @@ public class Main implements TickInterceptor {
 
     @EventHandler
     public void preinit(FMLPreInitializationEvent e){
-        LOGGER = e.getModLog();
         proxy.preinit(e);
         Main.LOGGER.info("Registered sided proxy for: " + (proxy instanceof ClientProxy ? "Client" : "Dedicated server"));
     }
