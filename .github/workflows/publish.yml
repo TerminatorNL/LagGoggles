@@ -31,6 +31,9 @@ jobs:
         repository: TerminatorNL/TickCentral
         path: LagGoggles/TickCentral
 
+    - name: Verify gradle wrapper
+      uses: gradle/wrapper-validation-action@v1
+
     - name: Make gradlew executable (TC)
       run: chmod +x ./gradlew
       working-directory: /home/runner/work/LagGoggles/LagGoggles/TickCentral
@@ -38,9 +41,6 @@ jobs:
     - name: Building TC
       run: ./gradlew setupCiWorkspace build publishToMavenLocal --console=plain
       working-directory: /home/runner/work/LagGoggles/LagGoggles/TickCentral
-
-    - name: Verify gradle wrapper
-      uses: gradle/wrapper-validation-action@v1
 
     - name: Make gradlew executable
       run: chmod +x ./gradlew
@@ -50,10 +50,10 @@ jobs:
       with:
         arguments: setupDecompWorkspace
 
-    - name: Build FAT jar
+    - name: Build jar
       uses: eskatos/gradle-command-action@v1
       with:
-        arguments: build -PisFat
+        arguments: build
 
     - name: Read current version
       uses: pCYSl5EDgo/cat@master
@@ -61,32 +61,15 @@ jobs:
       with:
         path: ./build/last_version.txt
 
-    - name: Get FAT jar path
+    - name: Get jar path
       uses: pCYSl5EDgo/cat@master
-      id: read_fat_path
+      id: read_path
       with:
         path: ./build/last_file_path.txt
 
-    - name: Get FAT jar name
+    - name: Get jar name
       uses: pCYSl5EDgo/cat@master
-      id: read_fat_name
-      with:
-        path: ./build/last_file_name.txt
-
-    - name: Build THIN jar
-      uses: eskatos/gradle-command-action@v1
-      with:
-        arguments: build
-
-    - name: Get THIN jar path
-      uses: pCYSl5EDgo/cat@master
-      id: read_thin_path
-      with:
-        path: ./build/last_file_path.txt
-
-    - name: Get THIN jar name
-      uses: pCYSl5EDgo/cat@master
-      id: read_thin_name
+      id: read_name
       with:
         path: ./build/last_file_name.txt
 
@@ -101,24 +84,13 @@ jobs:
         draft: false
         prerelease: true
 
-    - name: Attach FAT to release
-      id: upload-fat
+    - name: Attach to release
+      id: upload-jar
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ${{ steps.read_fat_path.outputs.text }}
-        asset_name: ${{ steps.read_fat_name.outputs.text }}
-        asset_content_type: application/zip
-
-    - name: Attach THIN to release
-      id: upload-thin
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ${{ steps.read_thin_path.outputs.text }}
-        asset_name: ${{ steps.read_thin_name.outputs.text }}
+        asset_path: ${{ steps.read_path.outputs.text }}
+        asset_name: ${{ steps.read_name.outputs.text }}
         asset_content_type: application/zip
