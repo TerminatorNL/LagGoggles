@@ -41,7 +41,7 @@ public class EventBusTransformer implements IClassTransformer {
 		reader.accept(classNode, 0);
 
 		for (MethodNode method : classNode.methods) {
-			if (method.name.equals("post") && method.desc.equals("(Lnet/minecraftforge/fml/common/eventhandler/Event;)Z")) {
+			//if (method.desc.equals("(Lnet/minecraftforge/fml/common/eventhandler/Event;)Z")) {
 				Initializer.convertTargetInstruction(
 						"net/minecraftforge/fml/common/eventhandler/IEventListener",
 						"invoke",
@@ -51,7 +51,7 @@ public class EventBusTransformer implements IClassTransformer {
 						"(Lnet/minecraftforge/fml/common/eventhandler/IEventListener;Lnet/minecraftforge/fml/common/eventhandler/Event;)V",
 						Opcodes.INVOKESTATIC,
 						method.instructions);
-			}
+			//}
 		}
 
 		try {
