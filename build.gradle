@@ -11,7 +11,7 @@ buildscript {
         classpath "com.wynprice.cursemaven:CurseMaven:1.1.0"
     }
 }
-String LagGogglesVersion = "1.12.2-5.7"
+String LagGogglesVersion = "1.12.2-5.8"
 
 boolean installIntoServer = hasProperty("isServer")
 
@@ -80,7 +80,7 @@ repositories {
 }
 
 dependencies {
-    compile "com.github.terminatornl.tickcentral:TickCentral:2.4-testing-dev" // resolved in mavenLocal, run publishToMavenLocal on TickCentral
+    compile "com.github.terminatornl.tickcentral:TickCentral:2.6-testing-dev" // resolved in mavenLocal, run publishToMavenLocal on TickCentral
 }
 
 processResources {

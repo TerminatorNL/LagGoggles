@@ -1,6 +1,8 @@
 package com.github.terminatornl.laggoggles.tickcentral;
 
 import com.github.terminatornl.laggoggles.profiler.ProfileManager;
+import com.github.terminatornl.tickcentral.api.ClassDebugger;
+import com.github.terminatornl.tickcentral.api.ClassSniffer;
 import net.minecraft.launchwrapper.IClassTransformer;
 import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.eventhandler.ASMEventHandler;
@@ -52,9 +54,11 @@ public class EventBusTransformer implements IClassTransformer {
 			}
 		}
 
-		ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-		classNode.accept(writer);
-		return writer.toByteArray();
+		try {
+			return ClassDebugger.WriteClass(classNode, transformedName);
+		} catch (Throwable throwable) {
+			throw new RuntimeException(throwable);
+		}
 	}
 
 	@SuppressWarnings("unused")
