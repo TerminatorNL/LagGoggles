@@ -1,7 +1,7 @@
 # This workflow will build a Java project with Gradle
 # For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-gradle
 
-name: Build and publish
+name: Build
 
 on:
   push:
@@ -25,22 +25,8 @@ jobs:
         fetch-depth: 0
         path: /home/runner/work/LagGoggles/LagGoggles
 
-    - name: Checkout TickCentral
-      uses: actions/checkout@v2
-      with:
-        repository: TerminatorNL/TickCentral
-        path: LagGoggles/TickCentral
-
     - name: Verify gradle wrapper
       uses: gradle/wrapper-validation-action@v1
-
-    - name: Make gradlew executable (TC)
-      run: chmod +x ./gradlew
-      working-directory: /home/runner/work/LagGoggles/LagGoggles/TickCentral
-
-    - name: Building TC
-      run: ./gradlew setupCiWorkspace build publishToMavenLocal --console=plain
-      working-directory: /home/runner/work/LagGoggles/LagGoggles/TickCentral
 
     - name: Make gradlew executable
       run: chmod +x ./gradlew
@@ -54,43 +40,3 @@ jobs:
       uses: eskatos/gradle-command-action@v1
       with:
         arguments: build
-
-    - name: Read current version
-      uses: pCYSl5EDgo/cat@master
-      id: read_version_data
-      with:
-        path: ./build/last_version.txt
-
-    - name: Get jar path
-      uses: pCYSl5EDgo/cat@master
-      id: read_path
-      with:
-        path: ./build/last_file_path.txt
-
-    - name: Get jar name
-      uses: pCYSl5EDgo/cat@master
-      id: read_name
-      with:
-        path: ./build/last_file_name.txt
-
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ steps.read_version_data.outputs.text }}
-        release_name: ${{ steps.read_version_data.outputs.text }}
-        draft: false
-        prerelease: true
-
-    - name: Attach to release
-      id: upload-jar
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ${{ steps.read_path.outputs.text }}
-        asset_name: ${{ steps.read_name.outputs.text }}
-        asset_content_type: application/zip
