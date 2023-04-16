@@ -177,7 +177,7 @@ public class ProfileResult {
         player.sendMessage(new TextComponentString(TextFormatting.GRAY + "LagGoggles" + TextFormatting.WHITE + ": Generating the results for you..."));
         long time = System.currentTimeMillis();
         double dataSize = data.size();
-        while(data.size() > 0) {
+        for (int startIndex = 0; startIndex < data.size(); ) {
             SPacketScanResult packet = new SPacketScanResult();
             packet.endTime = this.endTime;
             packet.startTime = this.startTime;
@@ -188,9 +188,10 @@ public class ProfileResult {
             packet.totalFrames = this.totalFrames;
             packet.hasMore = true;
 
-            ArrayList<ObjectData> sub = new ArrayList<>(data.subList(0,Math.min(50,data.size())));
-            data.removeAll(sub);
-            packet.DATA.addAll(sub);
+            int packetSize = Math.min(50, data.size() - startIndex);
+            packet.DATA.addAll(data.subList(startIndex, startIndex + packetSize));
+            startIndex += packetSize;
+
             list.add(packet);
             if(time + 5000 < System.currentTimeMillis()){
                 time = System.currentTimeMillis();
