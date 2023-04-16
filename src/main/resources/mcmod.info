@@ -3,13 +3,13 @@
       "modid": "laggoggles",
       "name": "LagGoggles",
       "description": "Find lag on the server with ease.",
-      "version": "${version}",
-      "mcversion": "${mcversion}",
+      "version": "@version",
+      "mcversion": "@mcversion",
       "url": "https://minecraft.curseforge.com/projects/laggoggles",
       "updateUrl": "",
       "authorList": ["Terminator_NL"],
       "credits": "",
-      "logoFile": "/cf/terminator/laggoggles/client/gui/logo.png",
+      "logoFile": "https://raw.githubusercontent.com/TerminatorNL/LagGoggles/master/docs/logo.png",
       "screenshots": [],
       "dependencies": []
     }

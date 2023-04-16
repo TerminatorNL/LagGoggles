@@ -27,6 +27,7 @@ ext.GetCommitCount = { ->
     return stdout.toString().trim()
 }
 
+
 version = LagGogglesVersion + "-" + GetCommitCount.call()
 group= "com.github.terminatornl.laggoggles" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "LagGoggles"
@@ -34,9 +35,6 @@ archivesBaseName = "LagGoggles"
 sourceCompatibility = targetCompatibility = "1.8" // Need this here so eclipse task generates correctly.
 compileJava {
     sourceCompatibility = targetCompatibility = "1.8"
-    options.fork = true
-    options.forkOptions.executable = 'javac'
-    options.compilerArgs << "-XDignore.symbol.file"
 }
 
 minecraft {
@@ -53,9 +51,14 @@ minecraft {
             property 'forge.logging.console.level', 'debug'
         }
     }
+}
 
-//    replaceIn "Main.java"
-   // replace '${version}', project.version
+processResources {
+    def minecraft_version = (minecraft.getMappingVersion() =~ /[\d.]+$/)[0]
+    from(sourceSets.main.resources.srcDirs) {
+        include 'mcmod.info'
+        filter { line -> line.replaceAll('@version',project.version).replaceAll('@mcversion',minecraft_version) }
+    }
 }
 
 configurations {
@@ -72,9 +75,9 @@ jar {
         attributes([
                 "Specification-Title": project.name,
                 "Specification-Vendor": "Terminator_NL",
-                "Specification-Version": "1",
+                "Specification-Version": project.version,
                 "Implementation-Title": project.name,
-                "Implementation-Version": "${version}",
+                "Implementation-Version": project.version,
                 "Implementation-Vendor" :"Terminator_NL",
                 "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
         ])
